@@ -13,6 +13,11 @@ linters:
     - nakedret
     - gocritic
   settings:
+    errcheck:
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
     funlen:
       lines: 60
       statements: 40
