@@ -1,7 +1,8 @@
 +++
 id = "Q-001"
 title = "Source format: custom DSL or an existing format?"
-status = "open"
+status = "answered"
+answered_by = "D-014"
 summary = "A custom DSL (best error messages, more work) or an existing format like TOML, YAML or a Nix expression (free parser)?"
 created = 2026-11-09
 related = ["Q-016", "D-007"]

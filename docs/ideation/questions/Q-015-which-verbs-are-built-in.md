@@ -1,7 +1,8 @@
 +++
 id = "Q-015"
 title = "Which relation verbs are built in?"
-status = "open"
+status = "answered"
+answered_by = "D-014"
 summary = "Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to."
 created = 2026-11-09
 related = ["P-007", "I-002"]

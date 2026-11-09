@@ -1,7 +1,7 @@
 +++
 id = "D-014"
 title = "Language v1: a tree of typed nodes, with endpoints as objects"
-status = "proposed"
+status = "accepted"
 summary = "Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template."
 created = 2026-11-09
 answers = ["Q-001", "Q-015", "Q-016"]

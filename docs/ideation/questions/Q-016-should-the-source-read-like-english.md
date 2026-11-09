@@ -1,7 +1,8 @@
 +++
 id = "Q-016"
 title = "Should the source read like English?"
-status = "open"
+status = "answered"
+answered_by = "D-014"
 summary = "Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go?"
 created = 2026-11-09
 related = ["Q-001", "P-008", "A-008", "A-009"]

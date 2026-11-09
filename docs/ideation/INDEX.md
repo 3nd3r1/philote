@@ -6,11 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
+Nothing.
 
 ## Principles
 
@@ -29,11 +25,11 @@ Proposed but not yet accepted by a human.
 
 ## Questions
 
-5 answered, 11 open
+8 answered, 8 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
-| [Q-001](questions/Q-001-source-format.md) | open | Source format: custom DSL or an existing format? | A custom DSL (best error messages, more work) or an existing format like TOML, YAML or a Nix expression (free parser)? |
+| [Q-001](questions/Q-001-source-format.md) | answered | Source format: custom DSL or an existing format? | A custom DSL (best error messages, more work) or an existing format like TOML, YAML or a Nix expression (free parser)? |
 | [Q-002](questions/Q-002-how-strict-is-strict.md) | answered | How strict is strict? | Which fields may hold natural language, and how long can it be? |
 | [Q-003](questions/Q-003-visual-design.md) | open | Visual design: tokens only, or a pinned design node? | Is visual design only style tokens, or a design node that is generated once and pinned? |
 | [Q-004](questions/Q-004-scope-of-v1.md) | open | Scope of v1 | Front end only, or data layer and auth too? |
@@ -47,12 +43,12 @@ Proposed but not yet accepted by a human.
 | [Q-012](questions/Q-012-page-data-depends-on-component-reads.md) | open | What does a page load when its component reads relations? | PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface. |
 | [Q-013](questions/Q-013-where-does-data-come-from.md) | answered | Where does data come from? | The source declares entities but not where they're stored. For v1: a JSON seed file, SQLite, or a real database? |
 | [Q-014](questions/Q-014-model-backend-for-experiments.md) | answered | Model backend for experiments | Call the API with a key, or shell out to the local claude CLI (runs on the user's subscription)? |
-| [Q-015](questions/Q-015-which-verbs-are-built-in.md) | open | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
-| [Q-016](questions/Q-016-should-the-source-read-like-english.md) | open | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
+| [Q-015](questions/Q-015-which-verbs-are-built-in.md) | answered | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
+| [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 
 ## Decisions
 
-13 accepted, 1 proposed
+14 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -69,7 +65,7 @@ Proposed but not yet accepted by a human.
 | [D-011](decisions/D-011-focus-on-spec-to-code-first.md) | accepted | Focus on spec to code first | Build the CLI and tooling that turn a spec into code. Generating specs with AI comes later. Pages and components are not the focus; backends are. |
 | [D-012](decisions/D-012-write-the-compiler-in-go.md) | accepted | Write the compiler in Go | The real compiler is Go, standard library first. Templates use text/template and embed. |
 | [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
-| [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | proposed | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
+| [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | accepted | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
 
 ## Ideas
 
