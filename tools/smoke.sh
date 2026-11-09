@@ -1,10 +1,10 @@
 #!/bin/sh
-# Builds the shop test spec, installs and typechecks the generated backend,
+# Builds the horse Tinder test spec, installs and typechecks the generated backend,
 # runs it and checks real requests. Needs network for npm install.
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=${1:-$(mktemp -d)}
-go run "$root/cmd/philote" build --out "$out" "$root/cmd/philote/testdata/shop/shop.philote"
+go run "$root/cmd/philote" build --out "$out" "$root/cmd/philote/testdata/neighbr/neighbr.philote"
 cd "$out/api"
 npm install --silent
 npx tsc
@@ -26,19 +26,20 @@ req() {
 }
 field() { printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s)[process.argv[1]]))' "$1"; }
 
-req POST /customers 201 '{"email":"ada@example.com","name":"Ada"}'
-req POST /customers 400 '{"email":"ada@example.com","name":"Ada again"}'
-req POST /customers 400 '{"email":"not-an-email","name":"Bob","age":3}'
-req GET /customers 200
-req POST /products 201 '{"name":"Blue Mug","price_cents":1200,"stock":3}'
-mug=$(field id)
-[ "$(field slug)" = "blue-mug" ] || { echo "FAIL slug is $(field slug)"; fails=$((fails + 1)); }
-req POST /products 400 '{"name":"Free","price_cents":-1}'
-req PATCH "/products/$mug" 200 '{"stock":5}'
-req GET "/products/$mug" 200
-req GET /products/nope 404
-req POST /orders 404 '{}'
-req DELETE "/products/$mug" 204
-req GET "/products/$mug" 404
+req POST /horses 201 '{"name":"Sea Biscuit","breed":"mustang","age":7,"bio":"Fast. Loves apples."}'
+biscuit=$(field id)
+[ "$(field handle)" = "sea-biscuit" ] || { echo "FAIL handle is $(field handle)"; fails=$((fails + 1)); }
+req POST /horses 400 '{"name":"Sea Biscuit","breed":"arabian","age":9,"bio":"The other one."}'
+req POST /horses 400 '{"name":"Sparkle","breed":"unicorn","age":0,"bio":"Magic.","wings":2}'
+req POST /horses 201 '{"name":"Mister Ed","breed":"other","age":12,"bio":"Talks a lot."}'
+ed=$(field id)
+req POST /swipes 201 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"$ed\"}"
+req POST /swipes 400 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"nobody\"}"
+req GET /swipes 200
+req PATCH "/horses/$biscuit" 200 '{"age":8}'
+req GET /horses/nope 404
+req POST /matches 404 '{}'
+req DELETE "/horses/$ed" 204
+req GET "/horses/$ed" 404
 
 [ "$fails" = 0 ] && echo "smoke: all requests behaved" || { echo "smoke: $fails failed"; exit 1; }

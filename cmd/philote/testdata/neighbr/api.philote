@@ -1,0 +1,3 @@
+resource horses: Horse
+resource swipes: Swipe { only: list, create }
+resource matches: Match { only: list, get }

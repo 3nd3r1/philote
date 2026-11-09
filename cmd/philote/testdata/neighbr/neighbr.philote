@@ -1,0 +1,26 @@
+app neighbr {
+  backend api: hono
+}
+
+enum Breed { arabian, mustang, shetland, clydesdale, other }
+
+entity Horse {
+  name: string(max 60)
+  handle: slug from name
+  breed: Breed
+  age: int(min 1, max 40)
+  bio: string(max 280)
+}
+
+entity Swipe {
+  liked: bool
+}
+
+entity Match {
+  matched_at: datetime
+}
+
+Horse has many swipes: Swipe
+Swipe belongs to target: Horse (back swiped_by)
+Match belongs to first: Horse (back first_matches)
+Match belongs to second: Horse (back second_matches)

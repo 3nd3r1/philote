@@ -1,0 +1,18 @@
+neighbr
+  api (backend, hono)
+    horses: Horse
+      GET /horses
+      GET /horses/[id]
+      POST /horses
+      PATCH /horses/[id]
+      DELETE /horses/[id]
+    swipes: Swipe
+      GET /swipes
+      POST /swipes
+    matches: Match
+      GET /matches
+      GET /matches/[id]
+  data (3 entities)
+    Horse
+    Swipe
+    Match

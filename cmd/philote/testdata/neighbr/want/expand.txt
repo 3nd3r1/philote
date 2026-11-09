@@ -1,0 +1,52 @@
+endpoint horses.list {
+  route: GET "/horses"
+  output: [Horse]
+}
+
+endpoint horses.get {
+  route: GET "/horses/[id]"
+  output: Horse
+  errors: not_found
+}
+
+endpoint horses.create {
+  route: POST "/horses"
+  input: { name: string(max 60), breed: Breed, age: int(min 1, max 40), bio: string(max 280) }
+  output: Horse
+  errors: invalid_input
+}
+
+endpoint horses.update {
+  route: PATCH "/horses/[id]"
+  input: { name: string(max 60), breed: Breed, age: int(min 1, max 40), bio: string(max 280) } (all optional)
+  output: Horse
+  errors: not_found, invalid_input
+}
+
+endpoint horses.delete {
+  route: DELETE "/horses/[id]"
+  errors: not_found
+}
+
+endpoint swipes.list {
+  route: GET "/swipes"
+  output: [Swipe]
+}
+
+endpoint swipes.create {
+  route: POST "/swipes"
+  input: { liked: bool, horse_id: Horse.id, target_id: Horse.id }
+  output: Swipe
+  errors: invalid_input
+}
+
+endpoint matches.list {
+  route: GET "/matches"
+  output: [Match]
+}
+
+endpoint matches.get {
+  route: GET "/matches/[id]"
+  output: Match
+  errors: not_found
+}
