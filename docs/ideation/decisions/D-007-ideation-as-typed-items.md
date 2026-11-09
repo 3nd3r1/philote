@@ -9,7 +9,7 @@ related = ["P-001", "P-008", "I-008"]
 
 ## Decision
 
-Ideation lives in `ideation/` as one Markdown file per item. Kinds: principle, question, decision, idea, experiment, prior art. Each file starts with TOML frontmatter that has a fixed schema per kind. `tools/ideation.py check` validates it, and `INDEX.md` is generated from it.
+Ideation lives in `docs/ideation/` as one Markdown file per item. Kinds: principle, question, decision, idea, experiment, prior art. Each file starts with TOML frontmatter that has a fixed schema per kind. `tools/ideation.py check` validates it, and `INDEX.md` is generated from it.
 
 ## Why
 

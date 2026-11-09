@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the ideation items and generate ideation/INDEX.md.
+"""Validate the ideation items and generate docs/ideation/INDEX.md.
 
   python3 tools/ideation.py check             validate all items and that INDEX.md is current
   python3 tools/ideation.py index             regenerate INDEX.md
@@ -15,7 +15,7 @@ import sys
 import tomllib
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent / "ideation"
+ROOT = Path(__file__).resolve().parent.parent / "docs" / "ideation"
 INDEX = ROOT / "INDEX.md"
 TITLE_MAX, SUMMARY_MAX = 80, 200
 
@@ -73,7 +73,7 @@ class Item:
 
 
 def rel(path):
-    return path.relative_to(ROOT.parent)
+    return path.relative_to(ROOT.parent.parent)
 
 
 def load(errors):
@@ -82,7 +82,7 @@ def load(errors):
         if entry.name not in TOP_LEVEL:
             errors.append(f"{rel(entry)}: unexpected file; items go in one of {sorted(k['dir'] for k in KINDS.values())}")
     if not (ROOT / "thesis.md").is_file():
-        errors.append("ideation/thesis.md is missing")
+        errors.append("docs/ideation/thesis.md is missing")
     for kind, spec in KINDS.items():
         d = ROOT / spec["dir"]
         if not d.is_dir():
@@ -256,7 +256,7 @@ def run_checks():
 def cmd_check():
     items, errors = run_checks()
     if not errors and (not INDEX.exists() or INDEX.read_text() != render_index(items)):
-        errors.append("ideation/INDEX.md is stale; run: python3 tools/ideation.py index")
+        errors.append("docs/ideation/INDEX.md is stale; run: python3 tools/ideation.py index")
     for e in errors:
         print(e, file=sys.stderr)
     if errors:

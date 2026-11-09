@@ -1,12 +1,12 @@
 # philote
 
-A compiler: a strict spec goes in, a Next.js frontend and a Hono backend come out. Templates do as much as possible, a model fills only marked slots, and every output is pinned. Read `ideation/thesis.md` and `ideation/INDEX.md` first.
+A compiler: a strict spec goes in, a Next.js frontend and a Hono backend come out. Templates do as much as possible, a model fills only marked slots, and every output is pinned. Read `docs/ideation/thesis.md` and `docs/ideation/INDEX.md` first.
 
 ## Layout
 
 - `cmd/philote/`: CLI wiring only. Parse flags, call packages, print.
 - `internal/<pkg>/`: one job per package, stated in its `doc.go`.
-- `ideation/`: design notes. Format in the README.
+- `docs/ideation/`: design notes. Format in the README.
 - `prototypes/`: throwaway experiments. The code rules below don't apply there.
 - `tools/`: repo tooling.
 
@@ -48,6 +48,6 @@ Pipeline: `syntax` → `check` → `ir` → `lower` → `target` → `build`. On
 - Build only what an accepted decision or the current experiment needs.
 - Language and architecture changes start as an ideation item (`make new KIND=... TITLE="..."`).
 - Decisions and principles you write are `proposed`. Only the user accepts. When they do, set `accepted` and mark each question in `answers` as answered with `answered_by`.
-- Don't delete ideation items: reject, retire, supersede or drop them, and say why. Run `make index` after editing. Never edit `INDEX.md` or `ideation/archive/`.
+- Don't delete ideation items: reject, retire, supersede or drop them, and say why. Run `make index` after editing. Never edit `INDEX.md` or `docs/ideation/archive/`.
 - Keep docs short. Don't add a doc when a rule, test or item would do.
 - Commits: `feat:`, `fix:`, `chore:`, `docs:`, `build:`, `test:`, optional scope. Short lowercase subject, no body, no co-authors or trailers. One logical change each.
