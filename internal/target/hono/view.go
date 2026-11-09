@@ -74,9 +74,16 @@ func inputsOf(part *ir.Part, r *ir.Resource) []*ir.Input {
 
 func rule(app *ir.App, in *ir.Input) string {
 	if in.Field == nil {
-		return fmt.Sprintf("{ kind: \"ref\", table: %q }", in.Ref)
+		return refRule(in.Ref)
 	}
-	f := in.Field
+	return fieldRule(app, in.Field)
+}
+
+func refRule(entity string) string {
+	return fmt.Sprintf("{ kind: \"ref\", table: %q }", entity)
+}
+
+func fieldRule(app *ir.App, f *ir.Field) string {
 	parts := []string{fmt.Sprintf("kind: %q", ruleKinds[f.Kind])}
 	if f.Min != nil {
 		parts = append(parts, "min: "+strconv.Itoa(*f.Min))
@@ -100,6 +107,12 @@ func list(items []string) string {
 		quoted[i] = strconv.Quote(s)
 	}
 	return "[" + strings.Join(quoted, ", ") + "]"
+}
+
+// camel turns record_swipe into recordSwipe.
+func camel(s string) string {
+	p := pascal(s)
+	return strings.ToLower(p[:1]) + p[1:]
 }
 
 // pascal turns order_lines into OrderLines.

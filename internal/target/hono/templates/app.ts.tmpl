@@ -3,10 +3,16 @@ import { Hono } from "hono";
 {{- range .Resources}}
 import { {{.Func}} } from "./resources/{{.File}}.js";
 {{- end}}
+{{- range .Endpoints}}
+import { {{.Func}} } from "./endpoints/{{.File}}.js";
+{{- end}}
 
 export const app = new Hono();
 
 app.notFound((c) => c.json({ error: "not_found" }, 404));
 {{range .Resources}}
+{{.Func}}(app);
+{{- end}}
+{{- range .Endpoints}}
 {{.Func}}(app);
 {{- end}}

@@ -33,11 +33,12 @@ func Generate(app *ir.App, targets []target.Target) ([]Output, error) {
 	}
 	var out []Output
 	for _, p := range app.Parts {
-		files, err := byName[p.Target].Generate(app, p)
+		gen, err := byName[p.Target].Generate(app, p)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", p.Name, err)
 		}
-		out = append(out, Output{Part: p.Name, Files: files})
+		// Slots aren't filled yet; the lockfile and model come next (D-015).
+		out = append(out, Output{Part: p.Name, Files: gen.Files})
 	}
 	return out, nil
 }
