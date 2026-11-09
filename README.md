@@ -1,4 +1,7 @@
-<img src="docs/assets/logo.png" alt="philote" width="380">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.png">
+  <img src="docs/assets/logo.png" alt="philote" width="380">
+</picture>
 
 Can we bring Nix-style determinism to AI-driven coding?
 
