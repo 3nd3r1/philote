@@ -1,0 +1,1 @@
+A small recipe site. Recipes have a title, a short description, ingredients, step-by-step instructions, cooking time in minutes and a category like Dinner or Dessert. The home page lists all recipes. Each recipe has its own page. Each category has a page listing its recipes. Visitors can search recipes by title.
