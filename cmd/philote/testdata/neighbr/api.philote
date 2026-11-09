@@ -1,3 +1,20 @@
 resource horses: Horse
 resource swipes: Swipe { only: list, create }
 resource matches: Match { only: list, get }
+
+endpoint swipe {
+  route: POST "/swipe"
+  input: { horse: Horse, target: Horse, liked: bool }
+  output: Swipe
+  errors: same_horse, already_swiped
+  steps: record_swipe, match_if_mutual
+}
+
+step record_swipe(horse: Horse, target: Horse, liked: bool) -> swipe: Swipe {
+  fails: same_horse, already_swiped
+  intent: "store the swipe; a horse can't swipe itself, or swipe the same horse twice"
+}
+
+step match_if_mutual(swipe: Swipe) {
+  intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
+}

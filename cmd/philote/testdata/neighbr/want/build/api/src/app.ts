@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { mountHorses } from "./resources/horses.js";
 import { mountSwipes } from "./resources/swipes.js";
 import { mountMatches } from "./resources/matches.js";
+import { routeSwipe } from "./endpoints/swipe.js";
 
 export const app = new Hono();
 
@@ -11,3 +12,4 @@ app.notFound((c) => c.json({ error: "not_found" }, 404));
 mountHorses(app);
 mountSwipes(app);
 mountMatches(app);
+routeSwipe(app);
