@@ -5,9 +5,9 @@
 
 Can we bring Nix-style determinism to AI-driven coding?
 
-When I build web apps and backends with AI, the idea it generates usually makes sense, but each run picks different technologies I have no context on, and the results vary. Philote tries to fix that. You write a strict spec of what the app does. The compiler turns it into a Next.js frontend and a Hono backend, mostly from templates, so the stack is always the same. A model fills only the gaps the templates mark, and its output is pinned in a lockfile the way Nix pins builds, so the same spec always gives the same code.
+Describe your app as an ontology: the things in it, how they relate, and what you can do with them. Philote compiles it to code, from fixed templates wherever it can. Anything AI writes is pinned in a lockfile, so the same ontology always builds the same code.
 
-Status: early. The CLI builds a Hono backend from data and resources. The Next.js frontend and model-written steps come next.
+Status: early. It builds a Hono backend. AI-written steps and a Next.js frontend are next.
 
 ## Try it
 
@@ -38,7 +38,5 @@ philote expand shop.philote api        # what each resource becomes, as spec
 philote build shop.philote             # writes a runnable server to build/api
 cd build/api && npm install && npm start
 ```
-
-The same spec always builds the same files.
 
 To work on philote, see [CONTRIBUTING.md](CONTRIBUTING.md).
