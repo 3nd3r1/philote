@@ -6,11 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
+Nothing.
 
 ## Principles
 
@@ -29,7 +25,7 @@ Proposed but not yet accepted by a human.
 
 ## Questions
 
-8 answered, 8 open
+9 answered, 7 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -38,7 +34,7 @@ Proposed but not yet accepted by a human.
 | [Q-003](questions/Q-003-visual-design.md) | open | Visual design: tokens only, or a pinned design node? | Is visual design only style tokens, or a design node that is generated once and pinned? |
 | [Q-004](questions/Q-004-scope-of-v1.md) | open | Scope of v1 | Front end only, or data layer and auth too? |
 | [Q-005](questions/Q-005-node-granularity.md) | open | Node granularity | Is a build node a page, a component, or something smaller? |
-| [Q-006](questions/Q-006-regeneration-on-change.md) | open | Regeneration on change: fresh sample or minimal edit? | When a node's source changes, does the model start fresh, or edit the previous output? |
+| [Q-006](questions/Q-006-regeneration-on-change.md) | answered | Regeneration on change: fresh sample or minimal edit? | When a node's source changes, does the model start fresh, or edit the previous output? |
 | [Q-007](questions/Q-007-verification-depth.md) | open | Verification depth | Types and routes only, or end-to-end tests generated from the source? |
 | [Q-008](questions/Q-008-what-does-this-beat.md) | open | What does this beat Claude Code + a SPEC.md + git on? | The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code. |
 | [Q-009](questions/Q-009-compiler-language.md) | answered | Compiler language: Go or Rust? | Which language the compiler is written in. |
@@ -52,7 +48,7 @@ Proposed but not yet accepted by a human.
 
 ## Decisions
 
-14 accepted, 1 proposed
+15 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -70,7 +66,7 @@ Proposed but not yet accepted by a human.
 | [D-012](decisions/D-012-write-the-compiler-in-go.md) | accepted | Write the compiler in Go | The real compiler is Go, standard library first. Templates use text/template and embed. |
 | [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
 | [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | accepted | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
-| [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | proposed | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
+| [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | accepted | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
 
 ## Ideas
 

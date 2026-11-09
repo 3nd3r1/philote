@@ -1,7 +1,8 @@
 +++
 id = "Q-006"
 title = "Regeneration on change: fresh sample or minimal edit?"
-status = "open"
+status = "answered"
+answered_by = "D-015"
 summary = "When a node's source changes, does the model start fresh, or edit the previous output?"
 created = 2026-11-09
 related = ["I-007"]

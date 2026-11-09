@@ -1,7 +1,7 @@
 +++
 id = "D-015"
 title = "Steps: model-written bodies pinned in a readable lockfile"
-status = "proposed"
+status = "accepted"
 summary = "The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried."
 created = 2026-11-09
 answers = ["Q-006"]
