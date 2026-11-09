@@ -1,7 +1,7 @@
 +++
 id = "D-006"
 title = "Strict defaults from the prototype"
-status = "proposed"
+status = "accepted"
 summary = "List pages must say what shows when empty, lookup pages must handle not found, `id` is reserved, raw markdown can't be shown as text, UI copy is capped at 200 chars."
 created = 2026-11-09
 answers = ["Q-002"]

@@ -1,7 +1,7 @@
 +++
 id = "D-003"
 title = "Cache keys hash the canonical form, not the source text"
-status = "proposed"
+status = "accepted"
 summary = "Each node is printed in a canonical form before hashing, so whitespace, comments and formatting never trigger a rebuild."
 created = 2026-11-09
 related = ["P-003", "I-007"]

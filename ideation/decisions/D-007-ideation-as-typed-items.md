@@ -1,7 +1,7 @@
 +++
 id = "D-007"
 title = "Store ideation as typed, validated items with a generated index"
-status = "proposed"
+status = "accepted"
 summary = "One Markdown file per item with strict TOML frontmatter, typed links between items, a validator, and a generated INDEX.md that must stay current."
 created = 2026-11-09
 related = ["P-001", "P-008", "I-008"]

@@ -1,7 +1,7 @@
 +++
 id = "P-007"
 title = "Every word has a checkable meaning"
-status = "proposed"
+status = "accepted"
 summary = "A word in the source is a built-in term, a name you made up, or a note the compiler ignores. No words that only the model interprets."
 created = 2026-11-09
 related = ["P-001", "I-002", "Q-015"]

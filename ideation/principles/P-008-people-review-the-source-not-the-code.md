@@ -1,7 +1,7 @@
 +++
 id = "P-008"
 title = "People review the source, not the code"
-status = "proposed"
+status = "accepted"
 summary = "AI may write the source, but a person reviews every source change. The source must stay short and readable enough that this review is quick."
 created = 2026-11-09
 related = ["I-003", "I-004", "Q-008", "Q-016"]

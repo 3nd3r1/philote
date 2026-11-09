@@ -1,7 +1,7 @@
 +++
 id = "D-001"
 title = "The compiler owns every interface; the model only fills bodies"
-status = "proposed"
+status = "accepted"
 summary = "File paths, export names, prop signatures and imports are fixed by the compiler from the source. The model writes what goes inside."
 created = 2026-11-09
 related = ["P-005", "Q-005", "E-001"]
