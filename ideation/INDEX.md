@@ -48,7 +48,7 @@ Nothing.
 
 ## Decisions
 
-10 accepted
+11 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -62,10 +62,11 @@ Nothing.
 | [D-008](decisions/D-008-name-the-project-philote.md) | accepted | Name the project Philote | The project, the language and the CLI are called philote. Repo: github.com/3nd3r1/philote. |
 | [D-009](decisions/D-009-use-a-json-file-as-the-data-source.md) | accepted | Use a JSON file as the data source | Experiments read data from a JSON file. Data sources aren't what we're testing. |
 | [D-010](decisions/D-010-use-the-claude-cli-as-the-model-backend.md) | accepted | Use the claude CLI as the model backend for experiments | Experiments call `claude -p` behind one small function. Switch to the API once the idea holds up, or if the CLI is too slow or unpredictable. |
+| [D-011](decisions/D-011-focus-on-spec-to-code-first.md) | accepted | Focus on spec to code first | Build the CLI and tooling that turn a spec into code. Generating specs with AI comes later. Pages and components are not the focus; backends are. |
 
 ## Ideas
 
-4 exploring, 4 raw
+5 exploring, 4 raw
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -77,15 +78,16 @@ Nothing.
 | [I-006](ideas/I-006-native-blocks.md) | exploring | Native blocks as the escape hatch | When the language can't express something, write a handwritten file with a declared, typed interface, like inline assembly or extern in C. |
 | [I-007](ideas/I-007-pinned-replay.md) | exploring | Pinned replay: lockfile, content-addressed store, frozen builds | Each node's output is keyed by a hash of its inputs and kept in a store, like /nix/store. Normal builds regenerate dirty nodes only; frozen builds never call a model. |
 | [I-008](ideas/I-008-dogfood-ideation.md) | raw | Write the ideation itself in the language | The ideation format (D-007) is a small ontology: items, kinds, typed links, statuses. Once the language exists, it could describe its own ideation tool as a first non-blog target. |
+| [I-009](ideas/I-009-zoom-levels-a-tree-of-nodes-lowered-one.md) | exploring | Zoom levels: a tree of nodes, lowered one level at a time | The app is a tree: system, then frontend/backend, then resources, then endpoints, then steps. Stop at any level; what's below is generated, pinned, and viewable as spec. |
 
 ## Experiments
 
-2 running
+1 done, 1 running
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
 | [E-001](experiments/E-001-one-blog-one-week.md) | running | One week, one blog, five checks | Find out whether local regeneration and retargeting hold up before designing a full language. Step 1 is done; step 2 (codegen) is next. |
-| [E-002](experiments/E-002-authoring-loop.md) | running | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
+| [E-002](experiments/E-002-authoring-loop.md) | done | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
 
 ## Prior art
 

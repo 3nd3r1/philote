@@ -1,7 +1,7 @@
 +++
 id = "E-002"
 title = "Can a model write a clean, correct source from a prose brief?"
-status = "running"
+status = "done"
 summary = "Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review."
 created = 2026-11-09
 tests = ["I-003", "P-008", "Q-008"]
@@ -31,3 +31,7 @@ Rounds to clean, review time, wrong-but-valid mistakes per brief.
 - Silent guesses that passed the check: ingredients stored as one markdown field, recipes sorted by title, "published" read as `published <= now`. They're visible in the spec, which is the point, but the checker can't catch them.
 
 Next: the user reviews the three specs (step 4), then a harder run where the checker has to push back.
+
+## Result
+
+Valid on the first try for everything the language supports, with gaps reported honestly. Paused by D-011; the harder run waits.
