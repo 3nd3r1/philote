@@ -80,12 +80,12 @@ Nothing.
 
 ## Experiments
 
-1 planned, 1 running
+2 running
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
 | [E-001](experiments/E-001-one-blog-one-week.md) | running | One week, one blog, five checks | Find out whether local regeneration and retargeting hold up before designing a full language. Step 1 is done; step 2 (codegen) is next. |
-| [E-002](experiments/E-002-authoring-loop.md) | planned | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
+| [E-002](experiments/E-002-authoring-loop.md) | running | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
 
 ## Prior art
 
