@@ -45,13 +45,20 @@ type Entity struct {
 	Fields []*Field
 }
 
-// Field is `<name>: <type>(limits) [from <field>] [modifiers]`.
+// Field is `<name>: <type>(limits) [from <field>] [modifiers]`. Inputs and
+// step parameters use the same shape without from or modifiers.
 type Field struct {
 	Name   Ident
 	Type   Ident
 	Limits []Limit
 	From   *Ident
 	Mods   []Ident
+}
+
+// Str is a quoted string and where it was written.
+type Str struct {
+	Value string
+	Pos   diag.Pos
 }
 
 // Limit is one of `(min N, max N)`.
@@ -77,7 +84,31 @@ type Resource struct {
 	Only   []Ident
 }
 
+// Endpoint is a custom route whose behaviour is a list of steps:
+// `endpoint <name> { route: POST "/path"  input: { ... }  output: <Entity>  errors: a, b  steps: x, y }`.
+type Endpoint struct {
+	Name   Ident
+	Method *Ident
+	Path   *Str
+	Input  []*Field
+	Output *Ident
+	Errors []Ident
+	Steps  []Ident
+}
+
+// Step is `step <name>(<params>) [-> <name>: <Type>] { fails: a, b  intent: "..." }`.
+// Its body is written by a model.
+type Step struct {
+	Name   Ident
+	Params []*Field
+	Result *Field
+	Fails  []Ident
+	Intent *Str
+}
+
 func (a *App) Start() diag.Pos      { return a.Name.Pos }
+func (e *Endpoint) Start() diag.Pos { return e.Name.Pos }
+func (s *Step) Start() diag.Pos     { return s.Name.Pos }
 func (p *Part) Start() diag.Pos     { return p.Kind.Pos }
 func (e *Enum) Start() diag.Pos     { return e.Name.Pos }
 func (e *Entity) Start() diag.Pos   { return e.Name.Pos }

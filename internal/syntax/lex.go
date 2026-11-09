@@ -19,9 +19,11 @@ const (
 	tRParen
 	tColon
 	tComma
+	tString
+	tArrow
 )
 
-var tokNames = [...]string{"end of file", "end of line", "name", "number", "'{'", "'}'", "'('", "')'", "':'", "','"}
+var tokNames = [...]string{"end of file", "end of line", "name", "number", "'{'", "'}'", "'('", "')'", "':'", "','", "string", "'->'"}
 
 type token struct {
 	kind tokKind
@@ -30,8 +32,11 @@ type token struct {
 }
 
 func (t token) describe() string {
-	if t.kind == tIdent || t.kind == tInt {
+	switch t.kind {
+	case tIdent, tInt:
 		return fmt.Sprintf("'%s'", t.text)
+	case tString:
+		return fmt.Sprintf("%q", t.text)
 	}
 	return tokNames[t.kind]
 }
@@ -97,6 +102,12 @@ func (lx *lexer) step() {
 		lx.emit(tIdent, lx.take(func(c byte) bool { return isLetter(c) || isDigit(c) }), p)
 	case isDigit(c):
 		lx.emit(tInt, lx.take(isDigit), p)
+	case c == '"':
+		lx.str(p)
+	case c == '-' && lx.i+1 < len(lx.src) && lx.src[lx.i+1] == '>':
+		lx.emit(tArrow, "->", p)
+		lx.advance()
+		lx.advance()
 	default:
 		if k, ok := punct[c]; ok {
 			lx.emit(k, string(c), p)
@@ -105,4 +116,26 @@ func (lx *lexer) step() {
 		}
 		lx.advance()
 	}
+}
+
+// str lexes a one-line string with \" and \\ escapes.
+func (lx *lexer) str(p diag.Pos) {
+	lx.advance()
+	var buf []byte
+	for lx.i < len(lx.src) && lx.src[lx.i] != '\n' {
+		c := lx.src[lx.i]
+		lx.advance()
+		switch {
+		case c == '"':
+			lx.emit(tString, string(buf), p)
+			return
+		case c == '\\' && lx.i < len(lx.src) && (lx.src[lx.i] == '"' || lx.src[lx.i] == '\\'):
+			buf = append(buf, lx.src[lx.i])
+			lx.advance()
+		default:
+			buf = append(buf, c)
+		}
+	}
+	lx.d.Errorf(p, "this string is never closed")
+	lx.emit(tString, string(buf), p)
 }

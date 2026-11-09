@@ -145,7 +145,7 @@ func (p *parser) skipStatement() {
 	}
 }
 
-const statementHint = "statements are app, backend, frontend, enum, entity, resource, or a relation like `Order has many lines: OrderLine`"
+const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, or a relation like `Order has many lines: OrderLine`"
 
 func (p *parser) item() Item {
 	t := p.peek()
@@ -163,6 +163,10 @@ func (p *parser) item() Item {
 		return p.entity()
 	case "resource":
 		return p.resource()
+	case "endpoint":
+		return p.endpoint()
+	case "step":
+		return p.step()
 	}
 	if v := p.peekAt(1); v.kind == tIdent && (v.text == "has" || v.text == "belongs") {
 		return p.relation()
@@ -226,28 +230,25 @@ func (p *parser) entity() Item {
 		if p.peek().kind == tRBrace {
 			break
 		}
-		if f := p.fieldSafe(); f != nil {
-			e.Fields = append(e.Fields, f)
-		}
+		p.recoverLine(func() { e.Fields = append(e.Fields, p.field()) })
 	}
 	p.expect(tRBrace, "'}'")
 	p.endStatement()
 	return e
 }
 
-// fieldSafe parses one field, recovering to the next line on error so the
-// rest of the entity still gets checked.
-func (p *parser) fieldSafe() (f *Field) {
+// recoverLine runs fn, and on a parse error skips to the next line so the
+// rest of the block still gets parsed.
+func (p *parser) recoverLine(fn func()) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, ok := r.(bail); !ok {
 				panic(r)
 			}
 			p.skipStatement()
-			f = nil
 		}
 	}()
-	return p.field()
+	fn()
 }
 
 func (p *parser) field() *Field {
