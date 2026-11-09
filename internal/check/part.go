@@ -51,15 +51,38 @@ func (c *checker) part(p *syntax.Part) *ir.Part {
 		return nil
 	}
 	part := &ir.Part{Name: p.Name.Name, Kind: kind, Target: p.Target.Name}
+	var endpoints []*syntax.Endpoint
 	for _, it := range p.Body {
-		r, ok := it.(*syntax.Resource)
-		if !ok || kind != ir.Backend {
+		if kind != ir.Backend {
 			c.d.Errorf(it.Start(), "this can't go inside a %s", p.Kind.Name)
 			continue
 		}
-		c.resource(part, r)
+		switch x := it.(type) {
+		case *syntax.Resource:
+			c.resource(part, x)
+		case *syntax.Step:
+			c.step(part, x)
+		case *syntax.Endpoint:
+			endpoints = append(endpoints, x)
+		default:
+			c.d.Errorf(it.Start(), "this can't go inside a %s", p.Kind.Name)
+		}
 	}
+	// Endpoints refer to steps declared anywhere in the part.
+	for _, e := range endpoints {
+		c.endpoint(part, e)
+	}
+	c.unusedSteps(part)
 	return part
+}
+
+func (c *checker) unusedSteps(part *ir.Part) {
+	for _, s := range part.Steps {
+		used := slices.ContainsFunc(part.Custom, func(e *ir.Endpoint) bool { return slices.Contains(e.Flow.Steps, s) })
+		if !used {
+			c.d.Warnf(s.Pos, "step %s isn't used by any endpoint", s.Name)
+		}
+	}
 }
 
 // isURLName accepts lowercase names like order_lines: a letter, then letters, digits or '_'.

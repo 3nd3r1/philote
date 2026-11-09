@@ -1,5 +1,7 @@
 package ir
 
+import "github.com/3nd3r1/philote/internal/diag"
+
 // App is the root of the checked tree.
 type App struct {
 	Name     string
@@ -66,7 +68,9 @@ type Part struct {
 	Kind      PartKind
 	Target    string
 	Resources []*Resource
-	Endpoints []*Endpoint // filled by lower
+	Custom    []*Endpoint // endpoints declared with steps
+	Steps     []*Step
+	Endpoints []*Endpoint // every route: resources expanded by lower, then Custom
 }
 
 // Op is a standard operation on a resource.
@@ -103,6 +107,32 @@ type Endpoint struct {
 	Output   string   // entity name, empty when nothing is returned
 	List     bool     // output is a list
 	Errors   []string
+	Flow     *Flow // set for custom endpoints
+}
+
+// Flow is what a custom endpoint does: check its input, then run its steps
+// in order. Step parameters are bound by name to an input or an earlier result.
+type Flow struct {
+	Input []*Value
+	Steps []*Step
+}
+
+// Value is an input, step parameter or step result: a scalar, or a record
+// of an entity.
+type Value struct {
+	Name   string
+	Field  *Field // the scalar's type; nil for a record
+	Entity string // the record's entity
+}
+
+// Step is a function whose body a model writes.
+type Step struct {
+	Name   string
+	Pos    diag.Pos
+	Params []*Value
+	Result *Value // nil when the step returns nothing
+	Fails  []string
+	Intent string
 }
 
 // Input is one field of a request body: an entity field, or a foreign key
