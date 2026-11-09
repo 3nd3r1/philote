@@ -1,0 +1,6 @@
+#!/bin/sh
+# Runs the full check before every commit. Enable with: make setup
+if command -v golangci-lint >/dev/null; then
+  exec make check
+fi
+exec nix-shell --run "make check"

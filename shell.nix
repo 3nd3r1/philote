@@ -4,8 +4,10 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    python3
     go
+    golangci-lint
     gnumake
+    python3
+    nodejs
   ];
 }
