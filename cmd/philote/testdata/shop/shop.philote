@@ -1,0 +1,31 @@
+app shop {
+  backend api: hono
+}
+
+enum OrderStatus { pending, paid, shipped, cancelled }
+
+entity Product {
+  name: string(max 120)
+  slug: slug from name
+  price_cents: int(min 0)
+  stock: int(min 0)
+}
+
+entity Customer {
+  email: email unique
+  name: string(max 80)
+}
+
+entity Order {
+  status: OrderStatus
+  placed_at: datetime
+}
+
+entity OrderLine {
+  quantity: int(min 1)
+  price_cents: int(min 0)
+}
+
+Customer has many orders: Order
+Order has many lines: OrderLine
+OrderLine belongs to product: Product

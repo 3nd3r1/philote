@@ -1,0 +1,3 @@
+resource products: Product
+resource customers: Customer { only: list, get, create }
+resource orders: Order { only: list, get }

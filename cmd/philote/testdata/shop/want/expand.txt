@@ -1,0 +1,58 @@
+endpoint products.list {
+  route: GET "/products"
+  output: [Product]
+}
+
+endpoint products.get {
+  route: GET "/products/[id]"
+  output: Product
+  errors: not_found
+}
+
+endpoint products.create {
+  route: POST "/products"
+  input: { name: string(max 120), price_cents: int(min 0), stock: int(min 0) }
+  output: Product
+  errors: invalid_input
+}
+
+endpoint products.update {
+  route: PATCH "/products/[id]"
+  input: { name: string(max 120), price_cents: int(min 0), stock: int(min 0) } (all optional)
+  output: Product
+  errors: not_found, invalid_input
+}
+
+endpoint products.delete {
+  route: DELETE "/products/[id]"
+  errors: not_found
+}
+
+endpoint customers.list {
+  route: GET "/customers"
+  output: [Customer]
+}
+
+endpoint customers.get {
+  route: GET "/customers/[id]"
+  output: Customer
+  errors: not_found
+}
+
+endpoint customers.create {
+  route: POST "/customers"
+  input: { email: email, name: string(max 80) }
+  output: Customer
+  errors: invalid_input
+}
+
+endpoint orders.list {
+  route: GET "/orders"
+  output: [Order]
+}
+
+endpoint orders.get {
+  route: GET "/orders/[id]"
+  output: Order
+  errors: not_found
+}
