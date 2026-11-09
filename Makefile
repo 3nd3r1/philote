@@ -1,4 +1,4 @@
-.PHONY: check lint fmt test ideation index new setup prototypes
+.PHONY: check lint fmt test ideation index new setup prototypes smoke
 
 check: lint test ideation
 
@@ -26,3 +26,6 @@ setup:
 
 prototypes:
 	cd prototypes/frontend-v0 && go test ./...
+
+smoke:
+	sh tools/smoke.sh
