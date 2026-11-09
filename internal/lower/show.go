@@ -42,22 +42,7 @@ func Tree(app *ir.App, depth int) string {
 		return b.String()
 	}
 	for _, p := range app.Parts {
-		kind := map[ir.PartKind]string{ir.Backend: "backend", ir.Frontend: "frontend"}[p.Kind]
-		fmt.Fprintf(&b, "  %s (%s, %s)\n", p.Name, kind, p.Target)
-		if depth < 2 {
-			continue
-		}
-		for _, r := range p.Resources {
-			fmt.Fprintf(&b, "    %s: %s\n", r.Name, r.Entity)
-			if depth < 3 {
-				continue
-			}
-			for _, ep := range p.Endpoints {
-				if ep.Resource == r.Name {
-					fmt.Fprintf(&b, "      %s %s\n", ep.Method, ep.Route)
-				}
-			}
-		}
+		partTree(&b, p, depth)
 	}
 	fmt.Fprintf(&b, "  data (%d entities)\n", len(app.Entities))
 	if depth >= 2 {
@@ -66,6 +51,31 @@ func Tree(app *ir.App, depth int) string {
 		}
 	}
 	return b.String()
+}
+
+func partTree(b *strings.Builder, p *ir.Part, depth int) {
+	kind := map[ir.PartKind]string{ir.Backend: "backend", ir.Frontend: "frontend"}[p.Kind]
+	fmt.Fprintf(b, "  %s (%s, %s)\n", p.Name, kind, p.Target)
+	if depth < 2 {
+		return
+	}
+	for _, r := range p.Resources {
+		fmt.Fprintf(b, "    %s: %s\n", r.Name, r.Entity)
+		if depth < 3 {
+			continue
+		}
+		for _, ep := range p.Endpoints {
+			if ep.Resource == r.Name {
+				fmt.Fprintf(b, "      %s %s\n", ep.Method, ep.Route)
+			}
+		}
+	}
+	for _, ep := range p.Custom {
+		fmt.Fprintf(b, "    %s (endpoint)\n", ep.Name)
+		if depth >= 3 {
+			fmt.Fprintf(b, "      %s %s\n      steps: %s\n", ep.Method, ep.Route, stepList(ep.Flow))
+		}
+	}
 }
 
 // Show prints the endpoints at a path ("api" or "api/products") as spec,
@@ -78,7 +88,7 @@ func Show(app *ir.App, path string) (string, bool) {
 		}
 		var parts []string
 		for _, ep := range p.Endpoints {
-			if resName == "" || ep.Resource == resName {
+			if resName == "" || ep.Resource == resName || (ep.Flow != nil && ep.Name == resName) {
 				parts = append(parts, endpointSpec(ep))
 			}
 		}
@@ -88,6 +98,9 @@ func Show(app *ir.App, path string) (string, bool) {
 }
 
 func endpointSpec(ep *ir.Endpoint) string {
+	if ep.Flow != nil {
+		return flowSpec(ep)
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "endpoint %s {\n  route: %s %q\n", ep.Name, ep.Method, ep.Route)
 	if ep.Input != nil {
@@ -116,5 +129,38 @@ func endpointSpec(ep *ir.Endpoint) string {
 		fmt.Fprintf(&b, "  errors: %s\n", strings.Join(ep.Errors, ", "))
 	}
 	b.WriteString("}\n")
+	return b.String()
+}
+
+func stepList(f *ir.Flow) string {
+	var names []string
+	for _, s := range f.Steps {
+		names = append(names, s.Name)
+	}
+	return strings.Join(names, ", ")
+}
+
+func valueType(v *ir.Value) string {
+	if v.Entity != "" {
+		return v.Entity
+	}
+	return FieldType(v.Field)
+}
+
+// flowSpec prints a custom endpoint with the steps it runs.
+func flowSpec(ep *ir.Endpoint) string {
+	var b strings.Builder
+	fmt.Fprintf(&b, "endpoint %s {\n  route: %s %q\n", ep.Name, ep.Method, ep.Route)
+	if len(ep.Flow.Input) > 0 {
+		var fields []string
+		for _, v := range ep.Flow.Input {
+			fields = append(fields, v.Name+": "+valueType(v))
+		}
+		fmt.Fprintf(&b, "  input: { %s }\n", strings.Join(fields, ", "))
+	}
+	if ep.Output != "" {
+		fmt.Fprintf(&b, "  output: %s\n", ep.Output)
+	}
+	fmt.Fprintf(&b, "  errors: %s\n  steps: %s\n}\n", strings.Join(ep.Errors, ", "), stepList(ep.Flow))
 	return b.String()
 }

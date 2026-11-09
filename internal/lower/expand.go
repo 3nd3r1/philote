@@ -21,13 +21,15 @@ var shapes = map[ir.Op]shape{
 	ir.Delete: {method: "DELETE", onItem: true, errors: []string{"not_found"}},
 }
 
-// Expand fills each backend part's endpoints from its resources.
+// Expand fills each backend part's endpoints: its resources' standard
+// endpoints, then its custom ones.
 func Expand(app *ir.App) {
 	for _, p := range app.Parts {
 		p.Endpoints = nil
 		for _, r := range p.Resources {
 			p.Endpoints = append(p.Endpoints, endpoints(app, r)...)
 		}
+		p.Endpoints = append(p.Endpoints, p.Custom...)
 	}
 }
 
