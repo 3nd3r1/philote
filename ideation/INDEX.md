@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-4 answered, 12 open
+5 answered, 11 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ Nothing.
 | [Q-006](questions/Q-006-regeneration-on-change.md) | open | Regeneration on change: fresh sample or minimal edit? | When a node's source changes, does the model start fresh, or edit the previous output? |
 | [Q-007](questions/Q-007-verification-depth.md) | open | Verification depth | Types and routes only, or end-to-end tests generated from the source? |
 | [Q-008](questions/Q-008-what-does-this-beat.md) | open | What does this beat Claude Code + a SPEC.md + git on? | The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code. |
-| [Q-009](questions/Q-009-compiler-language.md) | open | Compiler language: Go or Rust? | Which language the compiler is written in. |
+| [Q-009](questions/Q-009-compiler-language.md) | answered | Compiler language: Go or Rust? | Which language the compiler is written in. |
 | [Q-010](questions/Q-010-name.md) | answered | Name | What the project and the language are called. 'specc' is a placeholder. |
 | [Q-011](questions/Q-011-chip-display-field.md) | open | How does a list of records pick the field to show? | `post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity? |
 | [Q-012](questions/Q-012-page-data-depends-on-component-reads.md) | open | What does a page load when its component reads relations? | PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface. |
@@ -48,7 +48,7 @@ Nothing.
 
 ## Decisions
 
-11 accepted
+13 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -63,6 +63,8 @@ Nothing.
 | [D-009](decisions/D-009-use-a-json-file-as-the-data-source.md) | accepted | Use a JSON file as the data source | Experiments read data from a JSON file. Data sources aren't what we're testing. |
 | [D-010](decisions/D-010-use-the-claude-cli-as-the-model-backend.md) | accepted | Use the claude CLI as the model backend for experiments | Experiments call `claude -p` behind one small function. Switch to the API once the idea holds up, or if the CLI is too slow or unpredictable. |
 | [D-011](decisions/D-011-focus-on-spec-to-code-first.md) | accepted | Focus on spec to code first | Build the CLI and tooling that turn a spec into code. Generating specs with AI comes later. Pages and components are not the focus; backends are. |
+| [D-012](decisions/D-012-write-the-compiler-in-go.md) | accepted | Write the compiler in Go | The real compiler is Go, standard library first. Templates use text/template and embed. |
+| [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
 
 ## Ideas
 
