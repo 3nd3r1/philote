@@ -6,7 +6,11 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Nothing.
+Proposed but not yet accepted by a human.
+
+| ID | Title | Summary |
+| --- | --- | --- |
+| [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
 
 ## Principles
 
@@ -48,7 +52,7 @@ Nothing.
 
 ## Decisions
 
-14 accepted
+14 accepted, 1 proposed
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -66,6 +70,7 @@ Nothing.
 | [D-012](decisions/D-012-write-the-compiler-in-go.md) | accepted | Write the compiler in Go | The real compiler is Go, standard library first. Templates use text/template and embed. |
 | [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
 | [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | accepted | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
+| [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | proposed | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
 
 ## Ideas
 
