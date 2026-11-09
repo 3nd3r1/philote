@@ -1,7 +1,8 @@
 +++
 id = "Q-013"
 title = "Where does data come from?"
-status = "open"
+status = "answered"
+answered_by = "D-009"
 summary = "The source declares entities but not where they're stored. For v1: a JSON seed file, SQLite, or a real database?"
 created = 2026-11-09
 related = ["Q-004"]
