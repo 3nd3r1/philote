@@ -6,7 +6,11 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Nothing.
+Proposed but not yet accepted by a human.
+
+| ID | Title | Summary |
+| --- | --- | --- |
+| [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
 
 ## Principles
 
@@ -48,7 +52,7 @@ Nothing.
 
 ## Decisions
 
-13 accepted
+13 accepted, 1 proposed
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -65,6 +69,7 @@ Nothing.
 | [D-011](decisions/D-011-focus-on-spec-to-code-first.md) | accepted | Focus on spec to code first | Build the CLI and tooling that turn a spec into code. Generating specs with AI comes later. Pages and components are not the focus; backends are. |
 | [D-012](decisions/D-012-write-the-compiler-in-go.md) | accepted | Write the compiler in Go | The real compiler is Go, standard library first. Templates use text/template and embed. |
 | [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
+| [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | proposed | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
 
 ## Ideas
 
