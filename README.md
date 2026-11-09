@@ -1,74 +1,38 @@
 # philote
 
-Philote compiles a strict, typed description of an app into framework code. An LLM is the compiler's backend, and the build system pins its output. Start with the [thesis](ideation/thesis.md).
+Compiles a strict, typed spec of an app into a Next.js frontend and a Hono backend. Templates do most of the work, a model fills only marked gaps, and its output is pinned, so builds are reproducible.
 
-The project is in the ideation phase. The ideas live as checked items, not as code.
+Status: design. Start with the [thesis](ideation/thesis.md) and the [index](ideation/INDEX.md).
 
-## Layout
-
-```
-ideation/
-  thesis.md        the pitch and the workflow it enables
-  INDEX.md         generated overview; never edit by hand
-  principles/      P-xxx  rules the design must follow
-  questions/       Q-xxx  open design questions
-  decisions/       D-xxx  answers, with the reasoning
-  ideas/           I-xxx  things worth exploring
-  experiments/     E-xxx  how we find out, with kill criteria
-  prior-art/       A-xxx  related work
-  archive/         original documents, kept as they were
-prototypes/
-  frontend-v0/     E-001 step 1: parser, checker, build graph (Go)
-tools/
-  ideation.py      validator and index generator (Python stdlib only)
-```
-
-## Working on the ideation
+## Develop
 
 ```sh
-make new KIND=question TITLE="Does auth belong in v1?"   # creates the next Q-xxx file
-make index                                               # regenerate INDEX.md
-make check                                               # validate items, and that INDEX.md is current
+nix-shell
+make setup   # once: enables the pre-commit hook
+make check   # lint, tests, architecture rules, ideation
 ```
 
-Each item is a Markdown file with TOML frontmatter between `+++` lines:
+## Ideation items
+
+One Markdown file per item, with TOML frontmatter. `make new KIND=question TITLE="..."` creates one; `make check` validates them.
 
 ```toml
 +++
-id = "D-001"                # must match the file name
-title = "..."               # max 80 chars
-status = "proposed"         # allowed values depend on the kind
-summary = "..."             # max 200 chars; shown in INDEX.md
-created = 2026-11-09        # a TOML date, unquoted
-related = ["P-005"]         # any item ids
-answers = ["Q-009"]         # decisions only
+id = "D-001"            # matches the file name
+title = "..."           # max 80 chars
+status = "proposed"
+summary = "..."         # max 200 chars
+created = 2026-11-09
+related = ["P-005"]
+answers = ["Q-009"]     # decisions only
 +++
 ```
 
 | Kind | Statuses | Extra fields | Required sections |
 | --- | --- | --- | --- |
 | principle | proposed, accepted, retired | | |
-| question | open, answered, dropped | `answered_by` (a decision) | |
+| question | open, answered, dropped | `answered_by` | |
 | decision | proposed, accepted, rejected, superseded | `answers`, `supersedes` | Decision, Why |
 | idea | raw, exploring, adopted, rejected | | |
-| experiment | planned, running, done, abandoned | `tests` | Steps, Kill criteria (+ Result when done) |
+| experiment | planned, running, done, abandoned | `tests` | Steps, Kill criteria, Result when done |
 | prior-art | noted, studied | `url` | |
-
-`make check` enforces:
-- Unknown fields are errors. Links must resolve and point to the right kind.
-- An answered question names an accepted decision, and that decision lists the question in `answers`. An accepted decision's questions must be marked answered.
-- Leftover TODOs are errors.
-
-## Rules
-
-- Anything an AI decides goes in as `proposed`. Only a person moves it to `accepted`. INDEX.md lists proposed items under "Waiting for review".
-- Don't delete items whose thinking changed. Reject, retire or supersede them, so the reasoning stays.
-- Never edit `INDEX.md` by hand.
-
-## Prototype
-
-```sh
-cd prototypes/frontend-v0
-go test ./...
-go run ./cmd/specc graph examples/blog/blog.spec
-```
