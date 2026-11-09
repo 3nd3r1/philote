@@ -91,7 +91,7 @@ endpoint products.get  { route: GET "/products/[id]"  output: Product  errors: n
 
 ## Rules
 
-- Every entity gets `id`. Relations add the foreign key on the `belongs to` side. The reverse name defaults to the other entity's name in lowercase (`order.customer`). If that's ambiguous, it's an error asking for an explicit name.
+- Every entity gets `id`. Relations add the foreign key on the `belongs to` side. The reverse name defaults to the other entity's name in snake_case (`order.customer`, `product.order_line`). If that's ambiguous, it's an error asking for an explicit name.
 - In a `type` or `input`, an entity-typed field is sent as that entity's id. In an `output`, it's the full record.
 - Route params use `[name]` everywhere. Targets translate them (`:name` in Hono).
 - Step params are bound by name from the endpoint input and earlier steps' outputs. The checker verifies each one exists with the right type. Exactly one step must return the endpoint's output type.
