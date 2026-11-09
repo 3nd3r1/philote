@@ -1,4 +1,4 @@
-# philote
+<img src="docs/assets/logo.png" alt="philote" width="380">
 
 Can we bring Nix-style determinism to AI-driven coding?
 
