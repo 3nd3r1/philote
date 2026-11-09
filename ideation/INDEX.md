@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-3 answered, 13 open
+4 answered, 12 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -42,13 +42,13 @@ Nothing.
 | [Q-011](questions/Q-011-chip-display-field.md) | open | How does a list of records pick the field to show? | `post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity? |
 | [Q-012](questions/Q-012-page-data-depends-on-component-reads.md) | open | What does a page load when its component reads relations? | PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface. |
 | [Q-013](questions/Q-013-where-does-data-come-from.md) | answered | Where does data come from? | The source declares entities but not where they're stored. For v1: a JSON seed file, SQLite, or a real database? |
-| [Q-014](questions/Q-014-model-backend-for-experiments.md) | open | Model backend for experiments | Call the API with a key, or shell out to the local claude CLI (runs on the user's subscription)? |
+| [Q-014](questions/Q-014-model-backend-for-experiments.md) | answered | Model backend for experiments | Call the API with a key, or shell out to the local claude CLI (runs on the user's subscription)? |
 | [Q-015](questions/Q-015-which-verbs-are-built-in.md) | open | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | open | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 
 ## Decisions
 
-9 accepted
+10 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -61,6 +61,7 @@ Nothing.
 | [D-007](decisions/D-007-ideation-as-typed-items.md) | accepted | Store ideation as typed, validated items with a generated index | One Markdown file per item with strict TOML frontmatter, typed links between items, a validator, and a generated INDEX.md that must stay current. |
 | [D-008](decisions/D-008-name-the-project-philote.md) | accepted | Name the project Philote | The project, the language and the CLI are called philote. Repo: github.com/3nd3r1/philote. |
 | [D-009](decisions/D-009-use-a-json-file-as-the-data-source.md) | accepted | Use a JSON file as the data source | Experiments read data from a JSON file. Data sources aren't what we're testing. |
+| [D-010](decisions/D-010-use-the-claude-cli-as-the-model-backend.md) | accepted | Use the claude CLI as the model backend for experiments | Experiments call `claude -p` behind one small function. Switch to the API once the idea holds up, or if the CLI is too slow or unpredictable. |
 
 ## Ideas
 
