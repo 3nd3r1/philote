@@ -11,7 +11,7 @@ related = ["D-014", "D-010", "I-007", "P-003", "P-004"]
 ## Decision
 
 1. **The target owns the prompt.** For each step, the target writes the file around it (imports, the exact function signature, how errors are raised) and a prompt describing the runtime API, the types involved, the step's signature, its errors and its intent. The model writes only the function body.
-2. **The key is a hash of the model id and the prompt.** The prompt is built only from the canonical spec and the target, so it covers everything that can change the output. The model id includes the claude CLI version (D-010).
+2. **The key is a hash of the model id and the prompt.** The prompt is built only from the canonical spec and the target, so it covers everything that can change the output. The model id is the model's full name, not the claude CLI version (D-010): a CLI upgrade shouldn't throw away every body, and `--frozen` must work on machines without the CLI. The CLI runs with our own system prompt and no tools, so its version barely affects the output.
 3. **`philote.lock` holds the bodies themselves, next to the spec, and is committed.** Plain text, one entry per step: node path, key, model, body. A changed step shows up in review as a readable code diff. No separate store.
 4. **Builds:**
    - Normal: steps whose key is in the lock are copied, with no model call. Others call the model and are added. Entries for removed steps are dropped.
