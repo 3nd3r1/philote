@@ -4,7 +4,7 @@
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=${1:-$(mktemp -d)}
-go run "$root/cmd/philote" build --out "$out" "$root/cmd/philote/testdata/neighbr/neighbr.philote"
+go run "$root/cmd/philote" build --frozen --out "$out" "$root/cmd/philote/testdata/neighbr/neighbr.philote"
 cd "$out/api"
 npm install --silent
 npx tsc
@@ -36,6 +36,15 @@ ed=$(field id)
 req POST /swipes 201 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"$ed\"}"
 req POST /swipes 400 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"nobody\"}"
 req GET /swipes 200
+# The swipe endpoint runs the model-written steps pinned in philote.lock.
+req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$biscuit\",\"liked\":true}"
+req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$ed\",\"liked\":true}"
+req GET /matches 200
+[ "$body" = "[]" ] || { echo "FAIL a one-sided like made a match: $body"; fails=$((fails + 1)); }
+req POST /swipe 200 "{\"horse\":\"$ed\",\"target\":\"$biscuit\",\"liked\":true}"
+req GET /matches 200
+count=$(printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
+[ "$count" = 1 ] || { echo "FAIL a mutual like made $count matches"; fails=$((fails + 1)); }
 req PATCH "/horses/$biscuit" 200 '{"age":8}'
 req GET /horses/nope 404
 req POST /matches 404 '{}'
