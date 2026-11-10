@@ -12,6 +12,7 @@ import (
 	"github.com/3nd3r1/philote/internal/diag"
 	"github.com/3nd3r1/philote/internal/ir"
 	"github.com/3nd3r1/philote/internal/lower"
+	"github.com/3nd3r1/philote/internal/model"
 	"github.com/3nd3r1/philote/internal/syntax"
 	"github.com/3nd3r1/philote/internal/target"
 	"github.com/3nd3r1/philote/internal/target/hono"
@@ -24,7 +25,13 @@ commands:
   tree [--depth N]         show the app as a tree
   expand <path>            show a part or resource as the endpoints it becomes, e.g. api/products
   build [--out dir]        generate code (default: build/ next to the spec)
+        [--frozen]         never call the model; every step body must be in philote.lock
+        [--model name]     the model that writes step bodies (default ` + defaultModel + `)
 `
+
+// defaultModel writes step bodies. It's a full name, not an alias like
+// "opus", because the name is part of every key in philote.lock.
+const defaultModel = "claude-opus-5-5"
 
 var targets = []target.Target{hono.Hono{}}
 
@@ -42,6 +49,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 	flags.SetOutput(stderr)
 	depth := flags.Int("depth", 2, "levels to show")
 	out := flags.String("out", "", "output directory")
+	frozen := flags.Bool("frozen", false, "never call the model")
+	modelName := flags.String("model", defaultModel, "model for step bodies")
 	if flags.Parse(args[1:]) != nil {
 		return 2
 	}
@@ -51,7 +60,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return 2
 	}
 	spec := flags.Arg(0)
-	app := load(spec, stderr)
+	app, texts := load(spec, stderr)
 	if app == nil {
 		return 1
 	}
@@ -69,13 +78,19 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if *out == "" {
 			*out = filepath.Join(filepath.Dir(spec), "build")
 		}
-		return writeBuild(app, *out, stdout, stderr)
+		opts := build.Options{
+			Lock:   filepath.Join(filepath.Dir(spec), "philote.lock"),
+			Model:  model.Claude{Model: *modelName},
+			Frozen: *frozen,
+		}
+		return writeBuild(app, texts, *out, opts, stdout, stderr)
 	}
 	return 0
 }
 
-// load runs the front end and prints diagnostics. It returns nil on errors.
-func load(spec string, stderr io.Writer) *ir.App {
+// load runs the front end and prints diagnostics. It returns the app, or
+// nil on errors, and the source texts for later diagnostics.
+func load(spec string, stderr io.Writer) (*ir.App, map[string]string) {
 	d := &diag.List{}
 	src := syntax.Load(os.DirFS(filepath.Dir(spec)), filepath.Base(spec), d)
 	var app *ir.App
@@ -88,16 +103,18 @@ func load(spec string, stderr io.Writer) *ir.App {
 	}
 	fmt.Fprint(stderr, diag.Render(d.Sorted(), src.Texts))
 	if d.HasErrors() {
-		return nil
+		return nil, nil
 	}
 	lower.Expand(app)
-	return app
+	return app, src.Texts
 }
 
-func writeBuild(app *ir.App, dir string, stdout, stderr io.Writer) int {
-	outs, err := build.Generate(app, targets)
-	if err == nil {
-		err = build.Write(dir, outs)
+func writeBuild(app *ir.App, texts map[string]string, dir string, opts build.Options, stdout, stderr io.Writer) int {
+	d := &diag.List{}
+	outs, err := build.Build(app, targets, dir, opts, d)
+	fmt.Fprint(stderr, diag.Render(d.Sorted(), texts))
+	if d.HasErrors() {
+		return 1
 	}
 	if err != nil {
 		fmt.Fprintln(stderr, err)

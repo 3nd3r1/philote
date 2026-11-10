@@ -1,0 +1,56 @@
+# Step bodies written by a model and pinned by philote build (D-015).
+# Commit this file and review its diff like code. Don't edit it by hand.
+
+step api/match_if_mutual
+key 3dccc11fd5aab25ba6fbbadc2762b15202a76443d2a32de629e147bd7eb55570
+model claude-opus-5-5
+| if (!swipe.liked) {
+|   return;
+| }
+|
+| const swipes = all("Swipe") as Swipe[];
+| const reciprocal = swipes.find(
+|   (s) =>
+|     s.liked &&
+|     s.horse_id === swipe.target_id &&
+|     s.target_id === swipe.horse_id
+| );
+|
+| if (!reciprocal) {
+|   return;
+| }
+|
+| const matches = all("Match") as Match[];
+| const alreadyMatched = matches.some(
+|   (m) =>
+|     (m.first_id === swipe.horse_id && m.second_id === swipe.target_id) ||
+|     (m.first_id === swipe.target_id && m.second_id === swipe.horse_id)
+| );
+|
+| if (alreadyMatched) {
+|   return;
+| }
+|
+| insert("Match", {
+|   matched_at: new Date().toISOString(),
+|   first_id: swipe.horse_id,
+|   second_id: swipe.target_id,
+| });
+
+step api/record_swipe
+key e32c9a061360476a308484b023c98dfdef73922c00fdd3a7b00cc0651d35a54d
+model claude-opus-5-5
+| if (horse.id === target.id) {
+|   fail("same_horse");
+| }
+| const existing = (all("Swipe") as Swipe[]).find(
+|   (s) => s.horse_id === horse.id && s.target_id === target.id
+| );
+| if (existing) {
+|   fail("already_swiped");
+| }
+| return insert("Swipe", {
+|   liked,
+|   horse_id: horse.id,
+|   target_id: target.id,
+| }) as Swipe;

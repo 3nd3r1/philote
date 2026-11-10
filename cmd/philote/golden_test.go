@@ -30,7 +30,7 @@ func TestGolden(t *testing.T) {
 				"expand.txt": runOK(t, "expand", spec, "api"),
 			}
 			out := t.TempDir()
-			runOK(t, "build", "--out", out, spec)
+			runOK(t, "build", "--frozen", "--out", out, spec)
 			for path, data := range readTree(t, out) {
 				got["build/"+path] = data
 			}
@@ -116,4 +116,29 @@ func firstDiff(want, got string) string {
 		}
 	}
 	return ""
+}
+
+// A frozen build must fail at the step whose body isn't in the lock, and
+// write nothing.
+func TestFrozenWithoutBody(t *testing.T) {
+	dir := t.TempDir()
+	for _, name := range []string{"neighbr.philote", "api.philote"} {
+		data, err := os.ReadFile(filepath.Join("testdata/neighbr", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dir, name), data, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var stdout, stderr bytes.Buffer
+	out := filepath.Join(dir, "build")
+	code := run([]string{"build", "--frozen", "--out", out, filepath.Join(dir, "neighbr.philote")}, &stdout, &stderr)
+	want := "api.philote:13:6: error: step record_swipe has no body in philote.lock for this spec"
+	if code != 1 || !strings.Contains(stderr.String(), want) {
+		t.Errorf("exit %d, want 1 and %q in:\n%s", code, want, stderr.String())
+	}
+	if _, err := os.Stat(out); !os.IsNotExist(err) {
+		t.Errorf("a failed frozen build wrote %s", out)
+	}
 }

@@ -4,5 +4,36 @@ import { all, find, insert, remove, update } from "../runtime/store.js";
 import type { Breed, Horse, Swipe, Match } from "../types.js";
 
 export async function matchIfMutual(swipe: Swipe): Promise<void> {
-  // philote:body
+  if (!swipe.liked) {
+    return;
+  }
+
+  const swipes = all("Swipe") as Swipe[];
+  const reciprocal = swipes.find(
+    (s) =>
+      s.liked &&
+      s.horse_id === swipe.target_id &&
+      s.target_id === swipe.horse_id
+  );
+
+  if (!reciprocal) {
+    return;
+  }
+
+  const matches = all("Match") as Match[];
+  const alreadyMatched = matches.some(
+    (m) =>
+      (m.first_id === swipe.horse_id && m.second_id === swipe.target_id) ||
+      (m.first_id === swipe.target_id && m.second_id === swipe.horse_id)
+  );
+
+  if (alreadyMatched) {
+    return;
+  }
+
+  insert("Match", {
+    matched_at: new Date().toISOString(),
+    first_id: swipe.horse_id,
+    second_id: swipe.target_id,
+  });
 }

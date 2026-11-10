@@ -7,5 +7,18 @@ import type { Breed, Horse, Swipe, Match } from "../types.js";
 const fail = (error: "same_horse" | "already_swiped"): never => raise(error);
 
 export async function recordSwipe(horse: Horse, target: Horse, liked: boolean): Promise<Swipe> {
-  // philote:body
+  if (horse.id === target.id) {
+    fail("same_horse");
+  }
+  const existing = (all("Swipe") as Swipe[]).find(
+    (s) => s.horse_id === horse.id && s.target_id === target.id
+  );
+  if (existing) {
+    fail("already_swiped");
+  }
+  return insert("Swipe", {
+    liked,
+    horse_id: horse.id,
+    target_id: target.id,
+  }) as Swipe;
 }

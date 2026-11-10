@@ -18,34 +18,37 @@ import (
 // else (node_modules, data files) alone.
 const manifest = ".philote-files"
 
-// Output is the generated files for one part.
+// Output is the generated files for one part, and the slots in them that
+// a model fills.
 type Output struct {
-	Part  string
-	Files []target.File
+	Part   string
+	Files  []target.File
+	Slots  []target.Slot
+	target target.Target
 }
 
-// Generate runs each part's target. Targets are looked up by name; check
+// generate runs each part's target. Targets are looked up by name; check
 // has already made sure every part's target exists.
-func Generate(app *ir.App, targets []target.Target) ([]Output, error) {
+func generate(app *ir.App, targets []target.Target) ([]Output, error) {
 	byName := map[string]target.Target{}
 	for _, t := range targets {
 		byName[t.Name()] = t
 	}
 	var out []Output
 	for _, p := range app.Parts {
-		gen, err := byName[p.Target].Generate(app, p)
+		t := byName[p.Target]
+		gen, err := t.Generate(app, p)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", p.Name, err)
 		}
-		// Slots aren't filled yet; the lockfile and model come next (D-015).
-		out = append(out, Output{Part: p.Name, Files: gen.Files})
+		out = append(out, Output{Part: p.Name, Files: gen.Files, Slots: gen.Slots, target: t})
 	}
 	return out, nil
 }
 
-// Write puts each part's files under dir/<part>/. Unchanged files are not
+// write puts each part's files under dir/<part>/. Unchanged files are not
 // rewritten, so their modification times stay put.
-func Write(dir string, outs []Output) error {
+func write(dir string, outs []Output) error {
 	for _, o := range outs {
 		if err := writePart(filepath.Join(dir, o.Part), o.Files); err != nil {
 			return err
