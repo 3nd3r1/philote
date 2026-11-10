@@ -35,6 +35,9 @@ const defaultModel = "claude-opus-5-5"
 
 var targets = []target.Target{hono.Hono{}}
 
+// newModel is the model for step bodies. Tests replace it with recorded replies.
+var newModel = func(name string) model.Model { return model.Claude{Model: name} }
+
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
@@ -80,7 +83,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		opts := build.Options{
 			Lock:   filepath.Join(filepath.Dir(spec), "philote.lock"),
-			Model:  model.Claude{Model: *modelName},
+			Model:  newModel(*modelName),
 			Frozen: *frozen,
 		}
 		return writeBuild(app, texts, *out, opts, stdout, stderr)

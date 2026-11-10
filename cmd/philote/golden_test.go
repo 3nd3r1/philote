@@ -121,6 +121,23 @@ func firstDiff(want, got string) string {
 // A frozen build must fail at the step whose body isn't in the lock, and
 // write nothing.
 func TestFrozenWithoutBody(t *testing.T) {
+	spec := copySpec(t)
+	var stdout, stderr bytes.Buffer
+	out := filepath.Join(filepath.Dir(spec), "build")
+	code := run([]string{"build", "--frozen", "--out", out, spec}, &stdout, &stderr)
+	want := "api.philote:13:6: error: step record_swipe has no body in philote.lock for this spec"
+	if code != 1 || !strings.Contains(stderr.String(), want) {
+		t.Errorf("exit %d, want 1 and %q in:\n%s", code, want, stderr.String())
+	}
+	if _, err := os.Stat(out); !os.IsNotExist(err) {
+		t.Errorf("a failed frozen build wrote %s", out)
+	}
+}
+
+// copySpec copies the horse example's spec, without its lock, into a temp
+// dir and returns the path of its main file.
+func copySpec(t *testing.T) string {
+	t.Helper()
 	dir := t.TempDir()
 	for _, name := range []string{"neighbr.philote", "api.philote"} {
 		data, err := os.ReadFile(filepath.Join("testdata/neighbr", name))
@@ -131,14 +148,5 @@ func TestFrozenWithoutBody(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	var stdout, stderr bytes.Buffer
-	out := filepath.Join(dir, "build")
-	code := run([]string{"build", "--frozen", "--out", out, filepath.Join(dir, "neighbr.philote")}, &stdout, &stderr)
-	want := "api.philote:13:6: error: step record_swipe has no body in philote.lock for this spec"
-	if code != 1 || !strings.Contains(stderr.String(), want) {
-		t.Errorf("exit %d, want 1 and %q in:\n%s", code, want, stderr.String())
-	}
-	if _, err := os.Stat(out); !os.IsNotExist(err) {
-		t.Errorf("a failed frozen build wrote %s", out)
-	}
+	return filepath.Join(dir, "neighbr.philote")
 }
