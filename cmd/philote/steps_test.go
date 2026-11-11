@@ -2,12 +2,9 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -68,7 +65,7 @@ func useReplies(t *testing.T, replies map[string][]string) *recorded {
 func TestStepRetryAndReuse(t *testing.T) {
 	spec := copySpec(t)
 	out := filepath.Join(filepath.Dir(spec), "build")
-	linkNodeModules(t, out)
+	linkNodeModules(t, "testdata/neighbr/want/build/api/package.json", filepath.Join(out, "api"))
 	r := useReplies(t, map[string][]string{
 		"recordSwipe":   {brokenSwipe, goodSwipe},
 		"matchIfMutual": {goodMatch},
@@ -121,7 +118,7 @@ func TestStepRetryAndReuse(t *testing.T) {
 func TestStepNeverTypechecks(t *testing.T) {
 	spec := copySpec(t)
 	out := filepath.Join(filepath.Dir(spec), "build")
-	linkNodeModules(t, out)
+	linkNodeModules(t, "testdata/neighbr/want/build/api/package.json", filepath.Join(out, "api"))
 	r := useReplies(t, map[string][]string{
 		"recordSwipe":   {brokenSwipe, brokenSwipe, brokenSwipe},
 		"matchIfMutual": {goodMatch},
@@ -148,58 +145,4 @@ func readFile(t *testing.T, path string) string {
 		t.Fatal(err)
 	}
 	return string(data)
-}
-
-// linkNodeModules gives out/api the hono part's dependencies, so these tests
-// run the real tsc. They're installed once per package.json into the user
-// cache, which needs the network the first time.
-func linkNodeModules(t *testing.T, out string) {
-	t.Helper()
-	if _, err := exec.LookPath("npm"); err != nil {
-		t.Skip("needs npm")
-	}
-	pkg, err := os.ReadFile("testdata/neighbr/want/build/api/package.json")
-	if err != nil {
-		t.Fatal(err)
-	}
-	cache, err := os.UserCacheDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-	sum := sha256.Sum256(pkg)
-	dir := filepath.Join(cache, "philote", "test-deps", hex.EncodeToString(sum[:8]))
-	if _, err := os.Stat(filepath.Join(dir, "node_modules")); err != nil {
-		installDeps(t, dir, pkg)
-	}
-	if err := os.MkdirAll(filepath.Join(out, "api"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Symlink(filepath.Join(dir, "node_modules"), filepath.Join(out, "api", "node_modules")); err != nil {
-		t.Fatal(err)
-	}
-}
-
-// installDeps installs into a temp dir and renames it into place, so an
-// interrupted install never leaves a half-filled cache.
-func installDeps(t *testing.T, dir string, pkg []byte) {
-	t.Helper()
-	if err := os.MkdirAll(filepath.Dir(dir), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	tmp, err := os.MkdirTemp(filepath.Dir(dir), "install-")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() { _ = os.RemoveAll(tmp) }()
-	if err := os.WriteFile(filepath.Join(tmp, "package.json"), pkg, 0o644); err != nil {
-		t.Fatal(err)
-	}
-	cmd := exec.Command("npm", "install", "--silent", "--no-audit", "--no-fund")
-	cmd.Dir = tmp
-	if out, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("npm install: %v\n%s", err, out)
-	}
-	if err := os.Rename(tmp, dir); err != nil && !errors.Is(err, os.ErrExist) {
-		t.Fatal(err)
-	}
 }
