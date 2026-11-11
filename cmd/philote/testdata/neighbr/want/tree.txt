@@ -15,6 +15,7 @@ neighbr
     swipe (endpoint)
       POST /swipe
       steps: record_swipe, match_if_mutual
+  web (frontend, nextjs) uses api
   data (3 entities)
     Horse
     Swipe

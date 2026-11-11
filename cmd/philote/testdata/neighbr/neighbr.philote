@@ -1,5 +1,8 @@
 app neighbr {
   backend api: hono
+  frontend web: nextjs {
+    uses: api
+  }
 }
 
 enum Breed { arabian, mustang, shetland, clydesdale, other }

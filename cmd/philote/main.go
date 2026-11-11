@@ -16,6 +16,7 @@ import (
 	"github.com/3nd3r1/philote/internal/syntax"
 	"github.com/3nd3r1/philote/internal/target"
 	"github.com/3nd3r1/philote/internal/target/hono"
+	"github.com/3nd3r1/philote/internal/target/nextjs"
 )
 
 const usage = `usage: philote <command> [flags] <app.philote> [path]
@@ -33,7 +34,7 @@ commands:
 // "opus", because the name is part of every key in philote.lock.
 const defaultModel = "claude-opus-5-5"
 
-var targets = []target.Target{hono.Hono{}}
+var targets = []target.Target{hono.Hono{}, nextjs.Nextjs{}}
 
 // newModel is the model for step bodies. Tests replace it with recorded replies.
 var newModel = func(name string) model.Model { return model.Claude{Model: name} }

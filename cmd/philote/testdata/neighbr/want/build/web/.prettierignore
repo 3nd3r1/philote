@@ -1,0 +1,4 @@
+# philote writes these files and owns their layout.
+src/lib/api.ts
+src/lib/config.ts
+src/lib/types.ts
