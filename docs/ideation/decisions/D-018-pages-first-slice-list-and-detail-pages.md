@@ -4,7 +4,7 @@ title = "Pages first slice: list and detail pages, template components, relation
 status = "proposed"
 summary = "A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet."
 created = 2026-11-11
-related = ["D-017", "D-016", "D-006", "D-004", "D-001", "Q-017"]
+related = ["D-017", "D-016", "D-006", "D-004", "D-001", "Q-017", "Q-018"]
 +++
 
 ## Decision
@@ -67,15 +67,16 @@ Both need a resource in the used backend that serves that entity with `get`. If 
 **Generated files**, where the user's template keeps things:
 
 - `src/app/<route>/page.tsx` for each page. A detail page also gets a `not-found.tsx` with its message.
-- `src/components/common/<name>.tsx` for each component: a card that prints what `shows` lists.
+- `src/components/common/<name>.tsx` for each component: a card that prints what `shows` lists. If it shows the entity's display field, that's the card's title.
 - `src/lib/reads.ts`: each component's props type and the function that loads them.
 - `src/lib/nav.ts`: the list pages, so the navbar links to them.
+- `.prettierignore`, listing every generated file. The base adds shadcn's `card` and `badge` and a small `format.ts` for dates and booleans.
 
 With Cache Components on, a page loads inside `<Suspense>` after `connection()`. So a missing record renders the `not_found` message with `noindex`, but the status is 200 (a "soft 404"). A real 404 status would need a Proxy check before streaming. That's left for later.
 
 ## Out of scope
 
-Forms and actions (create, update, delete, swipe from the UI), model-written components, filters and ordering on lists, `as markdown`, the `theme` setting. Loads are one request per read per record, so a list of 50 matches makes 101 requests. Batching can come later without changing the source.
+Forms and actions (create, update, delete, swipe from the UI), model-written components, filters and ordering on lists, `as markdown`, the `theme` setting. Loads are one request per read per record, so a list of 50 matches makes 101 requests. Batching can come later without changing the source. A page also fails when a record it reads points at one that was deleted, since deletes don't check references yet (Q-018).
 
 ## Why
 

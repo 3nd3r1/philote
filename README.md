@@ -7,11 +7,11 @@ Can we bring Nix-style determinism to AI-driven coding?
 
 Describe your app as an ontology: the things in it, how they relate, and what you can do with them. Philote compiles it to code, from fixed templates wherever it can. Anything AI writes is pinned in a lockfile, so the same ontology always builds the same code.
 
-Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with a typed client for that backend. Pages are next.
+Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with list and detail pages that read through a typed client for that backend. Forms are next.
 
 ## Example
 
-Tinder, for horses. You write what the app is: its data, how the data relates, which parts the API exposes, what a swipe does, and which backend the frontend calls.
+Tinder, for horses. You write what the app is: its data, how the data relates, which parts the API exposes, what a swipe does, and which pages show it.
 
 ```
 app neighbr {
@@ -39,12 +39,44 @@ app neighbr {
   }
   frontend web: nextjs {
     uses: api
+
+    page "/horses" {
+      data: horses
+      layout: list of HorseCard
+      empty: "No horses yet."
+    }
+
+    page "/horses/[id]" {
+      data: horses by id
+      layout: HorseView
+      not_found: "That horse doesn't exist."
+    }
+
+    page "/matches" {
+      data: matches
+      layout: list of MatchCard
+      empty: "No matches yet."
+    }
+
+    component HorseCard(horse: Horse) {
+      shows: horse.name, horse.breed, horse.age
+      links_to: "/horses/[horse.id]"
+    }
+
+    component HorseView(horse: Horse) {
+      shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+    }
+
+    component MatchCard(match: Match) {
+      shows: match.first, match.second, match.matched_at
+    }
   }
 }
 
 enum Breed { arabian, mustang, shetland, clydesdale, other }
 
 entity Horse {
+  display: name
   name: string(max 60)
   handle: slug from name
   breed: Breed
@@ -66,7 +98,7 @@ Match belongs to first: Horse (back first_matches)
 Match belongs to second: Horse (back second_matches)
 ```
 
-`philote build neighbr.philote` turns that into a runnable Hono server. Every route, rule and error comes from a line above:
+`philote build neighbr.philote` turns that into a runnable Hono server and a Next.js app. Every route, rule and error comes from a line above:
 
 ```
 $ philote tree --depth 3 neighbr.philote
@@ -78,6 +110,10 @@ neighbr
       POST /horses
       PATCH /horses/[id]
       DELETE /horses/[id]
+      GET /horses/[id]/swipes
+      GET /horses/[id]/swiped_by
+      GET /horses/[id]/first_matches
+      GET /horses/[id]/second_matches
     swipes: Swipe
       GET /swipes
       POST /swipes
@@ -88,6 +124,16 @@ neighbr
       POST /swipe
       steps: record_swipe, match_if_mutual
   web (frontend, nextjs) uses api
+    /horses: list of HorseCard
+    /horses/[id]: HorseView
+    /matches: list of MatchCard
+    HorseCard(horse: Horse)
+      shows: horse.name, horse.breed, horse.age
+      links to /horses/[id]
+    HorseView(horse: Horse)
+      shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+    MatchCard(match: Match)
+      shows: match.first, match.second, match.matched_at
   data (3 entities)
     Horse
     Swipe
@@ -128,7 +174,7 @@ model claude-opus-5-5
 | }) as Swipe;
 ```
 
-The frontend gets a client with one function per endpoint, typed from the same spec. Each call returns the endpoint's declared errors as values, so a page that forgets `already_swiped` doesn't compile:
+The frontend gets a client with one function per endpoint, typed from the same spec. Each call returns the endpoint's declared errors as values, so a page can only check for errors the endpoint really returns:
 
 ```ts
 const result = await swipe({ horse: a, target: b, liked: true });
@@ -136,6 +182,8 @@ if (!result.ok) {
     result.error; // "invalid_input" | "same_horse" | "already_swiped"
 }
 ```
+
+Pages and components are templates too. A component's `shows` line is everything it reads, and its page loads exactly that: `match.first` becomes one `horses.get` call, shown as the horse's `display` field.
 
 Commit the lock. The next build copies the body and doesn't call the model. Change a step's intent and only that step is rewritten, starting from its old body, so the lock diff shows exactly what changed.
 

@@ -29,7 +29,7 @@ Proposed but not yet accepted by a human.
 
 ## Questions
 
-13 answered, 4 open
+13 answered, 5 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -50,6 +50,7 @@ Proposed but not yet accepted by a human.
 | [Q-015](questions/Q-015-which-verbs-are-built-in.md) | answered | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | open | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
+| [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | open | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
 
 ## Decisions
 
