@@ -94,6 +94,8 @@ type Page struct {
 // page loads exactly that.
 type Component struct {
 	Name    string
+	Pos     diag.Pos
+	Look    string // how it should look, for the model that writes its body
 	Param   string
 	Entity  string
 	Shows   []*Show

@@ -35,7 +35,7 @@ func (p *parser) component() Item {
 	p.word("component")
 	c := &Component{Name: p.ident("a component name")}
 	c.Params = p.params()
-	p.keyed("component", []string{"shows", "links_to"}, func(key Ident) {
+	p.keyed("component", []string{"shows", "links_to", "look"}, func(key Ident) {
 		switch key.Name {
 		case "shows":
 			c.Shows = append(c.Shows, p.show())
@@ -45,6 +45,8 @@ func (p *parser) component() Item {
 			}
 		case "links_to":
 			c.LinksTo = p.str(`a route like "/horses/[horse.id]"`)
+		case "look":
+			c.Look = p.str("how it should look, in one sentence")
 		}
 	})
 	p.endStatement()

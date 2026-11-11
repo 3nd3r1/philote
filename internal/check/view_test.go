@@ -2,6 +2,7 @@ package check
 
 import (
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/3nd3r1/philote/internal/diag"
@@ -112,6 +113,8 @@ func TestViewErrors(t *testing.T) {
 		{"no display field", "  display: name\n", "", "review.»product", "add `display: <field>` to Product"},
 		{"no resource to load with", "resource products: Product\n", "resource products: Product { only: list }\n", "product.»reviews as chips", "add `resource <name>: Product` to api"},
 		{"link to a missing page", "/products/[product.id]", "/product/[product.id]", `links_to: »"/product/[product.id]"`, "no page at /product/[id]"},
+		{"look too long", "      links_to: \"/products/[product.id]\"\n", "      links_to: \"/products/[product.id]\"\n      look: \"" + strings.Repeat("a", 201) + "\"\n",
+			"      look: »\"aaa", "the cap is 200"},
 		{"link by a missing field", "/products/[product.id]", "/products/[product.sku]", `links_to: »"/products/[product.sku]"`, "no field 'sku'"},
 	})
 }

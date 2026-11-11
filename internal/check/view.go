@@ -47,7 +47,13 @@ func (c *checker) component(part, backend *ir.Part, s *syntax.Component) *ir.Com
 	if ent == nil {
 		return nil
 	}
-	comp := &ir.Component{Name: name, Param: s.Params[0].Name.Name, Entity: ent.Name}
+	comp := &ir.Component{Name: name, Pos: s.Name.Pos, Param: s.Params[0].Name.Name, Entity: ent.Name}
+	if s.Look != nil {
+		if len(s.Look.Value) > maxIntent {
+			c.d.Errorf(s.Look.Pos, "the look is %d characters; the cap is %d", len(s.Look.Value), maxIntent)
+		}
+		comp.Look = s.Look.Value
+	}
 	if len(s.Shows) == 0 {
 		c.d.Errorf(s.Name.Pos, "%s doesn't show anything", name)
 		c.d.Hint("add `shows: %s.<field>`", comp.Param)

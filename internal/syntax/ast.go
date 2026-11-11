@@ -133,12 +133,14 @@ type Page struct {
 	NotFound *Str
 }
 
-// Component is `component <Name>(<param>: <Entity>) { shows: <path> [as <format>], ...  links_to: "<route>" }`.
+// Component is `component <Name>(<param>: <Entity>) { shows: <path> [as <format>], ...
+// links_to: "<route>"  look: "..." }`. Its body is written by a model.
 type Component struct {
 	Name    Ident
 	Params  []*Field
 	Shows   []Show
 	LinksTo *Str
+	Look    *Str
 }
 
 // Show is one thing a component shows: a path like horse.name, with an
