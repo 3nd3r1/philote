@@ -240,11 +240,25 @@ func (p *parser) entity() Item {
 		if p.peek().kind == tRBrace {
 			break
 		}
-		p.recoverLine(func() { e.Fields = append(e.Fields, p.field()) })
+		p.recoverLine(func() {
+			if p.isWord("display") {
+				e.Displays = append(e.Displays, p.display())
+				return
+			}
+			e.Fields = append(e.Fields, p.field())
+		})
 	}
 	p.expect(tRBrace, "'}'")
 	p.endStatement()
 	return e
+}
+
+func (p *parser) display() Display {
+	d := Display{Word: p.ident("display")}
+	p.expect(tColon, "':' and a field, like `display: name`")
+	d.Field = p.ident("a field name")
+	p.endStatement()
+	return d
 }
 
 // recoverLine runs fn, and on a parse error skips to the next line so the

@@ -32,6 +32,7 @@ const (
 
 type Entity struct {
 	Name      string
+	Display   string // the field shown when another record shows this one
 	Fields    []*Field
 	Relations []*Relation
 }

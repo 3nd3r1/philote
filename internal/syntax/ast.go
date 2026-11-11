@@ -39,10 +39,18 @@ type Enum struct {
 	Values []Ident
 }
 
-// Entity is `entity <Name> { field: type ... }`.
+// Entity is `entity <Name> { [display: <field>] field: type ... }`.
 type Entity struct {
-	Name   Ident
-	Fields []*Field
+	Name     Ident
+	Displays []Display // more than one is a check error
+	Fields   []*Field
+}
+
+// Display is `display: <field>`, the field that stands for a record when
+// another record shows it.
+type Display struct {
+	Word  Ident
+	Field Ident
 }
 
 // Field is `<name>: <type>(limits) [from <field>] [modifiers]`. Inputs and

@@ -87,6 +87,9 @@ func TestErrors(t *testing.T) {
 		{"uses twice", "  backend api: hono {", "  frontend web: nextjs {\n    uses: api\n    uses: api\n  }\n  backend api: hono {",
 			"api\n    »uses: api", "web already uses api"},
 		{"uses in a backend", "resource products: Product", "uses: api\n    resource products: Product", "»uses: api", "can't go inside a backend"},
+		{"display of a missing field", "entity Product {", "entity Product {\n  display: nme", "display: »nme", "did you mean 'name'"},
+		{"display of an int", "entity Review {", "entity Review {\n  display: stars", "display: »stars", "must be a string, slug, email or enum"},
+		{"two display fields", "entity Product {", "entity Product {\n  display: name\n  display: slug", "»display: slug", "already has a display field"},
 		{"missing body file", "backend api: hono {\n    resource products: Product\n  }", "backend api: hono", "backend »api", "api.philote doesn't exist"},
 	}
 	for _, tc := range cases {
