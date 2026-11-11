@@ -15,5 +15,11 @@ export function mountHorses(app: Hono): void {
     },
     unique: ["handle"],
     slugs: { handle: "name" },
+    related: {
+      swipes: { table: "Swipe", key: "horse_id" },
+      swiped_by: { table: "Swipe", key: "target_id" },
+      first_matches: { table: "Match", key: "first_id" },
+      second_matches: { table: "Match", key: "second_id" },
+    },
   });
 }

@@ -6,6 +6,10 @@ neighbr
       POST /horses
       PATCH /horses/[id]
       DELETE /horses/[id]
+      GET /horses/[id]/swipes
+      GET /horses/[id]/swiped_by
+      GET /horses/[id]/first_matches
+      GET /horses/[id]/second_matches
     swipes: Swipe
       GET /swipes
       POST /swipes

@@ -13,6 +13,7 @@ export type Resource = {
   rules: Record<string, Rule>;
   unique: readonly string[];
   slugs: Record<string, string>; // slug field -> the field it's made from
+  related: Record<string, { table: string; key: string }>; // has-many relation -> its rows and their foreign key
 };
 
 export function slugify(text: string): string {
@@ -74,6 +75,12 @@ export function mount(app: Hono, res: Resource): void {
       }
       const { values, issues } = prepare(res, await body(c), id);
       return issues.length ? invalid(c, issues) : c.json(update(res.table, id, values));
+    });
+  }
+  for (const [name, rel] of Object.entries(res.related)) {
+    app.get(`${item}/${name}`, (c) => {
+      const id = idOf(c);
+      return find(res.table, id) ? c.json(all(rel.table).filter((row) => row[rel.key] === id)) : notFound(c);
     });
   }
   if (res.ops.includes("delete")) {

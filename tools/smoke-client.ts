@@ -22,6 +22,8 @@ expect("returns a step's declared error", !self.ok && self.error === "same_horse
 await swipe({ horse: pony.value.id, target: shadow.value.id, liked: true });
 const back = await swipe({ horse: shadow.value.id, target: pony.value.id, liked: true });
 expect("swipes", back.ok && back.value.liked, back);
+const liked = await horses.swipedBy(pony.value.id);
+expect("lists a has-many relation", liked.ok && liked.value.length === 1 && liked.value[0].horse_id === shadow.value.id, liked);
 const all = await matches.list();
 const mine = all.ok ? all.value.filter((m) => [m.first_id, m.second_id].includes(pony.value.id)) : [];
 expect("sees the match", mine.length === 1, all);

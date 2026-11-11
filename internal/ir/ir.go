@@ -52,6 +52,7 @@ type Relation struct {
 	Many   bool   // has many; otherwise this side holds the foreign key
 	Target string // entity name
 	FK     string // foreign key field on this entity, for the one side
+	Key    string // foreign key field on Target that points back, for the many side
 }
 
 // PartKind says which side of the app a part is.
@@ -108,7 +109,8 @@ type Endpoint struct {
 	Output   string   // entity name, empty when nothing is returned
 	List     bool     // output is a list
 	Errors   []string
-	Flow     *Flow // set for custom endpoints
+	Relation string // for a relation read: the has-many relation it lists
+	Flow     *Flow  // set for custom endpoints
 }
 
 // Flow is what a custom endpoint does: check its input, then run its steps

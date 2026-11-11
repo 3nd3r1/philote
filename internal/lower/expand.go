@@ -1,6 +1,10 @@
 package lower
 
-import "github.com/3nd3r1/philote/internal/ir"
+import (
+	"slices"
+
+	"github.com/3nd3r1/philote/internal/ir"
+)
 
 // shape is how a standard operation maps to HTTP.
 type shape struct {
@@ -59,6 +63,33 @@ func endpoints(app *ir.App, r *ir.Resource) []*ir.Endpoint {
 			ep.Output = e.Name
 		}
 		out = append(out, ep)
+	}
+	if slices.Contains(r.Ops, ir.Get) {
+		out = append(out, relationReads(r, e)...)
+	}
+	return out
+}
+
+// relationReads list a record's has-many relations, so a frontend can load
+// them through the API.
+func relationReads(r *ir.Resource, e *ir.Entity) []*ir.Endpoint {
+	var out []*ir.Endpoint
+	for _, rel := range e.Relations {
+		if !rel.Many {
+			continue
+		}
+		out = append(out, &ir.Endpoint{
+			Name:     r.Name + "." + rel.Name,
+			Method:   "GET",
+			Route:    "/" + r.Name + "/[id]/" + rel.Name,
+			Resource: r.Name,
+			Op:       ir.Get,
+			Entity:   e.Name,
+			Output:   rel.Target,
+			List:     true,
+			Errors:   []string{"not_found"},
+			Relation: rel.Name,
+		})
 	}
 	return out
 }

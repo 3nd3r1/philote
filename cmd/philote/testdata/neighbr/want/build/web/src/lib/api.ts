@@ -36,6 +36,14 @@ export const horses = {
         call<Horse, "not_found" | "invalid_input">("PATCH", `/horses/${encodeURIComponent(id)}`, ["not_found", "invalid_input"], input),
     delete: (id: string) =>
         call<void, "not_found">("DELETE", `/horses/${encodeURIComponent(id)}`, ["not_found"]),
+    swipes: (id: string) =>
+        call<Swipe[], "not_found">("GET", `/horses/${encodeURIComponent(id)}/swipes`, ["not_found"]),
+    swipedBy: (id: string) =>
+        call<Swipe[], "not_found">("GET", `/horses/${encodeURIComponent(id)}/swiped_by`, ["not_found"]),
+    firstMatches: (id: string) =>
+        call<Match[], "not_found">("GET", `/horses/${encodeURIComponent(id)}/first_matches`, ["not_found"]),
+    secondMatches: (id: string) =>
+        call<Match[], "not_found">("GET", `/horses/${encodeURIComponent(id)}/second_matches`, ["not_found"]),
 };
 
 export const swipes = {

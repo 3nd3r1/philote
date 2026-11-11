@@ -37,6 +37,9 @@ ed=$(field id)
 req POST /swipes 201 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"$ed\"}"
 req POST /swipes 400 "{\"liked\":true,\"horse_id\":\"$biscuit\",\"target_id\":\"nobody\"}"
 req GET /swipes 200
+req GET "/horses/$biscuit/swipes" 200
+[ "$(printf '%s' "$body" | grep -c "$ed")" = 1 ] || { echo "FAIL biscuit's swipes don't include the swipe on ed: $body"; fails=$((fails + 1)); }
+req GET /horses/nope/swipes 404
 # The swipe endpoint runs the model-written steps pinned in philote.lock.
 req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$biscuit\",\"liked\":true}"
 req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$ed\",\"liked\":true}"

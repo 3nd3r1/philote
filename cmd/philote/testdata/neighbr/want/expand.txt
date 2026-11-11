@@ -28,6 +28,30 @@ endpoint horses.delete {
   errors: not_found
 }
 
+endpoint horses.swipes {
+  route: GET "/horses/[id]/swipes"
+  output: [Swipe]
+  errors: not_found
+}
+
+endpoint horses.swiped_by {
+  route: GET "/horses/[id]/swiped_by"
+  output: [Swipe]
+  errors: not_found
+}
+
+endpoint horses.first_matches {
+  route: GET "/horses/[id]/first_matches"
+  output: [Match]
+  errors: not_found
+}
+
+endpoint horses.second_matches {
+  route: GET "/horses/[id]/second_matches"
+  output: [Match]
+  errors: not_found
+}
+
 endpoint swipes.list {
   route: GET "/swipes"
   output: [Swipe]

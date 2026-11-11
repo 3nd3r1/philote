@@ -26,7 +26,7 @@ type Hono struct{}
 
 func (Hono) Name() string      { return "hono" }
 func (Hono) Kind() ir.PartKind { return ir.Backend }
-func (Hono) Version() string   { return "0.2.0" }
+func (Hono) Version() string   { return "0.3.0" }
 
 // reserved are names the generated endpoint handlers use themselves.
 var reserved = []string{"ctx", "checked", "error", "app"}

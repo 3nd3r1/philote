@@ -11,5 +11,6 @@ export function mountMatches(app: Hono): void {
     },
     unique: [],
     slugs: {},
+    related: {},
   });
 }

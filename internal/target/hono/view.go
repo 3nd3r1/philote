@@ -10,16 +10,20 @@ import (
 
 // resourceView is everything resource.ts.tmpl prints, already formatted as TypeScript.
 type resourceView struct {
-	Name   string
-	Func   string
-	File   string
-	Path   string
-	Table  string
-	Ops    string
-	Rules  []ruleView
-	Unique string
-	Slugs  string
+	Name    string
+	Func    string
+	File    string
+	Path    string
+	Table   string
+	Ops     string
+	Rules   []ruleView
+	Unique  string
+	Slugs   string
+	Related []relatedView
 }
+
+// relatedView is a has-many relation the resource serves at /[id]/<Name>.
+type relatedView struct{ Name, Table, Key string }
 
 type ruleView struct{ Name, Rule string }
 
@@ -54,12 +58,27 @@ func newResourceView(app *ir.App, part *ir.Part, r *ir.Resource) resourceView {
 			slugs = append(slugs, fmt.Sprintf("%s: %q", f.Name, f.SlugFrom))
 		}
 	}
+	for _, ep := range part.Endpoints {
+		if ep.Resource == r.Name && ep.Relation != "" {
+			rel := relation(e, ep.Relation)
+			v.Related = append(v.Related, relatedView{rel.Name, rel.Target, rel.Key})
+		}
+	}
 	v.Unique = list(unique)
 	v.Slugs = "{}"
 	if len(slugs) > 0 {
 		v.Slugs = "{ " + strings.Join(slugs, ", ") + " }"
 	}
 	return v
+}
+
+func relation(e *ir.Entity, name string) *ir.Relation {
+	for _, r := range e.Relations {
+		if r.Name == name {
+			return r
+		}
+	}
+	panic("hono: " + e.Name + " has no relation " + name)
 }
 
 // inputsOf returns the body fields of the resource's create or update endpoint.

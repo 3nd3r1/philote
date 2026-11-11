@@ -19,12 +19,12 @@ func (c *checker) relation(r *syntax.Relation) {
 	desc := "the relation at " + r.From.Pos.String()
 
 	if r.Verb.Name == "has many" {
-		c.addSide(from, &ir.Relation{Name: r.Name.Name, Many: true, Target: to.Name}, r.Name, desc, false)
+		c.addSide(from, &ir.Relation{Name: r.Name.Name, Many: true, Target: to.Name, Key: backName + "_id"}, r.Name, desc, false)
 		c.addSide(to, &ir.Relation{Name: backName, Target: from.Name, FK: backName + "_id"}, backAt, desc, implicit)
 		return
 	}
 	c.addSide(from, &ir.Relation{Name: r.Name.Name, Target: to.Name, FK: r.Name.Name + "_id"}, r.Name, desc, false)
-	c.addSide(to, &ir.Relation{Name: backName, Many: true, Target: from.Name}, backAt, desc, implicit)
+	c.addSide(to, &ir.Relation{Name: backName, Many: true, Target: from.Name, Key: r.Name.Name + "_id"}, backAt, desc, implicit)
 }
 
 func (c *checker) addSide(e *ir.Entity, rel *ir.Relation, at syntax.Ident, desc string, implicit bool) {

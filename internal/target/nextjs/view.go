@@ -89,7 +89,7 @@ func newAPIView(app *ir.App, backend *ir.Part) (apiView, error) {
 			if ep.Resource != r.Name {
 				continue
 			}
-			c := newCall(ep, ep.Op.String())
+			c := newCall(ep, camel(strings.TrimPrefix(ep.Name, r.Name+".")))
 			if ep.Input != nil {
 				input := addInput(&v, "New"+ep.Entity, resourceInput(ep.Input, used))
 				if ep.Partial {
@@ -208,6 +208,13 @@ func checkNames(app *ir.App, v apiView) error {
 	}
 	for _, r := range v.Resources {
 		names = append(names, r.Name)
+		calls := map[string]bool{}
+		for _, c := range r.Calls {
+			if calls[c.Name] {
+				return fmt.Errorf("the client for %s would declare %s.%s twice; rename the relation", v.Backend, r.Name, c.Name)
+			}
+			calls[c.Name] = true
+		}
 	}
 	for _, c := range v.Endpoints {
 		names = append(names, c.Name)
