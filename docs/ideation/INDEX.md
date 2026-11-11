@@ -6,11 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
+Nothing.
 
 ## Principles
 
@@ -54,7 +50,7 @@ Proposed but not yet accepted by a human.
 
 ## Decisions
 
-17 accepted, 1 proposed
+18 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -75,7 +71,7 @@ Proposed but not yet accepted by a human.
 | [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | accepted | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
 | [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | accepted | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project, based on the user's template, with a generated, typed, server-only client for that backend. No pages and no model yet. |
 | [D-017](decisions/D-017-pages-page-and-component-nodes-tokens-di.md) | accepted | Pages: page and component nodes, tokens, display fields, declared reads | Pages and components are the frontend's nodes. The look comes from theme tokens. An entity shown by reference declares its display field. A component's reads are part of its interface. |
-| [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | proposed | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
+| [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | accepted | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
 
 ## Ideas
 

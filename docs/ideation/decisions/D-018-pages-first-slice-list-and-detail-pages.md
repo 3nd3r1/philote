@@ -1,7 +1,7 @@
 +++
 id = "D-018"
 title = "Pages first slice: list and detail pages, template components, relation reads"
-status = "proposed"
+status = "accepted"
 summary = "A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet."
 created = 2026-11-11
 related = ["D-017", "D-016", "D-006", "D-004", "D-001", "Q-017", "Q-018"]
