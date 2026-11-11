@@ -67,6 +67,7 @@ type Part struct {
 	Name      string
 	Kind      PartKind
 	Target    string
+	Uses      string // for a frontend: the backend part it calls
 	Resources []*Resource
 	Custom    []*Endpoint // endpoints declared with steps
 	Steps     []*Step

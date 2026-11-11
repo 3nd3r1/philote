@@ -145,7 +145,7 @@ func (p *parser) skipStatement() {
 	}
 }
 
-const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, or a relation like `Order has many lines: OrderLine`"
+const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, uses, or a relation like `Order has many lines: OrderLine`"
 
 func (p *parser) item() Item {
 	t := p.peek()
@@ -167,6 +167,8 @@ func (p *parser) item() Item {
 		return p.endpoint()
 	case "step":
 		return p.step()
+	case "uses":
+		return p.uses()
 	}
 	if v := p.peekAt(1); v.kind == tIdent && (v.text == "has" || v.text == "belongs") {
 		return p.relation()
@@ -201,6 +203,14 @@ func (p *parser) part() Item {
 	}
 	p.endStatement()
 	return pt
+}
+
+func (p *parser) uses() Item {
+	u := &Uses{Word: p.ident("uses")}
+	p.expect(tColon, "':' and a backend part, like `uses: api`")
+	u.Part = p.ident("a backend part name")
+	p.endStatement()
+	return u
 }
 
 func (p *parser) enum() Item {

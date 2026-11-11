@@ -42,7 +42,7 @@ func load(files map[string]string) (*ir.App, *diag.List) {
 	if d.HasErrors() {
 		return nil, d
 	}
-	return Run(src, Targets{"hono": ir.Backend}, d), d
+	return Run(src, Targets{"hono": ir.Backend, "nextjs": ir.Frontend}, d), d
 }
 
 func TestBaseIsClean(t *testing.T) {
@@ -79,6 +79,14 @@ func TestErrors(t *testing.T) {
 		{"resource outside a part", "enum Status", "resource extra: Product\nenum Status", "resource »extra", "belongs inside a part"},
 		{"missing colon", "name: string(max 120)", "name string(max 120)", "name »string", "expected ':'"},
 		{"unknown statement", "enum Status", "table Foo\nenum Status", "»table Foo", "unknown statement 'table'"},
+		{"frontend without uses", "  backend api: hono {", "  frontend web: nextjs {}\n  backend api: hono {", "frontend »web", "doesn't say which backend"},
+		{"uses a missing part", "  backend api: hono {", "  frontend web: nextjs {\n    uses: apx\n  }\n  backend api: hono {", "uses: »apx", "did you mean 'api'"},
+		{"uses a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    uses: web\n  }\n  backend api: hono {", "uses: »web", "no backend part named web"},
+		{"other line in a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    resource things: Product\n    uses: api\n  }\n  backend api: hono {",
+			"resource »things", "only takes `uses: <backend>`"},
+		{"uses twice", "  backend api: hono {", "  frontend web: nextjs {\n    uses: api\n    uses: api\n  }\n  backend api: hono {",
+			"api\n    »uses: api", "web already uses api"},
+		{"uses in a backend", "resource products: Product", "uses: api\n    resource products: Product", "»uses: api", "can't go inside a backend"},
 		{"missing body file", "backend api: hono {\n    resource products: Product\n  }", "backend api: hono", "backend »api", "api.philote doesn't exist"},
 	}
 	for _, tc := range cases {
@@ -130,5 +138,16 @@ func TestBodyFromFile(t *testing.T) {
 	app, d := load(map[string]string{"app.philote": root, "api.philote": "resource products: Product\n"})
 	if d.HasErrors() || len(app.Parts[0].Resources) != 1 {
 		t.Fatalf("want api's body loaded from api.philote, got %+v", d.Items)
+	}
+}
+
+func TestFrontendUsesALaterBackend(t *testing.T) {
+	src := strings.Replace(base, "  backend api: hono {", "  frontend web: nextjs {\n    uses: api\n  }\n  backend api: hono {", 1)
+	app, d := load(map[string]string{"app.philote": src})
+	if d.HasErrors() {
+		t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": src}))
+	}
+	if web := app.Parts[0]; web.Uses != "api" {
+		t.Errorf("web should use api, got %q", web.Uses)
 	}
 }

@@ -25,6 +25,7 @@ type checker struct {
 	types    map[string]diag.Pos
 	entities map[string]*ir.Entity
 	members  map[string]map[string]member
+	uses     map[*ir.Part]syntax.Ident // frontend -> the backend its `uses` names
 }
 
 // Run checks a loaded source and returns its IR. The IR is only meaningful
@@ -36,6 +37,7 @@ func Run(src *syntax.Source, targets Targets, d *diag.List) *ir.App {
 		types:    map[string]diag.Pos{},
 		entities: map[string]*ir.Entity{},
 		members:  map[string]map[string]member{},
+		uses:     map[*ir.Part]syntax.Ident{},
 	}
 	if src.Root == nil {
 		return nil

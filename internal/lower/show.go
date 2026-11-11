@@ -55,7 +55,11 @@ func Tree(app *ir.App, depth int) string {
 
 func partTree(b *strings.Builder, p *ir.Part, depth int) {
 	kind := map[ir.PartKind]string{ir.Backend: "backend", ir.Frontend: "frontend"}[p.Kind]
-	fmt.Fprintf(b, "  %s (%s, %s)\n", p.Name, kind, p.Target)
+	fmt.Fprintf(b, "  %s (%s, %s)", p.Name, kind, p.Target)
+	if p.Uses != "" {
+		b.WriteString(" uses " + p.Uses)
+	}
+	b.WriteString("\n")
 	if depth < 2 {
 		return
 	}

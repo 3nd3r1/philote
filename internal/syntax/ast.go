@@ -106,6 +106,12 @@ type Step struct {
 	Intent *Str
 }
 
+// Uses is `uses: <part>`, naming the backend a frontend calls.
+type Uses struct {
+	Word Ident
+	Part Ident
+}
+
 func (a *App) Start() diag.Pos      { return a.Name.Pos }
 func (e *Endpoint) Start() diag.Pos { return e.Name.Pos }
 func (s *Step) Start() diag.Pos     { return s.Name.Pos }
@@ -114,3 +120,4 @@ func (e *Enum) Start() diag.Pos     { return e.Name.Pos }
 func (e *Entity) Start() diag.Pos   { return e.Name.Pos }
 func (r *Relation) Start() diag.Pos { return r.From.Pos }
 func (r *Resource) Start() diag.Pos { return r.Name.Pos }
+func (u *Uses) Start() diag.Pos     { return u.Word.Pos }
