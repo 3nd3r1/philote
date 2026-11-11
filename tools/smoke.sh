@@ -1,6 +1,7 @@
 #!/bin/sh
-# Builds the horse Tinder test spec, installs and typechecks the generated backend,
-# runs it and checks real requests. Needs network for npm install.
+# Builds the horse Tinder test spec, installs and typechecks the generated backend
+# and frontend, runs the backend and checks real requests, both with curl and
+# through the frontend's generated client. Needs network for npm install.
 set -eu
 root=$(cd "$(dirname "$0")/.." && pwd)
 out=${1:-$(mktemp -d)}
@@ -51,4 +52,16 @@ req POST /matches 404 '{}'
 req DELETE "/horses/$ed" 204
 req GET "/horses/$ed" 404
 
-[ "$fails" = 0 ] && echo "smoke: all requests behaved" || { echo "smoke: $fails failed"; exit 1; }
+[ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
+
+cd "$out/web"
+npm install --silent
+npm run lint --silent >/dev/null
+# Typechecking the script too proves the client's result types narrow:
+# comparing an error to one the endpoint doesn't declare fails here.
+cp "$root/tools/smoke-client.ts" smoke.mts
+npx next typegen >/dev/null
+npx tsc --noEmit
+# react-server is the condition Next.js resolves server-only with on the server.
+API_URL="http://localhost:$PORT" "$out/api/node_modules/.bin/tsx" --conditions=react-server smoke.mts
+echo "smoke: all requests behaved"
