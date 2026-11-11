@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/3nd3r1/philote/internal/build"
 	"github.com/3nd3r1/philote/internal/check"
@@ -26,11 +27,12 @@ commands:
   tree [--depth N]         show the app as a tree
   expand <path>            show a part or resource as the endpoints it becomes, e.g. api/products
   build [--out dir]        generate code (default: build/ next to the spec)
-        [--frozen]         never call the model; every step body must be in philote.lock
-        [--model name]     the model that writes step bodies (default ` + defaultModel + `)
+        [--frozen]         never call the model; every body must be in philote.lock
+        [--model name]     the model that writes step and component bodies (default ` + defaultModel + `)
+        [--redo a,b]       have the model write these fresh, e.g. web/HorseCard
 `
 
-// defaultModel writes step bodies. It's a full name, not an alias like
+// defaultModel writes step and component bodies. It's a full name, not an alias like
 // "opus", because the name is part of every key in philote.lock.
 const defaultModel = "claude-opus-5-5"
 
@@ -54,13 +56,18 @@ func run(args []string, stdout, stderr io.Writer) int {
 	depth := flags.Int("depth", 2, "levels to show")
 	out := flags.String("out", "", "output directory")
 	frozen := flags.Bool("frozen", false, "never call the model")
-	modelName := flags.String("model", defaultModel, "model for step bodies")
+	modelName := flags.String("model", defaultModel, "model for step and component bodies")
+	redo := flags.String("redo", "", "nodes to write fresh, comma-separated")
 	if flags.Parse(args[1:]) != nil {
 		return 2
 	}
 	wantArgs := map[string]int{"check": 1, "tree": 1, "expand": 2, "build": 1}
 	if n, ok := wantArgs[cmd]; !ok || flags.NArg() != n {
 		fmt.Fprint(stderr, usage)
+		return 2
+	}
+	if *redo != "" && *frozen {
+		fmt.Fprintln(stderr, "--redo asks the model for new bodies, so it can't be used with --frozen")
 		return 2
 	}
 	spec := flags.Arg(0)
@@ -82,14 +89,21 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if *out == "" {
 			*out = filepath.Join(filepath.Dir(spec), "build")
 		}
-		opts := build.Options{
-			Lock:   filepath.Join(filepath.Dir(spec), "philote.lock"),
-			Model:  newModel(*modelName),
-			Frozen: *frozen,
-		}
-		return writeBuild(app, texts, *out, opts, stdout, stderr)
+		return writeBuild(app, texts, *out, buildOptions(spec, *modelName, *frozen, *redo), stdout, stderr)
 	}
 	return 0
+}
+
+func buildOptions(spec, modelName string, frozen bool, redo string) build.Options {
+	opts := build.Options{
+		Lock:   filepath.Join(filepath.Dir(spec), "philote.lock"),
+		Model:  newModel(modelName),
+		Frozen: frozen,
+	}
+	if redo != "" {
+		opts.Redo = strings.Split(redo, ",")
+	}
+	return opts
 }
 
 // load runs the front end and prints diagnostics. It returns the app, or

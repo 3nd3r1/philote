@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -20,19 +19,28 @@ import (
 // model with its errors (D-015).
 const retries = 2
 
-// Options says where step bodies come from.
+// Options says where model-written bodies come from.
 type Options struct {
 	Lock   string      // path of philote.lock
 	Model  model.Model // named in every key, so it's needed even when frozen
 	Frozen bool        // never call the model; every body must be in the lock
+	Redo   []string    // nodes, like web/HorseCard, to write fresh even if pinned
 }
 
-// job is one step body the model has to write.
+// node is a spec node whose body a model writes: a step or a component.
+type node struct {
+	kind, name string
+	pos        diag.Pos
+}
+
+func (n node) String() string { return n.kind + " " + n.name }
+
+// job is one body the model has to write.
 type job struct {
 	part     int // index into the outputs
 	slot     target.Slot
 	key      string
-	previous string   // the step's body from the lock, for an older key
+	previous string   // the node's body from the lock, for an older key
 	body     string   // the latest try
 	err      error    // the model call failed
 	problems []string // tsc errors in the latest try
@@ -51,17 +59,23 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	if err != nil || d.HasErrors() {
 		return nil, err
 	}
-	steps := stepPositions(app)
-	pins, jobs := plan(outs, old, opts, steps, d)
+	nodes := bodyNodes(app)
+	for _, r := range opts.Redo {
+		if _, ok := nodes[r]; !ok {
+			return nil, fmt.Errorf("--redo %s: there is no step or component at that path; paths look like web/HorseCard", r)
+		}
+	}
+	pins, jobs := plan(outs, old, opts, nodes, d)
 	if d.HasErrors() {
 		return nil, nil
 	}
-	failed, err := writeBodies(dir, outs, pins, jobs, opts.Model)
+	failed, err := writeBodies(dir, outs, pins, jobs, opts.Model, nodes)
 	if err != nil {
 		return nil, err
 	}
 	for _, j := range failed {
-		d.Errorf(steps[j.slot.Node], "the model's body for step %s still doesn't typecheck after %d tries", path.Base(j.slot.Node), retries+1)
+		n := nodes[j.slot.Node]
+		d.Errorf(n.pos, "the model's body for %s still doesn't typecheck after %d tries", n, retries+1)
 		d.Hint("tsc: %s (see %s)", j.problems[0], filepath.Join(dir, outs[j.part].Part, j.slot.File))
 		// Keep the old body: it's the model's starting point next time.
 		if p, ok := old[j.slot.Node]; ok {
@@ -74,33 +88,42 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	return outs, err
 }
 
-// stepPositions maps each slot's node path to the step's place in the spec.
-func stepPositions(app *ir.App) map[string]diag.Pos {
-	pos := map[string]diag.Pos{}
+// bodyNodes maps each node path, like api/record_swipe, to the node whose
+// body a model writes.
+func bodyNodes(app *ir.App) map[string]node {
+	nodes := map[string]node{}
 	for _, p := range app.Parts {
 		for _, s := range p.Steps {
-			pos[p.Name+"/"+s.Name] = s.Pos
+			nodes[p.Name+"/"+s.Name] = node{"step", s.Name, s.Pos}
+		}
+		for _, c := range p.Components {
+			nodes[p.Name+"/"+c.Name] = node{"component", c.Name, c.Pos}
 		}
 	}
-	return pos
+	return nodes
 }
 
-// plan pins every slot whose key is in the lock and makes a job for the rest.
-func plan(outs []Output, old map[string]pin, opts Options, steps map[string]diag.Pos, d *diag.List) (map[string]pin, []*job) {
+// plan pins every slot whose key is in the lock and makes a job for the
+// rest. A node to redo starts fresh, without its old body.
+func plan(outs []Output, old map[string]pin, opts Options, nodes map[string]node, d *diag.List) (map[string]pin, []*job) {
 	pins := map[string]pin{}
 	var jobs []*job
 	for i, o := range outs {
 		for _, s := range o.Slots {
-			if _, ok := steps[s.Node]; !ok {
-				panic("build: slot " + s.Node + " is not a step in the IR")
+			n, ok := nodes[s.Node]
+			if !ok {
+				panic("build: slot " + s.Node + " is not a step or component in the IR")
 			}
 			k := key(opts.Model.Name(), s.Prompt)
 			p, ok := old[s.Node]
+			redo := slices.Contains(opts.Redo, s.Node)
 			switch {
+			case redo:
+				jobs = append(jobs, &job{part: i, slot: s, key: k})
 			case ok && p.Key == k:
 				pins[s.Node] = p
 			case opts.Frozen:
-				d.Errorf(steps[s.Node], "step %s has no body in philote.lock for this spec", path.Base(s.Node))
+				d.Errorf(n.pos, "%s has no body in philote.lock for this spec", n)
 				d.Hint("build without --frozen to have the model write it, then commit philote.lock")
 			default:
 				jobs = append(jobs, &job{part: i, slot: s, key: k, previous: p.Body})
@@ -113,7 +136,7 @@ func plan(outs []Output, old map[string]pin, opts Options, steps map[string]diag
 // writeBodies asks the model for each job's body, writes the parts and
 // typechecks them, and retries bodies that fail. Bodies that pass are added
 // to pins; it returns the jobs that never passed.
-func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, m model.Model) ([]*job, error) {
+func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, m model.Model, nodes map[string]node) ([]*job, error) {
 	for try := 0; ; try++ {
 		ask(m, jobs)
 		bodies, err := latest(pins, jobs)
@@ -130,7 +153,7 @@ func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, m 
 		}
 		for _, j := range jobs {
 			if !slices.Contains(failed, j) {
-				pins[j.slot.Node] = pin{Node: j.slot.Node, Key: j.key, Model: m.Name(), Body: j.body}
+				pins[j.slot.Node] = pin{Kind: nodes[j.slot.Node].kind, Node: j.slot.Node, Key: j.key, Model: m.Name(), Body: j.body}
 			}
 		}
 		if len(failed) == 0 || try == retries {
@@ -148,7 +171,7 @@ func latest(pins map[string]pin, jobs []*job) (map[string]string, error) {
 	}
 	for _, j := range jobs {
 		if j.err != nil {
-			return nil, fmt.Errorf("step %s: %w", j.slot.Node, j.err)
+			return nil, fmt.Errorf("%s: %w", j.slot.Node, j.err)
 		}
 		bodies[j.slot.Node] = j.body
 	}
@@ -257,13 +280,13 @@ func verify(dir string, filled []Output, jobs []*job) ([]*job, error) {
 			}
 		}
 		if len(problems) > 0 {
-			return nil, fmt.Errorf("%s: tsc found errors outside the new step bodies: %v", o.Part, problems)
+			return nil, fmt.Errorf("%s: tsc found errors outside the new bodies: %v", o.Part, problems)
 		}
 	}
 	return failed, nil
 }
 
-// saveLock writes the pins, or removes the lock when no step is left.
+// saveLock writes the pins, or removes the lock when no body is left.
 func saveLock(lock string, pins map[string]pin) error {
 	if len(pins) == 0 {
 		if err := os.Remove(lock); err != nil && !os.IsNotExist(err) {

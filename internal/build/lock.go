@@ -14,12 +14,13 @@ import (
 )
 
 // lockHeader opens every philote.lock.
-const lockHeader = `# Step bodies written by a model and pinned by philote build (D-015).
+const lockHeader = `# Step and component bodies written by a model and pinned by philote build (D-015, D-019).
 # Commit this file and review its diff like code. Don't edit it by hand.
 `
 
-// pin is one step body in philote.lock.
+// pin is one model-written body in philote.lock.
 type pin struct {
+	Kind  string // step or component
 	Node  string // like api/record_swipe
 	Key   string
 	Model string
@@ -64,16 +65,16 @@ func parseLock(file, text string, d *diag.List) map[string]pin {
 		case cur != nil && (line == "|" || strings.HasPrefix(line, "| ")):
 			body = append(body, strings.TrimPrefix(strings.TrimPrefix(line, "|"), " "))
 		case line == "" || strings.HasPrefix(line, "#"):
-		case word == "step" && rest != "":
+		case (word == "step" || word == "component") && rest != "":
 			done()
-			cur = &pin{Node: rest}
+			cur = &pin{Kind: word, Node: rest}
 		case cur != nil && word == "key" && rest != "":
 			cur.Key = rest
 		case cur != nil && word == "model" && rest != "":
 			cur.Model = rest
 		default:
 			d.Errorf(diag.Pos{File: file, Line: i + 1, Col: 1}, "can't read this line of the lock")
-			d.Hint("delete %s and build again to have every step body written fresh", file)
+			d.Hint("delete %s and build again to have every body written fresh", file)
 			return nil
 		}
 	}
@@ -94,7 +95,7 @@ func printLock(pins map[string]pin) []byte {
 	// lock has no trailing spaces.
 	for _, n := range nodes {
 		p := pins[n]
-		b.WriteString("\nstep " + p.Node + "\nkey " + p.Key + "\nmodel " + p.Model + "\n")
+		b.WriteString("\n" + p.Kind + " " + p.Node + "\nkey " + p.Key + "\nmodel " + p.Model + "\n")
 		for _, line := range strings.Split(p.Body, "\n") {
 			if line == "" {
 				b.WriteString("|\n")

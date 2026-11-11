@@ -9,8 +9,9 @@ import (
 
 func TestLockRoundTrip(t *testing.T) {
 	pins := map[string]pin{
-		"api/b": {Node: "api/b", Key: "k2", Model: "m", Body: "if (x) {\n  return;\n}\n\nreturn y;"},
-		"api/a": {Node: "api/a", Key: "k1", Model: "m", Body: "return 1;"},
+		"api/b": {Kind: "step", Node: "api/b", Key: "k2", Model: "m", Body: "if (x) {\n  return;\n}\n\nreturn y;"},
+		"api/a": {Kind: "step", Node: "api/a", Key: "k1", Model: "m", Body: "return 1;"},
+		"web/C": {Kind: "component", Node: "web/C", Key: "k3", Model: "m", Body: "return <p>{x.name}</p>;"},
 	}
 	text := string(printLock(pins))
 	if strings.Index(text, "step api/a") > strings.Index(text, "step api/b") {
@@ -21,7 +22,7 @@ func TestLockRoundTrip(t *testing.T) {
 	}
 	d := &diag.List{}
 	got := parseLock("philote.lock", text, d)
-	if d.HasErrors() || len(got) != 2 || got["api/a"] != pins["api/a"] || got["api/b"] != pins["api/b"] {
+	if d.HasErrors() || len(got) != 3 || got["api/a"] != pins["api/a"] || got["api/b"] != pins["api/b"] || got["web/C"] != pins["web/C"] {
 		t.Errorf("round trip changed the pins:\n%s\ngot %+v", text, got)
 	}
 }
