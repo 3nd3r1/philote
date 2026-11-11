@@ -1,4 +1,4 @@
-# Step bodies written by a model and pinned by philote build (D-015).
+# Step and component bodies written by a model and pinned by philote build (D-015, D-019).
 # Commit this file and review its diff like code. Don't edit it by hand.
 
 step api/match_if_mutual
@@ -54,3 +54,144 @@ model claude-opus-5-5
 |   horse_id: horse.id,
 |   target_id: target.id,
 | }) as Swipe;
+
+component web/HorseCard
+key 4536197ae0a1ff7a5b0503f13fdaea90f05d4daf6100f6d7ffe9f84dab7d2a21
+model claude-opus-5-5
+| const breedLabels: Record<HorseCardProps["horse"]["breed"], string> = {
+|     arabian: "Arabian",
+|     mustang: "Mustang",
+|     shetland: "Shetland",
+|     clydesdale: "Clydesdale",
+|     other: "Other",
+| };
+|
+| const initial = horse.name.trim().charAt(0).toUpperCase();
+|
+| return (
+|     <Card className="h-full gap-0 overflow-hidden rounded-none p-0">
+|         <div className="relative flex aspect-[3/4] flex-col justify-between bg-muted">
+|             <div className="flex justify-end p-4">
+|                 <Badge variant="secondary" className="rounded-none text-[10px] uppercase tracking-wider">
+|                     {breedLabels[horse.breed]}
+|                 </Badge>
+|             </div>
+|             <div
+|                 aria-hidden="true"
+|                 className="pointer-events-none absolute inset-0 flex items-center justify-center font-heading text-[8rem] font-bold leading-none text-muted-foreground/20 select-none"
+|             >
+|                 {initial}
+|             </div>
+|             <div className="relative bg-gradient-to-t from-background/90 via-background/60 to-transparent p-4 pt-12">
+|                 <CardHeader className="gap-1 p-0">
+|                     <CardTitle className="flex items-baseline gap-2 font-heading">
+|                         <span className="truncate text-3xl font-bold leading-tight text-foreground">
+|                             {horse.name}
+|                         </span>
+|                         <span className="shrink-0 text-2xl font-light text-muted-foreground">
+|                             {horse.age}
+|                         </span>
+|                     </CardTitle>
+|                     <CardDescription className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
+|                         <Icons.Cake className="size-3.5" />
+|                         <span>
+|                             {horse.age} {horse.age === 1 ? "year" : "years"} old
+|                         </span>
+|                     </CardDescription>
+|                 </CardHeader>
+|             </div>
+|         </div>
+|     </Card>
+| );
+
+component web/HorseView
+key 93508cd81d4c5e522beda8b5549e6d5f8e64f6aebcc86759517fb1aee8885bd6
+model claude-opus-5-5
+| const breedLabels: Record<HorseViewProps["horse"]["breed"], string> = {
+|     arabian: "Arabian",
+|     mustang: "Mustang",
+|     shetland: "Shetland",
+|     clydesdale: "Clydesdale",
+|     other: "Other",
+| };
+|
+| return (
+|     <div className="mx-auto w-full max-w-[900px] px-4 py-8">
+|         <Card className="rounded-none">
+|             <CardHeader className="gap-3">
+|                 <div className="flex flex-col gap-1">
+|                     <CardTitle className="font-heading text-4xl font-bold leading-tight tracking-tight text-card-foreground sm:text-5xl">
+|                         {horse.name}
+|                         <span className="text-muted-foreground">, {horse.age}</span>
+|                     </CardTitle>
+|                     <CardDescription className="text-sm text-muted-foreground">
+|                         @{horse.handle}
+|                     </CardDescription>
+|                 </div>
+|                 <CardAction>
+|                     <Badge variant="secondary" className="rounded-none text-xs uppercase tracking-wide">
+|                         <Icons.Tag className="size-3" />
+|                         {breedLabels[horse.breed]}
+|                     </Badge>
+|                 </CardAction>
+|                 <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+|                     <span className="flex items-center gap-1">
+|                         <Icons.Cake className="size-3.5" />
+|                         {horse.age} {horse.age === 1 ? "year" : "years"} old
+|                     </span>
+|                     <Separator orientation="vertical" className="h-3" />
+|                     <span className="flex items-center gap-1">
+|                         <Icons.Sparkles className="size-3.5" />
+|                         {breedLabels[horse.breed]}
+|                     </span>
+|                 </div>
+|             </CardHeader>
+|             <Separator />
+|             <CardContent className="flex flex-col gap-3">
+|                 <h2 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|                     <Icons.Heart className="size-4" />
+|                     About
+|                 </h2>
+|                 <p className="whitespace-pre-line text-sm leading-relaxed text-card-foreground">
+|                     {horse.bio}
+|                 </p>
+|             </CardContent>
+|         </Card>
+|     </div>
+| );
+
+component web/MatchCard
+key 8fbcdec4c462f8dbc71de2278037a0992f6d335b22d16c33309dc00b0d01f785
+model claude-opus-5-5
+| const matchedAt = formatDateTime(match.matched_at);
+|
+| return (
+|   <Card className="h-full">
+|     <CardHeader className="items-center text-center">
+|       <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|         It&apos;s a match
+|       </CardDescription>
+|     </CardHeader>
+|     <CardContent className="flex flex-col items-center gap-3 text-center">
+|       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
+|         {match.first.name}
+|       </CardTitle>
+|       <div className="flex w-full items-center gap-3">
+|         <Separator className="flex-1" />
+|         <span className="flex size-9 items-center justify-center border bg-primary text-primary-foreground">
+|           <Icons.Heart className="size-4 fill-current" aria-label="matched with" />
+|         </span>
+|         <Separator className="flex-1" />
+|       </div>
+|       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
+|         {match.second.name}
+|       </CardTitle>
+|     </CardContent>
+|     <CardFooter className="justify-center">
+|       <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+|         <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
+|         <time dateTime={match.matched_at}>{matchedAt}</time>
+|       </p>
+|     </CardFooter>
+|   </Card>
+| );

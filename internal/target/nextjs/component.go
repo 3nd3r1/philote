@@ -10,18 +10,12 @@ import (
 )
 
 // reserved are names the generated component and read code use itself.
-var reserved = []string{"card", "item", "must"}
+var reserved = []string{"props", "item", "must", "cn", "Icons"}
 
-type rowView struct {
-	Label, Value string
-	Chips        string // for a has-many relation: the display field each chip shows
-}
+// marker is the line in a component file that the model's body replaces.
+const marker = "    // philote:body"
 
-type componentView struct {
-	Name, Param, Title, Link, Formats string
-	Rows                              []rowView
-	Chips                             bool
-}
+type componentView struct{ Name, Param, Link, Marker string }
 
 type relationView struct{ Name, Type string }
 
@@ -36,21 +30,30 @@ type readsView struct {
 	Components     []readView
 }
 
-// components renders each component and reads.ts, which loads their props.
-func components(app *ir.App, part *ir.Part) ([]target.File, error) {
+// components renders each component around a slot for its body, and
+// reads.ts, which loads their props.
+func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error) {
 	var files []target.File
+	var slots []target.Slot
 	reads := readsView{}
 	clients, types := map[string]bool{}, map[string]bool{}
 	for _, c := range part.Components {
 		if err := checkComponent(c); err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		files = append(files, render("component.tsx.tmpl", "src/components/common/"+kebab(c.Name)+".tsx", newComponentView(app, c)))
+		path := "src/components/common/" + kebab(c.Name) + ".tsx"
+		files = append(files, render("component.tsx.tmpl", path, newComponentView(c)))
+		slots = append(slots, target.Slot{
+			Node:   part.Name + "/" + c.Name,
+			File:   path,
+			Marker: marker,
+			Prompt: componentPrompt(app, part, c),
+		})
 		reads.Components = append(reads.Components, newReadView(c, clients, types))
 	}
 	reads.Clients = strings.Join(sortedKeys(clients), ", ")
 	reads.Types = imports(app, types)
-	return append(files, render("reads.ts.tmpl", "src/lib/reads.ts", reads)), nil
+	return append(files, render("reads.ts.tmpl", "src/lib/reads.ts", reads)), slots, nil
 }
 
 func checkComponent(c *ir.Component) error {
@@ -65,39 +68,12 @@ func checkComponent(c *ir.Component) error {
 	return nil
 }
 
-var formatters = map[ir.Kind]string{ir.Date: "formatDate", ir.DateTime: "formatDateTime", ir.Bool: "formatBool"}
-
-func newComponentView(app *ir.App, c *ir.Component) componentView {
-	v := componentView{Name: c.Name, Param: c.Param}
-	display := app.Entity(c.Entity).Display
-	formats := map[string]bool{}
-	for _, s := range c.Shows {
-		value := c.Param + "." + s.Name
-		switch {
-		case s.Field != nil && s.Name == display:
-			v.Title = value
-			continue
-		case s.Relation != nil && s.Relation.Many:
-			v.Chips = true
-			v.Rows = append(v.Rows, rowView{Label: label(s.Name), Value: value, Chips: s.Display})
-			continue
-		case s.Relation != nil:
-			value += "." + s.Display
-		case formatters[s.Field.Kind] != "":
-			f := formatters[s.Field.Kind]
-			formats[f] = true
-			value = f + "(" + value + ")"
-			if s.Field.Optional {
-				value = fmt.Sprintf("%s.%s === undefined ? null : %s", c.Param, s.Name, value)
-			}
-		}
-		v.Rows = append(v.Rows, rowView{Label: label(s.Name), Value: value})
-	}
-	v.Formats = strings.Join(sortedKeys(formats), ", ")
+func newComponentView(c *ir.Component) componentView {
+	v := componentView{Name: c.Name, Param: c.Param, Marker: marker}
 	if c.LinksTo != "" {
 		link := c.LinksTo
 		for _, f := range c.LinkBy {
-			link = strings.Replace(link, "["+f+"]", "${encodeURIComponent("+c.Param+"."+f+")}", 1)
+			link = strings.Replace(link, "["+f+"]", "${encodeURIComponent(props."+c.Param+"."+f+")}", 1)
 		}
 		v.Link = "`" + link + "`"
 	}

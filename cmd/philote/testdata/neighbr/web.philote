@@ -21,12 +21,15 @@ page "/matches" {
 component HorseCard(horse: Horse) {
   shows: horse.name, horse.breed, horse.age
   links_to: "/horses/[horse.id]"
+  look: "a dating-app profile card: a tall photo-less hero with the name big and the age beside it, the breed as a badge"
 }
 
 component HorseView(horse: Horse) {
   shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+  look: "a full dating profile: name and age as a big headline, @handle muted under it, breed badge, the bio as an about section"
 }
 
 component MatchCard(match: Match) {
   shows: match.first, match.second, match.matched_at
+  look: "celebrate the match: both names large with a heart icon between them, when they matched small and muted"
 }

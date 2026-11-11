@@ -92,9 +92,3 @@ func kebab(s string) string {
 	}
 	return b.String()
 }
-
-// label turns matched_at into "Matched at".
-func label(name string) string {
-	words := strings.ReplaceAll(name, "_", " ")
-	return strings.ToUpper(words[:1]) + words[1:]
-}

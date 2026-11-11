@@ -1,0 +1,160 @@
+# Step and component bodies written by a model and pinned by philote build (D-015, D-019).
+# Commit this file and review its diff like code. Don't edit it by hand.
+
+component web/AuthorCard
+key fed3e23d891f686ff9eee148a5448245f6954f50f81f21354e69ee16b89488fe
+model claude-opus-5-5
+| return (
+|   <Card className="h-full rounded-none transition-colors group-hover:bg-accent">
+|     <CardHeader>
+|       <CardTitle className="font-heading text-base leading-tight">
+|         {author.name}
+|       </CardTitle>
+|       <CardAction>
+|         <Icons.UserRound className="size-4 text-muted-foreground" />
+|       </CardAction>
+|     </CardHeader>
+|     <Separator />
+|     <CardContent>
+|       <dl className="flex items-center justify-between gap-2">
+|         <dt className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+|           <Icons.Cake className="size-3.5" />
+|           Born
+|         </dt>
+|         <dd>
+|           <Badge variant="secondary" className="rounded-none font-mono text-xs">
+|             {formatDate(author.born)}
+|           </Badge>
+|         </dd>
+|       </dl>
+|     </CardContent>
+|   </Card>
+| );
+
+component web/AuthorView
+key 962d510baca099fce152eaf90e696a1414c9222bbb9844baaedf2af986518ab8
+model claude-opus-5-5
+| const bookCount = author.books.length;
+|
+| return (
+|   <div className="mx-auto w-full max-w-[900px] px-4 py-8">
+|     <Card className="rounded-none">
+|       <CardHeader>
+|         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|           Author
+|         </span>
+|         <CardTitle className="font-heading text-2xl text-card-foreground">
+|           {author.name}
+|         </CardTitle>
+|         <CardDescription className="flex items-center gap-2 text-sm text-muted-foreground">
+|           <Icons.Calendar className="size-4" />
+|           <span className="text-xs uppercase tracking-wide">Born</span>
+|           <span className="text-foreground">{formatDate(author.born)}</span>
+|         </CardDescription>
+|         <CardAction>
+|           <Badge variant="secondary" className="rounded-none uppercase tracking-wide">
+|             {bookCount} {bookCount === 1 ? "Book" : "Books"}
+|           </Badge>
+|         </CardAction>
+|       </CardHeader>
+|       <Separator orientation="horizontal" />
+|       <CardContent className="flex flex-col gap-3">
+|         <h2 className="font-heading flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|           <Icons.BookOpen className="size-4" />
+|           Books
+|         </h2>
+|         {bookCount > 0 ? (
+|           <ul className="flex flex-col border">
+|             {author.books.map((book, index) => (
+|               <li
+|                 key={book.id}
+|                 className={cn(
+|                   "flex items-center gap-3 bg-card px-3 py-2 text-sm text-card-foreground",
+|                   index > 0 && "border-t"
+|                 )}
+|               >
+|                 <Icons.Book className="size-4 text-muted-foreground" />
+|                 <span>{book.title}</span>
+|               </li>
+|             ))}
+|           </ul>
+|         ) : (
+|           <p className="border bg-muted px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
+|             No books
+|           </p>
+|         )}
+|       </CardContent>
+|     </Card>
+|   </div>
+| );
+
+component web/BookCard
+key 20c778987143c23dcf58a91931d91e7f5edb47ae62935f3ef7be443387948b8c
+model claude-opus-5-5
+| const genreLabel: Record<BookCardProps["book"]["genre"], string> = {
+|   fiction: "Fiction",
+|   poetry: "Poetry",
+|   history: "History",
+| };
+|
+| const GenreIcon =
+|   book.genre === "fiction"
+|     ? Icons.BookOpen
+|     : book.genre === "poetry"
+|       ? Icons.Feather
+|       : Icons.Landmark;
+|
+| return (
+|   <Card className="h-full rounded-none">
+|     <CardHeader>
+|       <CardTitle className="font-heading text-base leading-tight text-card-foreground">
+|         {book.title}
+|       </CardTitle>
+|       <CardDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
+|         <Icons.User className="size-3.5 shrink-0" aria-hidden="true" />
+|         <span className="truncate">{book.author.name}</span>
+|       </CardDescription>
+|       <CardAction>
+|         <Badge
+|           variant="secondary"
+|           className="rounded-none text-[10px] font-medium uppercase tracking-wide"
+|         >
+|           <GenreIcon className="size-3" aria-hidden="true" />
+|           {genreLabel[book.genre]}
+|         </Badge>
+|       </CardAction>
+|     </CardHeader>
+|     <Separator />
+|     <CardContent>
+|       <dl className="grid grid-cols-2 gap-4 text-sm">
+|         <div className="flex flex-col gap-1">
+|           <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+|             Published
+|           </dt>
+|           <dd className="flex items-center gap-1.5 text-foreground">
+|             <Icons.Calendar className="size-3.5 text-muted-foreground" aria-hidden="true" />
+|             <time dateTime={book.published}>{formatDate(book.published)}</time>
+|           </dd>
+|         </div>
+|         <div className="flex flex-col gap-1">
+|           <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+|             In print
+|           </dt>
+|           <dd
+|             className={cn(
+|               "flex items-center gap-1.5",
+|               book.in_print ? "text-foreground" : "text-muted-foreground",
+|             )}
+|           >
+|             {book.in_print ? (
+|               <Icons.CircleCheck className="size-3.5" aria-hidden="true" />
+|             ) : (
+|               <Icons.CircleSlash className="size-3.5" aria-hidden="true" />
+|             )}
+|             <span>{formatBool(book.in_print)}</span>
+|           </dd>
+|         </div>
+|       </dl>
+|     </CardContent>
+|   </Card>
+| );

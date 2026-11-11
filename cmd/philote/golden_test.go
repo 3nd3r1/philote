@@ -134,21 +134,18 @@ func TestFrozenWithoutBody(t *testing.T) {
 	}
 }
 
-// copySpec copies the horse example's spec, without its lock, into a temp
-// dir and returns the path of its main file.
+// copySpec copies the horse example's backend, without its lock or its
+// frontend, into a temp dir and returns the path of its main file. Step
+// tests then ask the model for steps only.
 func copySpec(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	specs, err := filepath.Glob("testdata/neighbr/*.philote")
-	if err != nil {
-		t.Fatal(err)
-	}
-	for _, spec := range specs {
-		name := filepath.Base(spec)
-		data, err := os.ReadFile(spec)
+	for _, name := range []string{"neighbr.philote", "api.philote"} {
+		data, err := os.ReadFile(filepath.Join("testdata/neighbr", name))
 		if err != nil {
 			t.Fatal(err)
 		}
+		data = bytes.Replace(data, []byte("  frontend web: nextjs\n"), nil, 1)
 		if err := os.WriteFile(filepath.Join(dir, name), data, 0o644); err != nil {
 			t.Fatal(err)
 		}
