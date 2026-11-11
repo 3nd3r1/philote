@@ -25,30 +25,31 @@ Nothing.
 
 ## Questions
 
-9 answered, 7 open
+13 answered, 4 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
 | [Q-001](questions/Q-001-source-format.md) | answered | Source format: custom DSL or an existing format? | A custom DSL (best error messages, more work) or an existing format like TOML, YAML or a Nix expression (free parser)? |
 | [Q-002](questions/Q-002-how-strict-is-strict.md) | answered | How strict is strict? | Which fields may hold natural language, and how long can it be? |
-| [Q-003](questions/Q-003-visual-design.md) | open | Visual design: tokens only, or a pinned design node? | Is visual design only style tokens, or a design node that is generated once and pinned? |
+| [Q-003](questions/Q-003-visual-design.md) | answered | Visual design: tokens only, or a pinned design node? | Is visual design only style tokens, or a design node that is generated once and pinned? |
 | [Q-004](questions/Q-004-scope-of-v1.md) | open | Scope of v1 | Front end only, or data layer and auth too? |
-| [Q-005](questions/Q-005-node-granularity.md) | open | Node granularity | Is a build node a page, a component, or something smaller? |
+| [Q-005](questions/Q-005-node-granularity.md) | answered | Node granularity | Is a build node a page, a component, or something smaller? |
 | [Q-006](questions/Q-006-regeneration-on-change.md) | answered | Regeneration on change: fresh sample or minimal edit? | When a node's source changes, does the model start fresh, or edit the previous output? |
 | [Q-007](questions/Q-007-verification-depth.md) | open | Verification depth | Types and routes only, or end-to-end tests generated from the source? |
 | [Q-008](questions/Q-008-what-does-this-beat.md) | open | What does this beat Claude Code + a SPEC.md + git on? | The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code. |
 | [Q-009](questions/Q-009-compiler-language.md) | answered | Compiler language: Go or Rust? | Which language the compiler is written in. |
 | [Q-010](questions/Q-010-name.md) | answered | Name | What the project and the language are called. 'specc' is a placeholder. |
-| [Q-011](questions/Q-011-chip-display-field.md) | open | How does a list of records pick the field to show? | `post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity? |
-| [Q-012](questions/Q-012-page-data-depends-on-component-reads.md) | open | What does a page load when its component reads relations? | PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface. |
+| [Q-011](questions/Q-011-chip-display-field.md) | answered | How does a list of records pick the field to show? | `post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity? |
+| [Q-012](questions/Q-012-page-data-depends-on-component-reads.md) | answered | What does a page load when its component reads relations? | PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface. |
 | [Q-013](questions/Q-013-where-does-data-come-from.md) | answered | Where does data come from? | The source declares entities but not where they're stored. For v1: a JSON seed file, SQLite, or a real database? |
 | [Q-014](questions/Q-014-model-backend-for-experiments.md) | answered | Model backend for experiments | Call the API with a key, or shell out to the local claude CLI (runs on the user's subscription)? |
 | [Q-015](questions/Q-015-which-verbs-are-built-in.md) | answered | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
+| [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | open | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 
 ## Decisions
 
-16 accepted
+17 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -68,6 +69,7 @@ Nothing.
 | [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | accepted | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
 | [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | accepted | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
 | [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | accepted | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project, based on the user's template, with a generated, typed, server-only client for that backend. No pages and no model yet. |
+| [D-017](decisions/D-017-pages-page-and-component-nodes-tokens-di.md) | accepted | Pages: page and component nodes, tokens, display fields, declared reads | Pages and components are the frontend's nodes. The look comes from theme tokens. An entity shown by reference declares its display field. A component's reads are part of its interface. |
 
 ## Ideas
 

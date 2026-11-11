@@ -1,7 +1,8 @@
 +++
 id = "Q-011"
 title = "How does a list of records pick the field to show?"
-status = "open"
+status = "answered"
+answered_by = "D-017"
 summary = "`post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity?"
 created = 2026-11-09
 related = ["P-001", "P-007"]

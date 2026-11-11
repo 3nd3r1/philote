@@ -1,7 +1,8 @@
 +++
 id = "Q-005"
 title = "Node granularity"
-status = "open"
+status = "answered"
+answered_by = "D-017"
 summary = "Is a build node a page, a component, or something smaller?"
 created = 2026-11-09
 related = ["D-001"]

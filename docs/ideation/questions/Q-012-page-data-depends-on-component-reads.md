@@ -1,7 +1,8 @@
 +++
 id = "Q-012"
 title = "What does a page load when its component reads relations?"
-status = "open"
+status = "answered"
+answered_by = "D-017"
 summary = "PostView shows post.tags, so /blog/[slug] must load tags. A page's data shape depends on what its components read, not just their interface."
 created = 2026-11-09
 related = ["D-001", "D-004"]
