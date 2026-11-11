@@ -24,7 +24,7 @@ Pipeline: `syntax` → `check` → `ir` → `lower` → `target` → `build`. On
 - A target is a Go type: the node kinds it supports, its version, and IR → files. A node kind it doesn't support is a check error, never a guess.
 - Each target has `base/` (a real, runnable project with exact pinned dependency versions) and `templates/` (`text/template` files), both embedded with `embed`.
 - Templates hold no logic. Build a plain view struct in Go; the template only prints it.
-- The model fills only slots a template marks, and only for nodes the IR marks custom. The default is a template.
+- The model fills only slots a template marks: step bodies, and frontend component bodies (D-019). Everything else is a template.
 - Output is byte-stable: sorted iteration, no timestamps, no absolute paths, formatting done by the template.
 
 ## Code

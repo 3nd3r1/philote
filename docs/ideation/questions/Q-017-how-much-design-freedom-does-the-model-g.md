@@ -1,7 +1,8 @@
 +++
 id = "Q-017"
 title = "How much design freedom does the model get?"
-status = "open"
+status = "answered"
+answered_by = "D-019"
 summary = "Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned?"
 created = 2026-11-11
 related = ["D-017", "D-015", "I-006", "P-007"]

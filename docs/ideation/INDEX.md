@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-13 answered, 5 open
+14 answered, 4 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -45,12 +45,12 @@ Nothing.
 | [Q-014](questions/Q-014-model-backend-for-experiments.md) | answered | Model backend for experiments | Call the API with a key, or shell out to the local claude CLI (runs on the user's subscription)? |
 | [Q-015](questions/Q-015-which-verbs-are-built-in.md) | answered | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
-| [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | open | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
+| [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 | [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | open | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
 
 ## Decisions
 
-18 accepted
+19 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -72,6 +72,7 @@ Nothing.
 | [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | accepted | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project, based on the user's template, with a generated, typed, server-only client for that backend. No pages and no model yet. |
 | [D-017](decisions/D-017-pages-page-and-component-nodes-tokens-di.md) | accepted | Pages: page and component nodes, tokens, display fields, declared reads | Pages and components are the frontend's nodes. The look comes from theme tokens. An entity shown by reference declares its display field. A component's reads are part of its interface. |
 | [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | accepted | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
+| [D-019](decisions/D-019-components-model-written-bodies-pinned-l.md) | accepted | Components: model-written bodies, pinned like steps | A component's JSX is written by the model from its props, the base's shadcn components and an optional look line, then pinned in philote.lock. The spec still owns data and links. |
 
 ## Ideas
 
