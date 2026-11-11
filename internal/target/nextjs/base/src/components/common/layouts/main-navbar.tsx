@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Library } from "lucide-react";
 
 import { siteConfig } from "@/lib/config";
+import { nav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -23,6 +24,15 @@ const MainNavbar = () => {
                     >
                         {siteConfig.name}
                     </Link>
+                    {nav.map((item) => (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={cn(buttonVariants({ variant: "ghost" }))}
+                        >
+                            {item.title}
+                        </Link>
+                    ))}
                 </nav>
             </div>
         </header>

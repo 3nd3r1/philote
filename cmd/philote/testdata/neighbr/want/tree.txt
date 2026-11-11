@@ -20,6 +20,16 @@ neighbr
       POST /swipe
       steps: record_swipe, match_if_mutual
   web (frontend, nextjs) uses api
+    /horses: list of HorseCard
+    /horses/[id]: HorseView
+    /matches: list of MatchCard
+    HorseCard(horse: Horse)
+      shows: horse.name, horse.breed, horse.age
+      links to /horses/[id]
+    HorseView(horse: Horse)
+      shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+    MatchCard(match: Match)
+      shows: match.first, match.second, match.matched_at
   data (3 entities)
     Horse
     Swipe

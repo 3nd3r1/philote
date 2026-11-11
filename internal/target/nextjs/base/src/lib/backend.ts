@@ -33,3 +33,13 @@ export async function call<T, E extends string>(
     }
     throw new Error(`${method} ${path}: unexpected status ${res.status}`);
 }
+
+// must unwraps a result a page can't recover from, like a record that was
+// deleted between two reads.
+export async function must<T>(result: Promise<Result<T, string>>): Promise<T> {
+    const r = await result;
+    if (!r.ok) {
+        throw new Error(`the backend returned ${r.error}`);
+    }
+    return r.value;
+}

@@ -139,8 +139,13 @@ func TestFrozenWithoutBody(t *testing.T) {
 func copySpec(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	for _, name := range []string{"neighbr.philote", "api.philote"} {
-		data, err := os.ReadFile(filepath.Join("testdata/neighbr", name))
+	specs, err := filepath.Glob("testdata/neighbr/*.philote")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, spec := range specs {
+		name := filepath.Base(spec)
+		data, err := os.ReadFile(spec)
 		if err != nil {
 			t.Fatal(err)
 		}

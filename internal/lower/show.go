@@ -80,6 +80,36 @@ func partTree(b *strings.Builder, p *ir.Part, depth int) {
 			fmt.Fprintf(b, "      %s %s\n      steps: %s\n", ep.Method, ep.Route, stepList(ep.Flow))
 		}
 	}
+	viewTree(b, p, depth)
+}
+
+// viewTree prints a frontend's pages, then its components and what they show.
+func viewTree(b *strings.Builder, p *ir.Part, depth int) {
+	for _, pg := range p.Pages {
+		layout := pg.Component
+		if !pg.ByID {
+			layout = "list of " + layout
+		}
+		fmt.Fprintf(b, "    %s: %s\n", pg.Route, layout)
+	}
+	for _, c := range p.Components {
+		fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
+		if depth < 3 {
+			continue
+		}
+		var shows []string
+		for _, s := range c.Shows {
+			show := c.Param + "." + s.Name
+			if s.Relation != nil && s.Relation.Many {
+				show += " as chips"
+			}
+			shows = append(shows, show)
+		}
+		fmt.Fprintf(b, "      shows: %s\n", strings.Join(shows, ", "))
+		if c.LinksTo != "" {
+			fmt.Fprintf(b, "      links to %s\n", c.LinksTo)
+		}
+	}
 }
 
 // Show prints the endpoints at a path ("api" or "api/products") as spec,

@@ -5,7 +5,6 @@ import (
 	"embed"
 	"io/fs"
 	"slices"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -27,7 +26,7 @@ type Nextjs struct{}
 
 func (Nextjs) Name() string      { return "nextjs" }
 func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
-func (Nextjs) Version() string   { return "0.1.0" }
+func (Nextjs) Version() string   { return "0.2.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	backend := usedBackend(app, part)
@@ -35,20 +34,40 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
+	views, err := components(app, part)
+	if err != nil {
+		return target.Output{}, err
+	}
+	generated := slices.Concat(views, []target.File{
+		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
+			jsString(app.Name), jsString("The " + app.Name + " app, built by philote."),
+		}),
+		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
+		render("api.ts.tmpl", "src/lib/api.ts", api),
+	}, pages(part))
 	files, err := baseFiles()
 	if err != nil {
 		return target.Output{}, err
 	}
+	files = append(files, generated...)
 	files = append(files,
 		render("package.json.tmpl", "package.json", struct{ Name string }{app.Name + "-" + part.Name}),
-		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
-			strconv.Quote(app.Name), strconv.Quote("The " + app.Name + " app, built by philote."),
-		}),
-		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
-		render("api.ts.tmpl", "src/lib/api.ts", api),
-	)
+		render("prettierignore.tmpl", ".prettierignore", paths(generated)))
 	slices.SortFunc(files, func(a, b target.File) int { return strings.Compare(a.Path, b.Path) })
 	return target.Output{Files: files}, nil
+}
+
+// paths lists generated files for .prettierignore: philote owns their
+// layout, and long lines would otherwise fight Prettier's. Brackets are
+// escaped, since .prettierignore reads [id] as a glob.
+func paths(files []target.File) []string {
+	escape := strings.NewReplacer("[", `\[`, "]", `\]`)
+	var out []string
+	for _, f := range files {
+		out = append(out, escape.Replace(f.Path))
+	}
+	slices.Sort(out)
+	return out
 }
 
 // usedBackend finds the part a frontend's `uses` names. check guarantees

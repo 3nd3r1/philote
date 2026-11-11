@@ -1,13 +1,12 @@
 app neighbr {
   backend api: hono
-  frontend web: nextjs {
-    uses: api
-  }
+  frontend web: nextjs
 }
 
 enum Breed { arabian, mustang, shetland, clydesdale, other }
 
 entity Horse {
+  display: name
   name: string(max 60)
   handle: slug from name
   breed: Breed

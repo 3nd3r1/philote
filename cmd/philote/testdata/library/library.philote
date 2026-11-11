@@ -1,0 +1,58 @@
+app library {
+  backend api: hono {
+    resource authors: Author
+    resource books: Book
+  }
+  frontend web: nextjs {
+    uses: api
+
+    page "/authors" {
+      data: authors
+      layout: list of AuthorCard
+      empty: "No authors yet."
+    }
+
+    page "/authors/[id]" {
+      data: authors by id
+      layout: AuthorView
+      not_found: "That author isn't in the library."
+    }
+
+    page "/books" {
+      data: books
+      layout: list of BookCard
+      empty: "No books yet."
+    }
+
+    component AuthorCard(author: Author) {
+      shows: author.name, author.born
+      links_to: "/authors/[author.id]"
+    }
+
+    component AuthorView(author: Author) {
+      shows: author.name, author.born, author.books as chips
+    }
+
+    component BookCard(book: Book) {
+      shows: book.title, book.author, book.genre, book.published, book.in_print
+    }
+  }
+}
+
+enum Genre { fiction, poetry, history }
+
+entity Author {
+  display: name
+  name: string(max 80)
+  born: date
+}
+
+entity Book {
+  display: title
+  title: string(max 120)
+  genre: Genre
+  published: date
+  in_print: bool
+}
+
+Author has many books: Book

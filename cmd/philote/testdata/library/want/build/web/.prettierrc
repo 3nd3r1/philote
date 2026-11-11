@@ -1,0 +1,33 @@
+{
+    "importOrder": [
+        "(^next/(.*)$)|(^next$)|(^react/(.*)$)|(^react$)",
+        "^(?!(@/|\\.))(.*)$",
+        "^@/validators/(.*)$",
+        "^@/lib/(.*)$",
+        "^@/hooks/(.*)$",
+        "^@/components/ui(.*)$",
+        "^@/components/(.*)$",
+        "^./(.*).css$",
+        "^./(.*)$"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "trailingComma": "es5",
+    "tabWidth": 4,
+    "semi": true,
+    "singleQuote": false,
+    "plugins": [
+        "@trivago/prettier-plugin-sort-imports",
+        "prettier-plugin-tailwindcss"
+    ],
+    "tailwindStylesheet": "./src/app/globals.css",
+    "tailwindFunctions": ["cn", "cva"],
+    "overrides": [
+        {
+            "files": ["*.yml", "*.yaml"],
+            "options": {
+                "tabWidth": 2
+            }
+        }
+    ]
+}

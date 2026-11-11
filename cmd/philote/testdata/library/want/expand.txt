@@ -1,0 +1,65 @@
+endpoint authors.list {
+  route: GET "/authors"
+  output: [Author]
+}
+
+endpoint authors.get {
+  route: GET "/authors/[id]"
+  output: Author
+  errors: not_found
+}
+
+endpoint authors.create {
+  route: POST "/authors"
+  input: { name: string(max 80), born: date }
+  output: Author
+  errors: invalid_input
+}
+
+endpoint authors.update {
+  route: PATCH "/authors/[id]"
+  input: { name: string(max 80), born: date } (all optional)
+  output: Author
+  errors: not_found, invalid_input
+}
+
+endpoint authors.delete {
+  route: DELETE "/authors/[id]"
+  errors: not_found
+}
+
+endpoint authors.books {
+  route: GET "/authors/[id]/books"
+  output: [Book]
+  errors: not_found
+}
+
+endpoint books.list {
+  route: GET "/books"
+  output: [Book]
+}
+
+endpoint books.get {
+  route: GET "/books/[id]"
+  output: Book
+  errors: not_found
+}
+
+endpoint books.create {
+  route: POST "/books"
+  input: { title: string(max 120), genre: Genre, published: date, in_print: bool, author_id: Author.id }
+  output: Book
+  errors: invalid_input
+}
+
+endpoint books.update {
+  route: PATCH "/books/[id]"
+  input: { title: string(max 120), genre: Genre, published: date, in_print: bool, author_id: Author.id } (all optional)
+  output: Book
+  errors: not_found, invalid_input
+}
+
+endpoint books.delete {
+  route: DELETE "/books/[id]"
+  errors: not_found
+}

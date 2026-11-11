@@ -1,0 +1,13 @@
+# philote writes these files and owns their layout.
+src/app/authors/\[id\]/not-found.tsx
+src/app/authors/\[id\]/page.tsx
+src/app/authors/page.tsx
+src/app/books/page.tsx
+src/components/common/author-card.tsx
+src/components/common/author-view.tsx
+src/components/common/book-card.tsx
+src/lib/api.ts
+src/lib/config.ts
+src/lib/nav.ts
+src/lib/reads.ts
+src/lib/types.ts

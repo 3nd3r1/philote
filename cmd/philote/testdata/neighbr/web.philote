@@ -1,0 +1,32 @@
+uses: api
+
+page "/horses" {
+  data: horses
+  layout: list of HorseCard
+  empty: "No horses yet."
+}
+
+page "/horses/[id]" {
+  data: horses by id
+  layout: HorseView
+  not_found: "That horse doesn't exist."
+}
+
+page "/matches" {
+  data: matches
+  layout: list of MatchCard
+  empty: "No matches yet."
+}
+
+component HorseCard(horse: Horse) {
+  shows: horse.name, horse.breed, horse.age
+  links_to: "/horses/[horse.id]"
+}
+
+component HorseView(horse: Horse) {
+  shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+}
+
+component MatchCard(match: Match) {
+  shows: match.first, match.second, match.matched_at
+}
