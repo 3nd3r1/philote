@@ -6,11 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project with a generated, typed client for that backend. No pages and no model yet. |
+Nothing.
 
 ## Principles
 
@@ -52,7 +48,7 @@ Proposed but not yet accepted by a human.
 
 ## Decisions
 
-15 accepted, 1 proposed
+16 accepted
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -71,7 +67,7 @@ Proposed but not yet accepted by a human.
 | [D-013](decisions/D-013-first-targets-next-js-and-hono-as-typed.md) | accepted | First targets: Next.js and Hono, as typed templates | The first targets are a Next.js frontend and a separate Hono backend. Each is a real base project plus templates filled from the spec. The model fills only marked slots. |
 | [D-014](decisions/D-014-language-v1-a-tree-of-typed-nodes-with-e.md) | accepted | Language v1: a tree of typed nodes, with endpoints as objects | Own syntax with braces and keyword-led lines. The app is a tree of nodes. Data is entities plus relation sentences. Backend endpoints are objects; resources expand to CRUD by template. |
 | [D-015](decisions/D-015-steps-model-written-bodies-pinned-in-a-r.md) | accepted | Steps: model-written bodies pinned in a readable lockfile | The model writes only step bodies. Each body is keyed by a hash of its prompt and stored in philote.lock, which is committed. Same spec, zero model calls. Bodies are typechecked and retried. |
-| [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | proposed | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project with a generated, typed client for that backend. No pages and no model yet. |
+| [D-016](decisions/D-016-frontend-first-slice-a-next-js-project-w.md) | accepted | Frontend first slice: a Next.js project with a typed client | A frontend part names the backend it uses and builds a runnable Next.js project, based on the user's template, with a generated, typed, server-only client for that backend. No pages and no model yet. |
 
 ## Ideas
 

@@ -1,10 +1,10 @@
 +++
 id = "D-016"
 title = "Frontend first slice: a Next.js project with a typed client"
-status = "proposed"
-summary = "A frontend part names the backend it uses and builds a runnable Next.js project with a generated, typed client for that backend. No pages and no model yet."
+status = "accepted"
+summary = "A frontend part names the backend it uses and builds a runnable Next.js project, based on the user's template, with a generated, typed, server-only client for that backend. No pages and no model yet."
 created = 2026-11-10
-related = ["D-013", "D-014", "D-001", "Q-005", "Q-012"]
+related = ["D-013", "D-014", "D-001", "Q-003", "Q-005", "Q-012"]
 +++
 
 ## Decision
@@ -20,42 +20,51 @@ app neighbr {
 }
 ```
 
-`philote build` writes `build/web/`: a pinned Next.js base project (app router, one static home page) plus two generated files.
+`philote build` writes `build/web/`: a base project plus generated files.
 
-- `src/types.ts`: the enums and entities, the same shapes the backend returns.
-- `src/api.ts`: one function per endpoint of the used backend, resources and custom endpoints alike. Inputs are typed the way D-014 says (entity fields sent as ids). Each function returns a result instead of throwing, with the endpoint's declared errors as a union:
+The base is a pinned copy of the user's Next.js template (`3nd3r1/nextjs-template`): app router, Tailwind, shadcn/ui on Base UI, site config in `src/lib/config.ts`, theme in `globals.css`, metadata files, ESLint and Prettier. Exact versions in `package.json`, like the Hono base. Left out: the showcase content (about page, cards, ping route), tests, Docker and CI. The home page shows the app's name.
+
+Generated, both in `src/lib/` where the template keeps shared code:
+
+- `types.ts`: the enums and entities, the same shapes the backend returns.
+- `api.ts`: one function per endpoint of the used backend, resources and custom endpoints alike. Inputs are typed the way D-014 says (entity fields sent as ids). Each function returns a result instead of throwing, with the endpoint's errors as a union:
 
 ```ts
 export type Result<T, E extends string> =
-  | { ok: true; value: T }
-  | { ok: false; error: E; issues?: Issue[] };
+    | { ok: true; value: T }
+    | { ok: false; error: E; issues?: Issue[] };
 
 export const horses = {
-  list: (): Promise<Result<Horse[], never>> => ...,
-  get: (id: string): Promise<Result<Horse, "not_found">> => ...,
-  ...
+    list: (): Promise<Result<Horse[], never>> => ...,
+    get: (id: string): Promise<Result<Horse, "not_found">> => ...,
+    ...
 };
 
 export function swipe(input: { horse: string; target: string; liked: boolean }):
-  Promise<Result<Swipe, "invalid_input" | "same_horse" | "already_swiped">>
+    Promise<Result<Swipe, "invalid_input" | "same_horse" | "already_swiped">>
 ```
 
-Network failures and unexpected statuses still throw. They aren't part of the spec.
+The error unions come from each endpoint's errors in the IR, which `lower` fills for resources and `check` for custom endpoints. Both targets read the same list. Network failures and unexpected statuses still throw. They aren't part of the spec.
 
-The client runs on the server only (server components, route handlers, server actions) and reads the backend's address from `API_URL`. So the backend needs no CORS, and no API address ends up in the browser.
+`config.ts` is generated too, from the app's name. Generated files follow the template's Prettier style.
+
+The client runs on the server only. `api.ts` imports `server-only`, so importing it from a client component fails the build. It reads the backend's address from `API_URL`. So the backend needs no CORS, and no API address ends up in the browser.
 
 `tree` shows the part as `web (frontend, nextjs) uses api`. Check errors:
 
 - `uses` is missing.
-- `uses` names something that isn't a backend part (hint: the closest part name).
-- A frontend part has any line other than `uses`.
+- `uses` names something that isn't a backend part (hint: the backend parts).
+- A frontend part has any line other than `uses`, or `uses` appears twice.
+- `uses` appears in a backend part.
 
-`Verify` typechecks the project with `tsc`. The smoke test starts the backend and calls it through the generated client, not only with curl.
+`Verify` runs `next typegen` and `tsc`. The smoke test starts the backend and calls it through the generated client, not only with curl.
 
 ## Out of scope
 
-Pages, components, model-written frontend code, browser-side calls, auth. They depend on Q-003, Q-005, Q-011 and Q-012, which stay open.
+Pages, components, model-written frontend code, browser-side calls, auth. They depend on Q-003, Q-005, Q-011 and Q-012, which stay open. Shipping shadcn and the template's theme tokens in the base leans Q-003 toward tokens, but answers nothing: no generated code uses them yet.
 
 ## Why
 
 D-013 promises the frontend a typed client for the backend. That is the one frontend piece every later design needs, whatever pages turn out to be. The client and the backend handlers come from the same endpoint IR, so they can't drift apart: renaming a field or adding an error changes both sides in one build (D-001). It needs no model, so it stays fully deterministic, and it opens no question that pages would have to answer later.
+
+The user's template is the structure they'd write by hand: files grouped by kind, one site config and one theme file that everything reads from. Generated code goes where the template would put it, so a person reading the output finds things where they expect.
