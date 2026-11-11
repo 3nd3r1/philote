@@ -27,7 +27,7 @@ func (c *checker) parts(app *syntax.App) {
 			c.app.Parts = append(c.app.Parts, part)
 		}
 	}
-	c.resolveUses()
+	c.resolveFrontends()
 }
 
 func (c *checker) targetNames() []string {
@@ -75,49 +75,6 @@ func (c *checker) part(p *syntax.Part) *ir.Part {
 	}
 	c.unusedSteps(part)
 	return part
-}
-
-// frontend reads a frontend's one line, `uses`. The part it names is
-// resolved once every part is known, so the backend can come later.
-func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
-	var uses *syntax.Uses
-	for _, it := range p.Body {
-		u, ok := it.(*syntax.Uses)
-		switch {
-		case !ok:
-			c.d.Errorf(it.Start(), "a frontend only takes `uses: <backend>`")
-		case uses != nil:
-			c.d.Errorf(u.Word.Pos, "%s already uses %s", part.Name, uses.Part.Name)
-		default:
-			uses = u
-		}
-	}
-	if uses == nil {
-		c.d.Errorf(p.Name.Pos, "%s doesn't say which backend it calls", part.Name)
-		c.d.Hint("add `uses: <backend>` inside its { }")
-		return
-	}
-	c.uses[part] = uses.Part
-}
-
-func (c *checker) resolveUses() {
-	var backends []string
-	for _, p := range c.app.Parts {
-		if p.Kind == ir.Backend {
-			backends = append(backends, p.Name)
-		}
-	}
-	for _, p := range c.app.Parts {
-		ref, ok := c.uses[p]
-		switch {
-		case !ok:
-		case slices.Contains(backends, ref.Name):
-			p.Uses = ref.Name
-		default:
-			c.d.Errorf(ref.Pos, "there is no backend part named %s", ref.Name)
-			c.d.HintNames(ref.Name, backends, "backend parts")
-		}
-	}
 }
 
 func (c *checker) unusedSteps(part *ir.Part) {

@@ -145,7 +145,7 @@ func (p *parser) skipStatement() {
 	}
 }
 
-const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, uses, or a relation like `Order has many lines: OrderLine`"
+const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, uses, page, component, or a relation like `Order has many lines: OrderLine`"
 
 func (p *parser) item() Item {
 	t := p.peek()
@@ -169,6 +169,10 @@ func (p *parser) item() Item {
 		return p.step()
 	case "uses":
 		return p.uses()
+	case "page":
+		return p.page()
+	case "component":
+		return p.component()
 	}
 	if v := p.peekAt(1); v.kind == tIdent && (v.text == "has" || v.text == "belongs") {
 		return p.relation()

@@ -59,7 +59,7 @@ func TestBaseIsClean(t *testing.T) {
 // Each case replaces old with new in base. at is the new text with » where
 // the error must point; want must appear in the message or hint.
 func TestErrors(t *testing.T) {
-	cases := []struct{ name, old, new, at, want string }{
+	cases := []errorCase{
 		{"unknown type", "price: int(min 0)", "price: money", "price: »money", "unknown type 'money'"},
 		{"suggests a close name", "status: Status", "status: Stauts", "status: »Stauts", "did you mean 'Status'"},
 		{"entity in a field", "status: Status", "status: Review", "status: »Review", "use a relation"},
@@ -83,7 +83,7 @@ func TestErrors(t *testing.T) {
 		{"uses a missing part", "  backend api: hono {", "  frontend web: nextjs {\n    uses: apx\n  }\n  backend api: hono {", "uses: »apx", "did you mean 'api'"},
 		{"uses a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    uses: web\n  }\n  backend api: hono {", "uses: »web", "no backend part named web"},
 		{"other line in a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    resource things: Product\n    uses: api\n  }\n  backend api: hono {",
-			"resource »things", "only takes `uses: <backend>`"},
+			"resource »things", "a frontend takes uses, page and component"},
 		{"uses twice", "  backend api: hono {", "  frontend web: nextjs {\n    uses: api\n    uses: api\n  }\n  backend api: hono {",
 			"api\n    »uses: api", "web already uses api"},
 		{"uses in a backend", "resource products: Product", "uses: api\n    resource products: Product", "»uses: api", "can't go inside a backend"},
@@ -92,6 +92,13 @@ func TestErrors(t *testing.T) {
 		{"two display fields", "entity Product {", "entity Product {\n  display: name\n  display: slug", "»display: slug", "already has a display field"},
 		{"missing body file", "backend api: hono {\n    resource products: Product\n  }", "backend api: hono", "backend »api", "api.philote doesn't exist"},
 	}
+	runErrorCases(t, base, cases)
+}
+
+type errorCase struct{ name, old, new, at, want string }
+
+func runErrorCases(t *testing.T, base string, cases []errorCase) {
+	t.Helper()
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			if !strings.Contains(base, tc.old) {

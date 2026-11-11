@@ -21,9 +21,10 @@ const (
 	tComma
 	tString
 	tArrow
+	tDot
 )
 
-var tokNames = [...]string{"end of file", "end of line", "name", "number", "'{'", "'}'", "'('", "')'", "':'", "','", "string", "'->'"}
+var tokNames = [...]string{"end of file", "end of line", "name", "number", "'{'", "'}'", "'('", "')'", "':'", "','", "string", "'->'", "'.'"}
 
 type token struct {
 	kind tokKind
@@ -41,7 +42,7 @@ func (t token) describe() string {
 	return tokNames[t.kind]
 }
 
-var punct = map[byte]tokKind{'{': tLBrace, '}': tRBrace, '(': tLParen, ')': tRParen, ':': tColon, ',': tComma}
+var punct = map[byte]tokKind{'{': tLBrace, '}': tRBrace, '(': tLParen, ')': tRParen, ':': tColon, ',': tComma, '.': tDot}
 
 func isLetter(c byte) bool { return c == '_' || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') }
 func isDigit(c byte) bool  { return c >= '0' && c <= '9' }

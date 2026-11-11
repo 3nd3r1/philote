@@ -120,12 +120,42 @@ type Uses struct {
 	Part Ident
 }
 
-func (a *App) Start() diag.Pos      { return a.Name.Pos }
-func (e *Endpoint) Start() diag.Pos { return e.Name.Pos }
-func (s *Step) Start() diag.Pos     { return s.Name.Pos }
-func (p *Part) Start() diag.Pos     { return p.Kind.Pos }
-func (e *Enum) Start() diag.Pos     { return e.Name.Pos }
-func (e *Entity) Start() diag.Pos   { return e.Name.Pos }
-func (r *Relation) Start() diag.Pos { return r.From.Pos }
-func (r *Resource) Start() diag.Pos { return r.Name.Pos }
-func (u *Uses) Start() diag.Pos     { return u.Word.Pos }
+// Page is `page "<route>" { data: <resource> [by id]  layout: [list of] <Component>
+// empty: "..."  not_found: "..." }`.
+type Page struct {
+	Word     Ident
+	Route    *Str
+	Data     *Ident
+	By       *Ident // the field after `by`
+	List     bool   // layout: list of ...
+	Layout   *Ident
+	Empty    *Str
+	NotFound *Str
+}
+
+// Component is `component <Name>(<param>: <Entity>) { shows: <path> [as <format>], ...  links_to: "<route>" }`.
+type Component struct {
+	Name    Ident
+	Params  []*Field
+	Shows   []Show
+	LinksTo *Str
+}
+
+// Show is one thing a component shows: a path like horse.name, with an
+// optional format like `as chips`.
+type Show struct {
+	Path   []Ident
+	Format *Ident
+}
+
+func (a *App) Start() diag.Pos       { return a.Name.Pos }
+func (e *Endpoint) Start() diag.Pos  { return e.Name.Pos }
+func (s *Step) Start() diag.Pos      { return s.Name.Pos }
+func (p *Part) Start() diag.Pos      { return p.Kind.Pos }
+func (e *Enum) Start() diag.Pos      { return e.Name.Pos }
+func (e *Entity) Start() diag.Pos    { return e.Name.Pos }
+func (r *Relation) Start() diag.Pos  { return r.From.Pos }
+func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
+func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
+func (p *Page) Start() diag.Pos      { return p.Word.Pos }
+func (c *Component) Start() diag.Pos { return c.Name.Pos }

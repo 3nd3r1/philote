@@ -66,14 +66,48 @@ const (
 
 // Part is a backend or frontend node, built by one target.
 type Part struct {
-	Name      string
-	Kind      PartKind
-	Target    string
-	Uses      string // for a frontend: the backend part it calls
-	Resources []*Resource
-	Custom    []*Endpoint // endpoints declared with steps
-	Steps     []*Step
-	Endpoints []*Endpoint // every route: resources expanded by lower, then Custom
+	Name       string
+	Kind       PartKind
+	Target     string
+	Uses       string // for a frontend: the backend part it calls
+	Resources  []*Resource
+	Custom     []*Endpoint // endpoints declared with steps
+	Steps      []*Step
+	Endpoints  []*Endpoint  // every route: resources expanded by lower, then Custom
+	Pages      []*Page      // frontend only
+	Components []*Component // frontend only
+}
+
+// Page is a frontend route that loads records from a backend resource and
+// shows them with a component.
+type Page struct {
+	Route     string // params as [id]
+	Resource  string // in the backend the frontend uses
+	Entity    string
+	ByID      bool // loads the record named by the route's [id]; otherwise lists them all
+	Component string
+	Empty     string // list pages: shown when there are no records
+	NotFound  string // by-id pages: shown when the record doesn't exist
+}
+
+// Component shows one record. What it shows is also what it reads, so a
+// page loads exactly that.
+type Component struct {
+	Name    string
+	Param   string
+	Entity  string
+	Shows   []*Show
+	LinksTo string   // the route of the page it links to, empty for none
+	LinkBy  []string // the param's field for each of that route's params, in order
+}
+
+// Show is one field or relation a component shows.
+type Show struct {
+	Name     string
+	Field    *Field    // set for a field
+	Relation *Relation // set for a relation; a has-many one shows as chips
+	Display  string    // for a relation: the target's display field
+	Resource string    // for a relation: the backend resource that loads it
 }
 
 // Op is a standard operation on a resource.
