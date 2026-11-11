@@ -27,26 +27,26 @@ The base is a pinned copy of the user's Next.js template (`3nd3r1/nextjs-templat
 Generated, both in `src/lib/` where the template keeps shared code:
 
 - `types.ts`: the enums and entities, the same shapes the backend returns.
-- `api.ts`: one function per endpoint of the used backend, resources and custom endpoints alike. Inputs are typed the way D-014 says (entity fields sent as ids). Each function returns a result instead of throwing, with the endpoint's errors as a union:
+- `api.ts`: one function per endpoint of the used backend, resources and custom endpoints alike. Inputs are named types (`NewHorse` for a resource, `SwipeInput` for a custom endpoint), typed the way D-014 says: entity fields sent as ids. Each function returns a result instead of throwing, with the endpoint's errors as a union:
 
 ```ts
-export type Result<T, E extends string> =
-    | { ok: true; value: T }
-    | { ok: false; error: E; issues?: Issue[] };
-
 export const horses = {
-    list: (): Promise<Result<Horse[], never>> => ...,
-    get: (id: string): Promise<Result<Horse, "not_found">> => ...,
+    list: () =>
+        call<Horse[], never>("GET", "/horses", []),
+    get: (id: string) =>
+        call<Horse, "not_found">("GET", `/horses/${encodeURIComponent(id)}`, ["not_found"]),
     ...
 };
 
-export function swipe(input: { horse: string; target: string; liked: boolean }):
-    Promise<Result<Swipe, "invalid_input" | "same_horse" | "already_swiped">>
+export const swipe = (input: SwipeInput) =>
+    call<Swipe, "invalid_input" | "same_horse" | "already_swiped">("POST", "/swipe", [...], input);
 ```
+
+`call` returns `Result<T, E>`: `{ ok: true; value: T }` or `{ ok: false; error: E; issues?: Issue[] }`.
 
 The error unions come from each endpoint's errors in the IR, which `lower` fills for resources and `check` for custom endpoints. Both targets read the same list. Network failures and unexpected statuses still throw. They aren't part of the spec.
 
-`config.ts` is generated too, from the app's name. Generated files follow the template's Prettier style.
+`config.ts` is generated too, from the app's name. The request code shared by every call (`call`, `Result`, `Issue`) is a plain file in the base, `src/lib/backend.ts`. Generated files use the template's style but are listed in `.prettierignore`: the compiler owns their layout, and long signatures would otherwise fight Prettier's line breaks.
 
 The client runs on the server only. `api.ts` imports `server-only`, so importing it from a client component fails the build. It reads the backend's address from `API_URL`. So the backend needs no CORS, and no API address ends up in the browser.
 

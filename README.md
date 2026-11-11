@@ -7,11 +7,11 @@ Can we bring Nix-style determinism to AI-driven coding?
 
 Describe your app as an ontology: the things in it, how they relate, and what you can do with them. Philote compiles it to code, from fixed templates wherever it can. Anything AI writes is pinned in a lockfile, so the same ontology always builds the same code.
 
-Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`. A Next.js frontend is next.
+Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with a typed client for that backend. Pages are next.
 
 ## Example
 
-Tinder, for horses. You write what the app is: its data, how the data relates, which parts the API exposes, and what a swipe does.
+Tinder, for horses. You write what the app is: its data, how the data relates, which parts the API exposes, what a swipe does, and which backend the frontend calls.
 
 ```
 app neighbr {
@@ -36,6 +36,9 @@ app neighbr {
     step match_if_mutual(swipe: Swipe) {
       intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
     }
+  }
+  frontend web: nextjs {
+    uses: api
   }
 }
 
@@ -84,6 +87,7 @@ neighbr
     swipe (endpoint)
       POST /swipe
       steps: record_swipe, match_if_mutual
+  web (frontend, nextjs) uses api
   data (3 entities)
     Horse
     Swipe
@@ -124,6 +128,15 @@ model claude-opus-5-5
 | }) as Swipe;
 ```
 
+The frontend gets a client with one function per endpoint, typed from the same spec. Each call returns the endpoint's declared errors as values, so a page that forgets `already_swiped` doesn't compile:
+
+```ts
+const result = await swipe({ horse: a, target: b, liked: true });
+if (!result.ok) {
+    result.error; // "invalid_input" | "same_horse" | "already_swiped"
+}
+```
+
 Commit the lock. The next build copies the body and doesn't call the model. Change a step's intent and only that step is rewritten, starting from its old body, so the lock diff shows exactly what changed.
 
 Philote doesn't know what a horse is, or what Tinder is. Everything it builds comes from the lines above and the lock, so building again gives the same files byte for byte, and changing one line only changes the code for that line.
@@ -133,9 +146,10 @@ Philote doesn't know what a horse is, or what Tinder is. Everything it builds co
 ```sh
 go install github.com/3nd3r1/philote/cmd/philote@latest
 philote check neighbr.philote  # errors point at the spec line
-philote build neighbr.philote  # writes the server to build/api; new steps need the claude CLI
+philote build neighbr.philote  # writes build/api and build/web; new steps need the claude CLI
 philote build --frozen neighbr.philote  # for CI: never calls a model, fails if a step isn't in the lock
 cd build/api && npm install && npm start
+cd build/web && npm install && API_URL=http://localhost:3000 npm run dev -- -p 3001
 ```
 
 To work on philote, see [CONTRIBUTING.md](CONTRIBUTING.md).
