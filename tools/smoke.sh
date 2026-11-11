@@ -52,8 +52,11 @@ count=$(printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d)
 req PATCH "/horses/$biscuit" 200 '{"age":8}'
 req GET /horses/nope 404
 req POST /matches 404 '{}'
-req DELETE "/horses/$ed" 204
-req GET "/horses/$ed" 404
+# Deletes don't check what points at a record yet, so delete one nothing does.
+req POST /horses 201 '{"name":"Trigger","breed":"other","age":20,"bio":"Retired."}'
+trigger=$(field id)
+req DELETE "/horses/$trigger" 204
+req GET "/horses/$trigger" 404
 
 [ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
 
@@ -67,4 +70,23 @@ npx next typegen >/dev/null
 npx tsc --noEmit
 # react-server is the condition Next.js resolves server-only with on the server.
 API_URL="http://localhost:$PORT" "$out/api/node_modules/.bin/tsx" --conditions=react-server smoke.mts
+
+# The pages, rendered by the built app against the running backend.
+NEXT_TELEMETRY_DISABLED=1 npx next build >"$out/next-build.log" 2>&1 || { cat "$out/next-build.log"; exit 1; }
+API_URL="http://localhost:$PORT" npx next start -p 3998 >"$out/web.log" 2>&1 &
+web=$!
+trap 'kill $pid $web' EXIT
+until curl -s localhost:3998 >/dev/null; do sleep 0.2; done
+# page PATH TEXT: the page must render TEXT once its data streams in.
+page() {
+  if curl -s "localhost:3998$1" | grep -q "$2"; then echo "ok   page $1 shows $2"; else echo "FAIL page $1 doesn't show $2"; fails=$((fails + 1)); fi
+}
+page /horses "Sea Biscuit"
+page /horses "/horses/$biscuit"
+page "/horses/$biscuit" "sea-biscuit"
+page "/horses/$biscuit" "Loves apples"
+page /horses/nope "That horse doesn"
+page /matches "Mister Ed"
+page /matches "Shadowfax"
+[ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
 echo "smoke: all requests behaved"

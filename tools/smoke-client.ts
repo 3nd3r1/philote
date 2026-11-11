@@ -27,7 +27,9 @@ expect("lists a has-many relation", liked.ok && liked.value.length === 1 && like
 const all = await matches.list();
 const mine = all.ok ? all.value.filter((m) => [m.first_id, m.second_id].includes(pony.value.id)) : [];
 expect("sees the match", mine.length === 1, all);
-const gone = await horses.delete(pony.value.id);
+const loner = await horses.create({ name: "Loner", breed: "arabian", age: 9, bio: "Keeps to itself." });
+if (!loner.ok) throw new Error("setup failed");
+const gone = await horses.delete(loner.value.id);
 expect("deletes", gone.ok, gone);
 
 if (fails > 0) {
