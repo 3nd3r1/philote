@@ -149,23 +149,12 @@ type Component struct {
 }
 
 // Action is something a component's record can have done to it: `open
-// "<route>"`, `delete`, or `<endpoint>(<input>: <value>, ...)`, then an
-// optional `then "<route>"` and `as "<label>"`.
+// "<route>"` or `delete`, then an optional `then "<route>"` and `as "<label>"`.
 type Action struct {
-	Verb  Ident // open, delete, or an endpoint's name
+	Verb  Ident // open or delete
 	Route *Str  // for open
-	Binds []Bind
 	Then  *Str
 	Label *Str
-}
-
-// Bind gives an endpoint input a value: a path like book or book.author,
-// true or false, an integer, or a string.
-type Bind struct {
-	Name Ident
-	Path []Ident
-	Int  *Ident // an integer, as written
-	Str  *Str
 }
 
 // Show is one thing a component shows: a path like horse.name, with an

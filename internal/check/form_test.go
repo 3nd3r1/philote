@@ -63,7 +63,7 @@ const forms = `app shop {
     component ProductCard(product: Product) {
       shows: product.name
       links_to: "/products/[product.id]"
-      actions: feature(product: product, live: true, rank: 1) as "Feature"
+      actions: delete as "Remove"
     }
 
     component ProductView(product: Product) {
@@ -107,10 +107,8 @@ func TestFormsResolve(t *testing.T) {
 	if feature.Form != "feature" || feature.Resource != "" {
 		t.Errorf("feature: %+v", feature)
 	}
-	call := web.Components[0].Actions[0]
-	want := []ir.Bind{{Input: "product", Field: "id"}, {Input: "live", Literal: "true"}, {Input: "rank", Literal: "1"}}
-	if call.Kind != ir.Call || call.Label != "Feature" || !slices.EqualFunc(call.Binds, want, func(a *ir.Bind, b ir.Bind) bool { return *a == b }) {
-		t.Errorf("feature action: %+v", call)
+	if a := web.Components[0].Actions[0]; a.Kind != ir.Remove || a.Label != "Remove" || a.Then != "" {
+		t.Errorf("card delete: %+v", a)
 	}
 	open, del := web.Components[1].Actions[0], web.Components[1].Actions[1]
 	if open.Kind != ir.Open || open.Route != "/products/[id]/edit" || !slices.Equal(open.RouteBy, []string{"id"}) {
@@ -139,17 +137,8 @@ func TestFormErrors(t *testing.T) {
 		{"unknown endpoint", "form: feature", "form: featur", "form: »featur", "did you mean 'feature'"},
 		{"no list for a picked record", "resource products: Product\n", "resource products: Product { only: get, create, update, delete }\n", "form: »reviews", "no resource that lists Product"},
 		{"unknown action", "delete then", "delet then", "»delet then", "did you mean 'delete'"},
-		{"delete with inputs", "delete then", "delete(product: product) then", "»delete(", "takes no inputs"},
-		{"no resource deletes", "resource products: Product\n", "resource products: Product { only: list, get, create, update }\n", "»delete then", "no resource that deletes Product"},
+		{"no resource deletes", "resource products: Product\n", "resource products: Product { only: list, get, create, update }\n", "»delete as", "no resource that deletes Product"},
 		{"open with then", `open "/products/[product.id]/edit"`, `open "/products/[product.id]/edit" then "/products"`, `then »"/products"`, "then doesn't apply"},
 		{"open a missing page", `open "/products/[product.id]/edit"`, `open "/products/[product.id]/change"`, `open »"/products`, "no page at /products/[id]/change"},
-		{"missing input", "feature(product: product, live: true, rank: 1)", "feature(product: product, live: true)", "»feature(", "feature needs 'rank'"},
-		{"unknown input", "rank: 1)", "rank: 1, size: 2)", "»size: 2", "no input named 'size'"},
-		{"given twice", "live: true,", "live: true, live: false,", "live: true, »live", "given twice"},
-		{"out of bounds", "rank: 1)", "rank: 10)", "rank: »10", "not this number"},
-		{"wrong literal", "live: true", "live: maybe", "live: »maybe", "isn't the product"},
-		{"text for a bool", "live: true", `live: "yes"`, `live: »"yes"`, "not this text"},
-		{"field of the wrong type", "live: true", "live: product.name", "live: product.»name", "product.name is string"},
-		{"record of the wrong entity", "product: product,", "product: product.reviews,", "product.»reviews", "is a list"},
 	})
 }

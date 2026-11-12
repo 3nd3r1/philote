@@ -126,8 +126,6 @@ func action(a *ir.Action) string {
 		return "opens " + a.Route
 	case ir.Remove:
 		out = "deletes via " + a.Endpoint
-	case ir.Call:
-		out = "calls " + a.Endpoint
 	}
 	if a.Then != "" {
 		out += ", then " + a.Then

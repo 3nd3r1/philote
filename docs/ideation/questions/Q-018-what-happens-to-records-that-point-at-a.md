@@ -1,7 +1,8 @@
 +++
 id = "Q-018"
 title = "What happens to records that point at a deleted record?"
-status = "open"
+status = "answered"
+answered_by = "D-020"
 summary = "Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation?"
 created = 2026-11-11
 related = ["D-014", "D-018"]

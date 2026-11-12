@@ -1,7 +1,8 @@
 +++
 id = "Q-008"
 title = "What does this beat Claude Code + a SPEC.md + git on?"
-status = "open"
+status = "answered"
+answered_by = "D-021"
 summary = "The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code."
 created = 2026-11-09
 related = ["P-008", "I-003", "E-002"]

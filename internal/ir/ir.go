@@ -112,7 +112,6 @@ type ActionKind int
 const (
 	Open   ActionKind = iota // go to a page
 	Remove                   // delete the record
-	Call                     // call a custom endpoint
 )
 
 // Action is a link or button that a template renders beside a component's
@@ -122,18 +121,9 @@ type Action struct {
 	Label    string
 	Route    string   // Open: the page
 	RouteBy  []string // Open: the record's field for each of Route's params
-	Endpoint string   // Remove and Call: the endpoint, like horses.delete or swipe
-	Binds    []*Bind  // Call: every input of the endpoint, in its order
+	Endpoint string   // Remove: the endpoint, like horses.delete
 	Then     string   // where to go afterwards; empty to stay
 	ThenBy   []string // the record's field for each of Then's params
-}
-
-// Bind is the value an action sends for one endpoint input: a field of the
-// record (id for the record itself), or a literal.
-type Bind struct {
-	Input   string
-	Field   string
-	Literal string // a TypeScript literal, like true, 3 or "x"
 }
 
 // Show is one field or relation a component shows.

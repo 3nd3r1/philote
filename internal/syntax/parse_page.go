@@ -92,22 +92,12 @@ func (p *parser) show() Show {
 	return s
 }
 
-// action is `open "<route>"`, `delete` or `<endpoint>(<binds>)`, then
-// optional `then "<route>"` and `as "<label>"`.
+// action is `open "<route>"` or `delete`, then optional `then "<route>"`
+// and `as "<label>"`.
 func (p *parser) action() Action {
-	a := Action{Verb: p.ident("an action: open, delete, or an endpoint's name")}
-	switch {
-	case a.Verb.Name == "open":
+	a := Action{Verb: p.ident("an action: open or delete")}
+	if a.Verb.Name == "open" {
 		a.Route = p.str(`a route like "/horses/[horse.id]/edit"`)
-	case p.peek().kind == tLParen:
-		p.next()
-		for p.peek().kind != tRParen {
-			if len(a.Binds) > 0 {
-				p.expect(tComma, "',' or ')'")
-			}
-			a.Binds = append(a.Binds, p.bind())
-		}
-		p.next()
 	}
 	if p.isWord("then") {
 		p.next()
@@ -118,24 +108,4 @@ func (p *parser) action() Action {
 		a.Label = p.str("the button's text, in quotes")
 	}
 	return a
-}
-
-// bind is `<input>: <value>`.
-func (p *parser) bind() Bind {
-	b := Bind{Name: p.ident("an input name")}
-	p.expect(tColon, "':' after '"+b.Name.Name+"'")
-	switch t := p.peek(); t.kind {
-	case tString:
-		b.Str = p.str("a string")
-	case tInt:
-		p.next()
-		b.Int = &Ident{t.text, t.pos}
-	default:
-		b.Path = []Ident{p.ident("a value: a path like book.author, true, false, a number or a string")}
-		for p.peek().kind == tDot {
-			p.next()
-			b.Path = append(b.Path, p.ident("a name after '.'"))
-		}
-	}
-	return b
 }

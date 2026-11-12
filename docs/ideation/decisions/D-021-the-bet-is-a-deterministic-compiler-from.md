@@ -1,7 +1,7 @@
 +++
 id = "D-021"
 title = "The bet is a deterministic compiler from spec to code"
-status = "proposed"
+status = "accepted"
 summary = "Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects."
 created = 2026-11-12
 answers = ["Q-008"]

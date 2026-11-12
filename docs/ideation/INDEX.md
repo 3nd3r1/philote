@@ -6,12 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-020](decisions/D-020-forms-and-actions-first-slice.md) | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page, delete, or call an endpoint with bound inputs. Deletes refuse with in_use while referenced. |
-| [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
+Nothing.
 
 ## Principles
 
@@ -30,7 +25,7 @@ Proposed but not yet accepted by a human.
 
 ## Questions
 
-14 answered, 4 open
+17 answered, 1 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -40,8 +35,8 @@ Proposed but not yet accepted by a human.
 | [Q-004](questions/Q-004-scope-of-v1.md) | open | Scope of v1 | Front end only, or data layer and auth too? |
 | [Q-005](questions/Q-005-node-granularity.md) | answered | Node granularity | Is a build node a page, a component, or something smaller? |
 | [Q-006](questions/Q-006-regeneration-on-change.md) | answered | Regeneration on change: fresh sample or minimal edit? | When a node's source changes, does the model start fresh, or edit the previous output? |
-| [Q-007](questions/Q-007-verification-depth.md) | open | Verification depth | Types and routes only, or end-to-end tests generated from the source? |
-| [Q-008](questions/Q-008-what-does-this-beat.md) | open | What does this beat Claude Code + a SPEC.md + git on? | The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code. |
+| [Q-007](questions/Q-007-verification-depth.md) | answered | Verification depth | Types and routes only, or end-to-end tests generated from the source? |
+| [Q-008](questions/Q-008-what-does-this-beat.md) | answered | What does this beat Claude Code + a SPEC.md + git on? | The real value. Candidates: retargeting, model upgrades, reviewing a short source diff instead of hundreds of lines of code. |
 | [Q-009](questions/Q-009-compiler-language.md) | answered | Compiler language: Go or Rust? | Which language the compiler is written in. |
 | [Q-010](questions/Q-010-name.md) | answered | Name | What the project and the language are called. 'specc' is a placeholder. |
 | [Q-011](questions/Q-011-chip-display-field.md) | answered | How does a list of records pick the field to show? | `post.tags as chips` doesn't say which Tag field to show. Implicit rule, explicit field, or a display field declared on the entity? |
@@ -51,11 +46,11 @@ Proposed but not yet accepted by a human.
 | [Q-015](questions/Q-015-which-verbs-are-built-in.md) | answered | Which relation verbs are built in? | Which words the compiler gives fixed meaning (has many, belongs to, can … if), and what a made-up verb compiles to. |
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
-| [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | open | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
+| [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | answered | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
 
 ## Decisions
 
-18 accepted, 2 proposed, 1 superseded
+20 accepted, 1 superseded
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -78,8 +73,8 @@ Proposed but not yet accepted by a human.
 | [D-017](decisions/D-017-pages-page-and-component-nodes-tokens-di.md) | accepted | Pages: page and component nodes, tokens, display fields, declared reads | Pages and components are the frontend's nodes. The look comes from theme tokens. An entity shown by reference declares its display field. A component's reads are part of its interface. |
 | [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | accepted | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
 | [D-019](decisions/D-019-components-model-written-bodies-pinned-l.md) | accepted | Components: model-written bodies, pinned like steps | A component's JSX is written by the model from its props, the base's shadcn components and an optional look line, then pinned in philote.lock. The spec still owns data and links. |
-| [D-020](decisions/D-020-forms-and-actions-first-slice.md) | proposed | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page, delete, or call an endpoint with bound inputs. Deletes refuse with in_use while referenced. |
-| [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | proposed | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
+| [D-020](decisions/D-020-forms-and-actions-first-slice.md) | accepted | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page or delete the record. Deletes refuse with in_use while anything points at the record. |
+| [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | accepted | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
 
 ## Ideas
 

@@ -1,8 +1,8 @@
 +++
 id = "D-020"
 title = "Forms and actions first slice"
-status = "proposed"
-summary = "A page can be a form over a write endpoint. Components list actions: open a page, delete, or call an endpoint with bound inputs. Deletes refuse with in_use while referenced."
+status = "accepted"
+summary = "A page can be a form over a write endpoint. Components list actions: open a page or delete the record. Deletes refuse with in_use while anything points at the record."
 created = 2026-11-12
 answers = ["Q-018", "Q-007"]
 related = ["D-006", "D-017", "D-018", "D-019", "P-001", "P-005", "Q-004"]
@@ -43,17 +43,12 @@ component HorseView(horse: Horse) {
   shows: horse.name, horse.bio
   actions: open "/horses/[horse.id]/edit", delete then "/horses"
 }
-
-component BookCard(book: Book) {
-  shows: book.title
-  actions: mark_out_of_print(book: book, in_print: false) as "Out of print"
-}
 ```
 
 - `open "<route>"` is a link to a page, filled like `links_to`.
-- `delete then "<route>"` deletes the record through the one resource that deletes its entity.
-- `<endpoint>(<input>: <value>, ...)` calls a custom endpoint. Every input must be bound to the record, one of its fields or belongs-to relations, or a literal. Inputs can't come from who is signed in yet (Q-004), so an endpoint like `swipe`, which needs the acting horse, is a form for now. `then` is optional; without it the page reloads.
-- `as "<label>"` sets a button's text. The defaults are the target page's title, "Delete", and the endpoint's name.
+- `delete` deletes the record through the one resource that deletes its entity. `then "<route>"` says where to go afterwards; without it the page reloads.
+- `as "<label>"` sets a button's text. The defaults are the target page's title and "Delete".
+- Calling a custom endpoint from a button is left out. Its inputs would have to be bound in the spec, and the one real case, swipe, needs the acting horse, which waits on who is signed in (Q-004). Until then a custom endpoint is a form page.
 - Actions are rendered by the template beside the model-written body, not inside it. Adding or changing an action doesn't change the component's prompt, so its pinned body stays as it is (P-005). A component with `links_to` puts its actions under the link.
 
 **Deletes refuse while something points at the record (Q-018).** A resource's `delete` gains the declared error `in_use` (409) when its entity has a has-many side. The backend refuses while any record points at the one being deleted. Deleting a record that's already gone counts as done in the UI.
@@ -72,4 +67,4 @@ Deletes are templates, so no model looks at them and the rule has to be written 
 
 ## Progress
 
-On main, 2026-11-12. Built: `in_use` deletes (backend, smoke-tested), and the syntax, checks and `tree` output for form pages and actions. Not built: the nextjs target. It doesn't render form pages or actions yet, so a spec that uses them checks clean but doesn't build. Next: base `input`, `label`, `textarea` and `native-select` from shadcn's base-sera registry; form pages with a server action each; action buttons under the component body; golden cases; the no-JavaScript form posts in the smoke test; the README.
+On main, 2026-11-12. Built: `in_use` deletes, and the syntax, checks and `tree` output for form pages and actions. The nextjs target refuses them until it can generate them.
