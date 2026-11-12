@@ -6,7 +6,12 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Nothing.
+Proposed but not yet accepted by a human.
+
+| ID | Title | Summary |
+| --- | --- | --- |
+| [D-020](decisions/D-020-forms-and-actions-first-slice.md) | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page, delete, or call an endpoint with bound inputs. Deletes refuse with in_use while referenced. |
+| [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
 
 ## Principles
 
@@ -50,7 +55,7 @@ Nothing.
 
 ## Decisions
 
-19 accepted
+19 accepted, 2 proposed
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -73,6 +78,8 @@ Nothing.
 | [D-017](decisions/D-017-pages-page-and-component-nodes-tokens-di.md) | accepted | Pages: page and component nodes, tokens, display fields, declared reads | Pages and components are the frontend's nodes. The look comes from theme tokens. An entity shown by reference declares its display field. A component's reads are part of its interface. |
 | [D-018](decisions/D-018-pages-first-slice-list-and-detail-pages.md) | accepted | Pages first slice: list and detail pages, template components, relation reads | A frontend declares list and detail pages over the backend's resources, and template components that show fields and relations. Resources gain read routes for their has-many relations. No model yet. |
 | [D-019](decisions/D-019-components-model-written-bodies-pinned-l.md) | accepted | Components: model-written bodies, pinned like steps | A component's JSX is written by the model from its props, the base's shadcn components and an optional look line, then pinned in philote.lock. The spec still owns data and links. |
+| [D-020](decisions/D-020-forms-and-actions-first-slice.md) | proposed | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page, delete, or call an endpoint with bound inputs. Deletes refuse with in_use while referenced. |
+| [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | proposed | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
 
 ## Ideas
 
