@@ -67,4 +67,4 @@ Deletes are templates, so no model looks at them and the rule has to be written 
 
 ## Progress
 
-On main, 2026-11-12. Built: `in_use` deletes, and the syntax, checks and `tree` output for form pages and actions. The nextjs target refuses them until it can generate them.
+Built on main, 2026-11-12. Golden cases in neighbr and library, `tsc` on both, and the smoke test posts the create, edit and swipe forms without JavaScript. Delete buttons are typechecked and linted but not clicked in a test, since that needs a browser.

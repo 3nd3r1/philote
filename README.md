@@ -7,7 +7,7 @@ Can we bring Nix-style determinism to AI-driven coding?
 
 Describe your app as an ontology: the things in it, how they relate, and what you can do with them. Philote compiles it to code, from fixed templates wherever it can. Anything AI writes is pinned in a lockfile, so the same ontology always builds the same code.
 
-Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with list and detail pages that read through a typed client for that backend. Forms are next.
+Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with list, detail and form pages that go through a typed client for that backend. Component bodies are AI-written and pinned the same way.
 
 ## Example
 
@@ -58,6 +58,16 @@ app neighbr {
       empty: "No matches yet."
     }
 
+    page "/horses/new" {
+      form: horses.create
+      then: "/horses/[id]"
+    }
+
+    page "/swipe" {
+      form: swipe
+      then: "/matches"
+    }
+
     component HorseCard(horse: Horse) {
       shows: horse.name, horse.breed, horse.age
       links_to: "/horses/[horse.id]"
@@ -65,6 +75,7 @@ app neighbr {
 
     component HorseView(horse: Horse) {
       shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+      actions: delete then "/horses"
     }
 
     component MatchCard(match: Match) {
@@ -127,11 +138,14 @@ neighbr
     /horses: list of HorseCard
     /horses/[id]: HorseView
     /matches: list of MatchCard
+    /horses/new: form horses.create, then /horses/[id]
+    /swipe: form swipe, then /matches
     HorseCard(horse: Horse)
       shows: horse.name, horse.breed, horse.age
       links to /horses/[id]
     HorseView(horse: Horse)
       shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+      deletes via horses.delete, then /horses
     MatchCard(match: Match)
       shows: match.first, match.second, match.matched_at
   data (3 entities)
@@ -183,7 +197,7 @@ if (!result.ok) {
 }
 ```
 
-Pages and components are templates too. A component's `shows` line is everything it reads, and its page loads exactly that: `match.first` becomes one `horses.get` call, shown as the horse's `display` field.
+Pages are templates too. A component's `shows` line is everything it reads, and its page loads exactly that: `match.first` becomes one `horses.get` call, shown as the horse's `display` field. A form's fields are its endpoint's input, so it can't send anything the backend doesn't take, and it works without JavaScript. Only a component's body is written by the model; its actions are rendered around it, so adding a button doesn't touch the pinned body.
 
 Commit the lock. The next build copies the body and doesn't call the model. Change a step's intent and only that step is rewritten, starting from its old body, so the lock diff shows exactly what changed.
 
