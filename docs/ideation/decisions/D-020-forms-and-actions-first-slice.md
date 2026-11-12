@@ -69,3 +69,7 @@ A form is a page whose data goes the other way, so it reuses everything pages al
 Actions sit on components because that's where the record is. The model's body never sees them, which keeps every action change out of the lock.
 
 Deletes are templates, so no model looks at them and the rule has to be written down once. Refusing is the strict default (P-001). A per-relation cascade can come later without changing what existing specs mean.
+
+## Progress
+
+On branch `forms`, 2026-11-12. Built: `in_use` deletes (backend, smoke-tested), and the syntax, checks and `tree` output for form pages and actions. Not built: the nextjs target. It doesn't render form pages or actions yet, so a spec that uses them checks clean but doesn't build. Next: base `input`, `label`, `textarea` and `native-select` from shadcn's base-sera registry; form pages with a server action each; action buttons under the component body; golden cases; the no-JavaScript form posts in the smoke test; the README.
