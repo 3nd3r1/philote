@@ -72,4 +72,4 @@ Deletes are templates, so no model looks at them and the rule has to be written 
 
 ## Progress
 
-On branch `forms`, 2026-11-12. Built: `in_use` deletes (backend, smoke-tested), and the syntax, checks and `tree` output for form pages and actions. Not built: the nextjs target. It doesn't render form pages or actions yet, so a spec that uses them checks clean but doesn't build. Next: base `input`, `label`, `textarea` and `native-select` from shadcn's base-sera registry; form pages with a server action each; action buttons under the component body; golden cases; the no-JavaScript form posts in the smoke test; the README.
+On main, 2026-11-12. Built: `in_use` deletes (backend, smoke-tested), and the syntax, checks and `tree` output for form pages and actions. Not built: the nextjs target. It doesn't render form pages or actions yet, so a spec that uses them checks clean but doesn't build. Next: base `input`, `label`, `textarea` and `native-select` from shadcn's base-sera registry; form pages with a server action each; action buttons under the component body; golden cases; the no-JavaScript form posts in the smoke test; the README.
