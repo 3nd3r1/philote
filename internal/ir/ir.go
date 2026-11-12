@@ -79,15 +79,17 @@ type Part struct {
 }
 
 // Page is a frontend route that loads records from a backend resource and
-// shows them with a component.
+// shows them with a component, or a form that submits to an endpoint.
 type Page struct {
 	Route     string // params as [id]
-	Resource  string // in the backend the frontend uses
+	Resource  string // in the backend the frontend uses; empty for a form on a custom endpoint
 	Entity    string
 	ByID      bool // loads the record named by the route's [id]; otherwise lists them all
 	Component string
 	Empty     string // list pages: shown when there are no records
 	NotFound  string // by-id pages: shown when the record doesn't exist
+	Form      string // form pages: the endpoint it submits to, like horses.create or swipe
+	Then      string // form pages: where to go after a save; [id] is the saved record's
 }
 
 // Component shows one record. What it shows is also what it reads, so a
@@ -101,6 +103,37 @@ type Component struct {
 	Shows   []*Show
 	LinksTo string   // the route of the page it links to, empty for none
 	LinkBy  []string // the param's field for each of that route's params, in order
+	Actions []*Action
+}
+
+// ActionKind is what an action under a component does.
+type ActionKind int
+
+const (
+	Open   ActionKind = iota // go to a page
+	Remove                   // delete the record
+	Call                     // call a custom endpoint
+)
+
+// Action is a link or button that a template renders beside a component's
+// body, so the model never sees it (D-020).
+type Action struct {
+	Kind     ActionKind
+	Label    string
+	Route    string   // Open: the page
+	RouteBy  []string // Open: the record's field for each of Route's params
+	Endpoint string   // Remove and Call: the endpoint, like horses.delete or swipe
+	Binds    []*Bind  // Call: every input of the endpoint, in its order
+	Then     string   // where to go afterwards; empty to stay
+	ThenBy   []string // the record's field for each of Then's params
+}
+
+// Bind is the value an action sends for one endpoint input: a field of the
+// record (id for the record itself), or a literal.
+type Bind struct {
+	Input   string
+	Field   string
+	Literal string // a TypeScript literal, like true, 3 or "x"
 }
 
 // Show is one field or relation a component shows.

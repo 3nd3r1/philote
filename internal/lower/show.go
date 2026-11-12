@@ -87,7 +87,10 @@ func partTree(b *strings.Builder, p *ir.Part, depth int) {
 func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 	for _, pg := range p.Pages {
 		layout := pg.Component
-		if !pg.ByID {
+		switch {
+		case pg.Form != "":
+			layout = "form " + pg.Form + ", then " + pg.Then
+		case !pg.ByID:
 			layout = "list of " + layout
 		}
 		fmt.Fprintf(b, "    %s: %s\n", pg.Route, layout)
@@ -109,7 +112,27 @@ func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 		if c.LinksTo != "" {
 			fmt.Fprintf(b, "      links to %s\n", c.LinksTo)
 		}
+		for _, a := range c.Actions {
+			fmt.Fprintf(b, "      %s\n", action(a))
+		}
 	}
+}
+
+// action prints what an action does, like "deletes via horses.delete, then /horses".
+func action(a *ir.Action) string {
+	var out string
+	switch a.Kind {
+	case ir.Open:
+		return "opens " + a.Route
+	case ir.Remove:
+		out = "deletes via " + a.Endpoint
+	case ir.Call:
+		out = "calls " + a.Endpoint
+	}
+	if a.Then != "" {
+		out += ", then " + a.Then
+	}
+	return out
 }
 
 // Show prints the endpoints at a path ("api" or "api/products") as spec,

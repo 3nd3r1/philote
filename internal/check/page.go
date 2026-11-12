@@ -8,24 +8,40 @@ import (
 	"github.com/3nd3r1/philote/internal/syntax"
 )
 
-func (c *checker) page(part, backend *ir.Part, s *syntax.Page) {
+// page checks one page and adds it to part. For a form page it also
+// returns the entity a save returns, which its `then` resolves against
+// once every page is known.
+func (c *checker) page(part, backend *ir.Part, s *syntax.Page) (*ir.Page, string) {
 	route := s.Route.Value
 	switch {
 	case !isRoute(route):
 		c.d.Errorf(s.Route.Pos, `a route is lowercase segments like "/horses" or "/horses/[id]"`)
-		return
+		return nil, ""
 	case route == "/":
 		c.d.Errorf(s.Route.Pos, "/ is the base project's home page; pick another route")
-		return
-	case slices.ContainsFunc(part.Pages, func(p *ir.Page) bool { return p.Route == route }):
+		return nil, ""
+	case findPage(part, route) != nil:
 		c.d.Errorf(s.Route.Pos, "there is already a page at %s", route)
-		return
+		return nil, ""
 	}
 	pg := &ir.Page{Route: route}
+	if s.Form != nil {
+		saved, ok := c.formPage(pg, backend, s)
+		if !ok {
+			return nil, ""
+		}
+		part.Pages = append(part.Pages, pg)
+		return pg, saved
+	}
+	if s.Then != nil {
+		c.d.Errorf(s.Then.Pos, "only a form page has then")
+		return nil, ""
+	}
 	if !c.pageData(pg, backend, s) || !c.pageLayout(pg, part, s) || !c.pageCopy(pg, s) {
-		return
+		return nil, ""
 	}
 	part.Pages = append(part.Pages, pg)
+	return pg, ""
 }
 
 // isRoute accepts /a/b-c/[id]: lowercase segments, and [id] as the only param.
@@ -50,17 +66,12 @@ func (c *checker) pageData(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
 		c.d.Hint("add `data: <resource>`, a resource of %s", backend.Name)
 		return false
 	}
-	i := slices.IndexFunc(backend.Resources, func(r *ir.Resource) bool { return r.Name == s.Data.Name })
-	if i < 0 {
-		var names []string
-		for _, r := range backend.Resources {
-			names = append(names, r.Name)
-		}
+	res := findResource(backend, s.Data.Name)
+	if res == nil {
 		c.d.Errorf(s.Data.Pos, "%s has no resource named %s", backend.Name, s.Data.Name)
-		c.d.HintNames(s.Data.Name, names, "resources")
+		c.d.HintNames(s.Data.Name, resourceNames(backend), "resources")
 		return false
 	}
-	res := backend.Resources[i]
 	pg.Resource, pg.Entity = res.Name, res.Entity
 	if s.By != nil && s.By.Name != "id" {
 		c.d.Errorf(s.By.Pos, "pages load by id only, for now")
@@ -146,9 +157,15 @@ func (c *checker) pageCopy(pg *ir.Page, s *syntax.Page) bool {
 	return false
 }
 
-// link resolves links_to. "/horses/[horse.id]" names the page at
-// "/horses/[id]", and the component fills [id] with horse.id.
+// link resolves links_to.
 func (c *checker) link(part *ir.Part, comp *ir.Component, s *syntax.Str) {
+	comp.LinksTo, comp.LinkBy, _ = c.recordRoute(part, comp, s)
+}
+
+// recordRoute resolves a route filled from a component's record:
+// "/horses/[horse.id]" names the page at "/horses/[id]", and the component
+// fills [id] with horse.id.
+func (c *checker) recordRoute(part *ir.Part, comp *ir.Component, s *syntax.Str) (string, []string, bool) {
 	ent := c.entities[comp.Entity]
 	segs := strings.Split(s.Value, "/")
 	var by []string
@@ -160,19 +177,15 @@ func (c *checker) link(part *ir.Part, comp *ir.Component, s *syntax.Str) {
 		field := strings.TrimSuffix(name, "]")
 		if field != "id" && findField(ent, field) == nil {
 			c.d.Errorf(s.Pos, "%s has no field '%s' to fill the link", comp.Entity, field)
-			return
+			return "", nil, false
 		}
 		segs[i], by = "["+field+"]", append(by, field)
 	}
 	route := strings.Join(segs, "/")
-	if !slices.ContainsFunc(part.Pages, func(p *ir.Page) bool { return p.Route == route }) {
-		var routes []string
-		for _, p := range part.Pages {
-			routes = append(routes, p.Route)
-		}
+	if findPage(part, route) == nil {
 		c.d.Errorf(s.Pos, "there is no page at %s", route)
-		c.d.HintNames(route, routes, "pages")
-		return
+		c.d.HintNames(route, pageRoutes(part), "pages")
+		return "", nil, false
 	}
-	comp.LinksTo, comp.LinkBy = route, by
+	return route, by, true
 }

@@ -121,7 +121,8 @@ type Uses struct {
 }
 
 // Page is `page "<route>" { data: <resource> [by id]  layout: [list of] <Component>
-// empty: "..."  not_found: "..." }`.
+// empty: "..."  not_found: "..." }`, or a form: `page "<route>" { form:
+// <resource>.<op> [by id]  then: "<route>"  not_found: "..." }`.
 type Page struct {
 	Word     Ident
 	Route    *Str
@@ -131,6 +132,9 @@ type Page struct {
 	Layout   *Ident
 	Empty    *Str
 	NotFound *Str
+	Form     *Ident // a resource, or a custom endpoint when FormOp is nil
+	FormOp   *Ident // the operation after the resource's '.'
+	Then     *Str
 }
 
 // Component is `component <Name>(<param>: <Entity>) { shows: <path> [as <format>], ...
@@ -141,6 +145,27 @@ type Component struct {
 	Shows   []Show
 	LinksTo *Str
 	Look    *Str
+	Actions []Action
+}
+
+// Action is something a component's record can have done to it: `open
+// "<route>"`, `delete`, or `<endpoint>(<input>: <value>, ...)`, then an
+// optional `then "<route>"` and `as "<label>"`.
+type Action struct {
+	Verb  Ident // open, delete, or an endpoint's name
+	Route *Str  // for open
+	Binds []Bind
+	Then  *Str
+	Label *Str
+}
+
+// Bind gives an endpoint input a value: a path like book or book.author,
+// true or false, an integer, or a string.
+type Bind struct {
+	Name Ident
+	Path []Ident
+	Int  *Ident // an integer, as written
+	Str  *Str
 }
 
 // Show is one thing a component shows: a path like horse.name, with an

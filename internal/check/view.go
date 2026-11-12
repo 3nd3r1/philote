@@ -12,21 +12,33 @@ import (
 const maxCopy = 200
 
 // views checks a frontend's components, then the pages that use them, then
-// the links between them.
+// the links and actions between them.
 func (c *checker) views(f *frontendSrc, backend *ir.Part) {
-	links := map[*ir.Component]*syntax.Str{}
+	srcs := map[*ir.Component]*syntax.Component{}
 	for _, s := range f.components {
-		if comp := c.component(f.part, backend, s); comp != nil && s.LinksTo != nil {
-			links[comp] = s.LinksTo
+		if comp := c.component(f.part, backend, s); comp != nil {
+			srcs[comp] = s
 		}
 	}
+	type then struct {
+		page  *ir.Page
+		saved string
+		s     *syntax.Str
+	}
+	var thens []then
 	for _, s := range f.pages {
-		c.page(f.part, backend, s)
+		if pg, saved := c.page(f.part, backend, s); pg != nil && pg.Form != "" {
+			thens = append(thens, then{pg, saved, s.Then})
+		}
+	}
+	for _, t := range thens {
+		c.then(f.part, t.page, t.saved, t.s)
 	}
 	for _, comp := range f.part.Components {
-		if s, ok := links[comp]; ok {
-			c.link(f.part, comp, s)
+		if s := srcs[comp]; s.LinksTo != nil {
+			c.link(f.part, comp, s.LinksTo)
 		}
+		c.actions(f.part, backend, comp, srcs[comp].Actions)
 	}
 }
 
@@ -139,21 +151,26 @@ func (c *checker) format(show *ir.Show, s syntax.Show) *ir.Show {
 
 // loader finds the one resource in the backend that serves entity with get.
 func (c *checker) loader(backend *ir.Part, entity string, at syntax.Ident) string {
+	return c.serving(backend, entity, ir.Get, "gets", at)
+}
+
+// serving finds the one resource in the backend that serves op on entity.
+func (c *checker) serving(backend *ir.Part, entity string, op ir.Op, verb string, at syntax.Ident) string {
 	var names []string
 	for _, r := range backend.Resources {
-		if r.Entity == entity && slices.Contains(r.Ops, ir.Get) {
+		if r.Entity == entity && slices.Contains(r.Ops, op) {
 			names = append(names, r.Name)
 		}
 	}
 	switch len(names) {
 	case 0:
-		c.d.Errorf(at.Pos, "%s has no resource that gets %s, so this can't be loaded", backend.Name, entity)
+		c.d.Errorf(at.Pos, "%s has no resource that %s %s, so this can't be loaded", backend.Name, verb, entity)
 		c.d.Hint("add `resource <name>: %s` to %s", entity, backend.Name)
 		return ""
 	case 1:
 		return names[0]
 	}
-	c.d.Errorf(at.Pos, "several resources in %s get %s: %s", backend.Name, entity, strings.Join(names, ", "))
+	c.d.Errorf(at.Pos, "several resources in %s %s %s: %s", backend.Name, op, entity, strings.Join(names, ", "))
 	return ""
 }
 
