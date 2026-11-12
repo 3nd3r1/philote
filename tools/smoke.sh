@@ -90,4 +90,5 @@ page /horses/nope "That horse doesn"
 page /matches "Mister Ed"
 page /matches "Shadowfax"
 [ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
+node "$root/tools/smoke-forms.mjs" http://localhost:3998 "$biscuit"
 echo "smoke: all requests behaved"
