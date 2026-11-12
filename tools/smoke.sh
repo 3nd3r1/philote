@@ -52,7 +52,8 @@ count=$(printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d)
 req PATCH "/horses/$biscuit" 200 '{"age":8}'
 req GET /horses/nope 404
 req POST /matches 404 '{}'
-# Deletes don't check what points at a record yet, so delete one nothing does.
+# A delete is refused while anything points at the record (D-020).
+req DELETE "/horses/$biscuit" 409
 req POST /horses 201 '{"name":"Trigger","breed":"other","age":20,"bio":"Retired."}'
 trigger=$(field id)
 req DELETE "/horses/$trigger" 204

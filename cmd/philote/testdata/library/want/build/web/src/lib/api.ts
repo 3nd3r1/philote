@@ -29,7 +29,7 @@ export const authors = {
     update: (id: string, input: Partial<NewAuthor>) =>
         call<Author, "not_found" | "invalid_input">("PATCH", `/authors/${encodeURIComponent(id)}`, ["not_found", "invalid_input"], input),
     delete: (id: string) =>
-        call<void, "not_found">("DELETE", `/authors/${encodeURIComponent(id)}`, ["not_found"]),
+        call<void, "not_found" | "in_use">("DELETE", `/authors/${encodeURIComponent(id)}`, ["not_found", "in_use"]),
     books: (id: string) =>
         call<Book[], "not_found">("GET", `/authors/${encodeURIComponent(id)}/books`, ["not_found"]),
 };

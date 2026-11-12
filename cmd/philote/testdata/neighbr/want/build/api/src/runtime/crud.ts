@@ -14,6 +14,7 @@ export type Resource = {
   unique: readonly string[];
   slugs: Record<string, string>; // slug field -> the field it's made from
   related: Record<string, { table: string; key: string }>; // has-many relation -> its rows and their foreign key
+  referenced: readonly { table: string; key: string }[]; // rows that can point at a record, which block its delete
 };
 
 export function slugify(text: string): string {
@@ -25,6 +26,7 @@ export function slugify(text: string): string {
 }
 
 const notFound = (c: Context) => c.json({ error: "not_found" }, 404);
+const inUse = (c: Context) => c.json({ error: "in_use" }, 409);
 const invalid = (c: Context, issues: Issue[]) => c.json({ error: "invalid_input", issues }, 400);
 
 // Paths are built at runtime, so Hono can't type the :id param for us.
@@ -84,6 +86,16 @@ export function mount(app: Hono, res: Resource): void {
     });
   }
   if (res.ops.includes("delete")) {
-    app.delete(item, (c) => (remove(res.table, idOf(c)) ? c.body(null, 204) : notFound(c)));
+    app.delete(item, (c) => {
+      const id = idOf(c);
+      if (!find(res.table, id)) {
+        return notFound(c);
+      }
+      if (res.referenced.some((ref) => all(ref.table).some((row) => row[ref.key] === id))) {
+        return inUse(c);
+      }
+      remove(res.table, id);
+      return c.body(null, 204);
+    });
   }
 }

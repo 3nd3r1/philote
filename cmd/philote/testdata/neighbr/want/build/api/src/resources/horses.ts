@@ -21,5 +21,11 @@ export function mountHorses(app: Hono): void {
       first_matches: { table: "Match", key: "first_id" },
       second_matches: { table: "Match", key: "second_id" },
     },
+    referenced: [
+      { table: "Swipe", key: "horse_id" },
+      { table: "Swipe", key: "target_id" },
+      { table: "Match", key: "first_id" },
+      { table: "Match", key: "second_id" },
+    ],
   });
 }

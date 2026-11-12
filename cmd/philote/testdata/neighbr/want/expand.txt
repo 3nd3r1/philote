@@ -25,7 +25,7 @@ endpoint horses.update {
 
 endpoint horses.delete {
   route: DELETE "/horses/[id]"
-  errors: not_found
+  errors: not_found, in_use
 }
 
 endpoint horses.swipes {

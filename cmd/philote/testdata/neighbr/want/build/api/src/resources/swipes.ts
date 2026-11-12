@@ -15,5 +15,6 @@ export function mountSwipes(app: Hono): void {
     unique: [],
     slugs: {},
     related: {},
+    referenced: [],
   });
 }

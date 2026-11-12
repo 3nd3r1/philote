@@ -25,7 +25,7 @@ endpoint authors.update {
 
 endpoint authors.delete {
   route: DELETE "/authors/[id]"
-  errors: not_found
+  errors: not_found, in_use
 }
 
 endpoint authors.books {

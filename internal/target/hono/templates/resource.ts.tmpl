@@ -17,5 +17,8 @@ export function {{.Func}}(app: Hono): void {
     related: {{"{"}}{{range $i, $r := .Related}}{{if $i}},{{end}}
       {{$r.Name}}: { table: "{{$r.Table}}", key: "{{$r.Key}}" }{{end}}{{if .Related}},
     {{end}}},
+    referenced: [{{range .Referenced}}
+      { table: "{{.Table}}", key: "{{.Key}}" },{{end}}{{if .Referenced}}
+    {{end}}],
   });
 }

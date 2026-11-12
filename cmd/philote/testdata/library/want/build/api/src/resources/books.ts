@@ -17,5 +17,6 @@ export function mountBooks(app: Hono): void {
     unique: [],
     slugs: {},
     related: {},
+    referenced: [],
   });
 }

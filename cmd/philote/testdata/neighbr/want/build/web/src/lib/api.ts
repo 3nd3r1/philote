@@ -35,7 +35,7 @@ export const horses = {
     update: (id: string, input: Partial<NewHorse>) =>
         call<Horse, "not_found" | "invalid_input">("PATCH", `/horses/${encodeURIComponent(id)}`, ["not_found", "invalid_input"], input),
     delete: (id: string) =>
-        call<void, "not_found">("DELETE", `/horses/${encodeURIComponent(id)}`, ["not_found"]),
+        call<void, "not_found" | "in_use">("DELETE", `/horses/${encodeURIComponent(id)}`, ["not_found", "in_use"]),
     swipes: (id: string) =>
         call<Swipe[], "not_found">("GET", `/horses/${encodeURIComponent(id)}/swipes`, ["not_found"]),
     swipedBy: (id: string) =>

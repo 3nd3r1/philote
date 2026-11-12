@@ -59,6 +59,9 @@ func endpoints(app *ir.App, r *ir.Resource) []*ir.Endpoint {
 		if s.input {
 			ep.Input = inputs(e)
 		}
+		if op == ir.Delete && referenced(e) {
+			ep.Errors = append(slices.Clip(ep.Errors), "in_use")
+		}
 		if s.output {
 			ep.Output = e.Name
 		}
@@ -68,6 +71,12 @@ func endpoints(app *ir.App, r *ir.Resource) []*ir.Endpoint {
 		out = append(out, relationReads(r, e)...)
 	}
 	return out
+}
+
+// referenced says whether records of other entities can point at e, so
+// deleting one can be refused (D-020).
+func referenced(e *ir.Entity) bool {
+	return slices.ContainsFunc(e.Relations, func(r *ir.Relation) bool { return r.Many })
 }
 
 // relationReads list a record's has-many relations, so a frontend can load

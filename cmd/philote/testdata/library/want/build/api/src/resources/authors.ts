@@ -16,5 +16,8 @@ export function mountAuthors(app: Hono): void {
     related: {
       books: { table: "Book", key: "author_id" },
     },
+    referenced: [
+      { table: "Book", key: "author_id" },
+    ],
   });
 }

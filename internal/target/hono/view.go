@@ -2,6 +2,7 @@ package hono
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,12 @@ type resourceView struct {
 	Unique  string
 	Slugs   string
 	Related []relatedView
+	// Referenced lists the rows that point at a record, so a delete can
+	// refuse while any exist (D-020).
+	Referenced []refView
 }
+
+type refView struct{ Table, Key string }
 
 // relatedView is a has-many relation the resource serves at /[id]/<Name>.
 type relatedView struct{ Name, Table, Key string }
@@ -62,6 +68,13 @@ func newResourceView(app *ir.App, part *ir.Part, r *ir.Resource) resourceView {
 		if ep.Resource == r.Name && ep.Relation != "" {
 			rel := relation(e, ep.Relation)
 			v.Related = append(v.Related, relatedView{rel.Name, rel.Target, rel.Key})
+		}
+	}
+	if slices.Contains(r.Ops, ir.Delete) {
+		for _, rel := range e.Relations {
+			if rel.Many {
+				v.Referenced = append(v.Referenced, refView{rel.Target, rel.Key})
+			}
 		}
 	}
 	v.Unique = list(unique)
