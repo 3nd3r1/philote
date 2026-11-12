@@ -1,1 +1,0 @@
-A personal blog. Posts have a title, a body written in markdown, a publish date and tags. The front page lists published posts, newest first, with a short excerpt. Each post has its own page at /blog/<slug> showing the full post and its tags.

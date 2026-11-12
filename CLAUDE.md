@@ -7,7 +7,6 @@ A compiler: a strict spec goes in, a Next.js frontend and a Hono backend come ou
 - `cmd/philote/`: CLI wiring only. Parse flags, call packages, print.
 - `internal/<pkg>/`: one job per package, stated in its `doc.go`.
 - `docs/ideation/`: design notes. Format in CONTRIBUTING.md.
-- `prototypes/`: throwaway experiments. The code rules below don't apply there.
 - `tools/`: repo tooling.
 
 ## Architecture

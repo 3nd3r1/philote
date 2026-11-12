@@ -1,1 +1,0 @@
-A blog with several authors. Each post has one author. Author pages at /authors/<handle> show the author's name, bio and their posts. Readers can leave a comment on a post with their name and some text. Comments show under the post, oldest first.

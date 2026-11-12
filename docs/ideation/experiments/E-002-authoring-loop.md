@@ -24,7 +24,7 @@ Rounds to clean, review time, wrong-but-valid mistakes per brief.
 
 ## Progress
 
-**2026-11-09, run 1.** Code and output in `prototypes/authoring-loop`. All three briefs passed the checker on the first try (2–5 cents, 5–17 s each), so the fix-the-errors loop wasn't exercised.
+**2026-11-09, run 1.** Code and output were in `prototypes/authoring-loop`, removed after cfe6ded. All three briefs passed the checker on the first try (2–5 cents, 5–17 s each), so the fix-the-errors loop wasn't exercised.
 
 - No faking: every unsupported request was listed as a gap.
 - The gaps were the same few missing features: listing related records (a post's comments, an author's posts, a category's recipes), forms/actions, and search.

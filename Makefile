@@ -1,4 +1,4 @@
-.PHONY: check lint fmt test ideation index new setup prototypes smoke
+.PHONY: check lint fmt test ideation index new setup smoke
 
 check: lint test ideation
 
@@ -23,9 +23,6 @@ new:
 
 setup:
 	git config core.hooksPath .githooks
-
-prototypes:
-	cd prototypes/frontend-v0 && go test ./...
 
 smoke:
 	sh tools/smoke.sh
