@@ -18,7 +18,9 @@ type Option = { id: string; label: string };
 export default function Form({
     action,
     initial,
+{{- if .Options}}
     options,
+{{- end}}
 }: {
     action: (state: FormState, data: FormData) => Promise<FormState>;
     initial: Record<string, string>;

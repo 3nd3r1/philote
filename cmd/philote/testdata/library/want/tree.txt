@@ -21,6 +21,7 @@ library
     AuthorCard(author: Author)
       shows: author.name, author.born
       links to /authors/[id]
+      deletes via authors.delete
     AuthorView(author: Author)
       shows: author.name, author.born, author.books as chips
     BookCard(book: Book)

@@ -1,6 +1,8 @@
 package check
 
 import (
+	"slices"
+
 	"github.com/3nd3r1/philote/internal/ir"
 	"github.com/3nd3r1/philote/internal/syntax"
 )
@@ -38,6 +40,10 @@ func (c *checker) actionKind(part, backend *ir.Part, comp *ir.Component, a *ir.A
 		a.Route, a.RouteBy, ok = c.recordRoute(part, comp, s.Route)
 		return ok
 	case "delete":
+		if slices.ContainsFunc(comp.Actions, func(x *ir.Action) bool { return x.Kind == ir.Remove }) {
+			c.d.Errorf(s.Verb.Pos, "%s already has a delete", comp.Name)
+			return false
+		}
 		res := c.serving(backend, comp.Entity, ir.Delete, "deletes", s.Verb)
 		a.Kind, a.Endpoint = ir.Remove, res+".delete"
 		return res != ""

@@ -31,6 +31,8 @@ neighbr
       links to /horses/[id]
     HorseView(horse: Horse)
       shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+      opens /horses/[id]/edit
+      deletes via horses.delete, then /horses
     MatchCard(match: Match)
       shows: match.first, match.second, match.matched_at
   data (3 entities)

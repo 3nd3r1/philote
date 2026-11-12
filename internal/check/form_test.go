@@ -137,6 +137,7 @@ func TestFormErrors(t *testing.T) {
 		{"unknown endpoint", "form: feature", "form: featur", "form: »featur", "did you mean 'feature'"},
 		{"no list for a picked record", "resource products: Product\n", "resource products: Product { only: get, create, update, delete }\n", "form: »reviews", "no resource that lists Product"},
 		{"unknown action", "delete then", "delet then", "»delet then", "did you mean 'delete'"},
+		{"delete twice", `delete then "/products"`, `delete then "/products", delete`, `"/products", »delete`, "already has a delete"},
 		{"no resource deletes", "resource products: Product\n", "resource products: Product { only: list, get, create, update }\n", "»delete as", "no resource that deletes Product"},
 		{"open with then", `open "/products/[product.id]/edit"`, `open "/products/[product.id]/edit" then "/products"`, `then »"/products"`, "then doesn't apply"},
 		{"open a missing page", `open "/products/[product.id]/edit"`, `open "/products/[product.id]/change"`, `open »"/products`, "no page at /products/[id]/change"},

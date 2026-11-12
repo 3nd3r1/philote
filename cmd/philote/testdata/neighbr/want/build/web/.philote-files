@@ -36,6 +36,7 @@ src/app/swipe/page.tsx
 src/app/twitter-image.tsx
 src/components/common/form-field.tsx
 src/components/common/horse-card.tsx
+src/components/common/horse-view-actions.tsx
 src/components/common/horse-view.tsx
 src/components/common/layouts/main-navbar.tsx
 src/components/common/layouts/theme-provider.tsx
@@ -50,6 +51,7 @@ src/components/ui/native-select.tsx
 src/components/ui/separator.tsx
 src/components/ui/sonner.tsx
 src/components/ui/textarea.tsx
+src/lib/actions/horse-view.ts
 src/lib/api.ts
 src/lib/backend.ts
 src/lib/config.ts

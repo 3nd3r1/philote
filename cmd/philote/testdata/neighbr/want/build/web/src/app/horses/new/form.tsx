@@ -15,7 +15,6 @@ import SubmitButton from "@/components/common/submit-button";
 export default function Form({
     action,
     initial,
-    options,
 }: {
     action: (state: FormState, data: FormData) => Promise<FormState>;
     initial: Record<string, string>;

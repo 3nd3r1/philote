@@ -6,9 +6,11 @@ src/app/books/new/actions.ts
 src/app/books/new/form.tsx
 src/app/books/new/page.tsx
 src/app/books/page.tsx
+src/components/common/author-card-actions.tsx
 src/components/common/author-card.tsx
 src/components/common/author-view.tsx
 src/components/common/book-card.tsx
+src/lib/actions/author-card.ts
 src/lib/api.ts
 src/lib/config.ts
 src/lib/nav.ts

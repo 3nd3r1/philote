@@ -20,8 +20,17 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import HorseViewActions from "@/components/common/horse-view-actions";
+
+// The actions sit under the body, outside its link: the model never sees
+// them, so changing one doesn't touch the pinned body (D-020).
 export default function HorseView(props: HorseViewProps) {
-    return <HorseViewBody {...props} />;
+    return (
+        <div className="space-y-3">
+            <HorseViewBody {...props} />
+            <HorseViewActions id={props.horse.id} />
+        </div>
+    );
 }
 
 function HorseViewBody({ horse }: HorseViewProps): React.ReactNode {

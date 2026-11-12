@@ -14,8 +14,10 @@ src/app/swipe/actions.ts
 src/app/swipe/form.tsx
 src/app/swipe/page.tsx
 src/components/common/horse-card.tsx
+src/components/common/horse-view-actions.tsx
 src/components/common/horse-view.tsx
 src/components/common/match-card.tsx
+src/lib/actions/horse-view.ts
 src/lib/api.ts
 src/lib/config.ts
 src/lib/nav.ts

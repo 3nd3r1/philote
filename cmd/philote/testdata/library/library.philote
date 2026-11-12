@@ -32,6 +32,7 @@ app library {
     component AuthorCard(author: Author) {
       shows: author.name, author.born
       links_to: "/authors/[author.id]"
+      actions: delete as "Remove"
     }
 
     component AuthorView(author: Author) {

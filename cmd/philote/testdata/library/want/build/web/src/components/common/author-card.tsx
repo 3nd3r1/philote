@@ -21,11 +21,18 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import AuthorCardActions from "@/components/common/author-card-actions";
+
+// The actions sit under the body, outside its link: the model never sees
+// them, so changing one doesn't touch the pinned body (D-020).
 export default function AuthorCard(props: AuthorCardProps) {
     return (
-        <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block">
-            <AuthorCardBody {...props} />
-        </Link>
+        <div className="space-y-3">
+            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block">
+                <AuthorCardBody {...props} />
+            </Link>
+            <AuthorCardActions id={props.author.id} />
+        </div>
     );
 }
 

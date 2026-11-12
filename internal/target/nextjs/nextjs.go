@@ -3,7 +3,6 @@ package nextjs
 import (
 	"bytes"
 	"embed"
-	"fmt"
 	"io/fs"
 	"slices"
 	"strings"
@@ -30,9 +29,6 @@ func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
 func (Nextjs) Version() string   { return "0.2.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
-	if err := unbuilt(part); err != nil {
-		return target.Output{}, err
-	}
 	backend := usedBackend(app, part)
 	api, err := newAPIView(app, backend)
 	if err != nil {
@@ -59,17 +55,6 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		render("prettierignore.tmpl", ".prettierignore", paths(generated)))
 	slices.SortFunc(files, func(a, b target.File) int { return strings.Compare(a.Path, b.Path) })
 	return target.Output{Files: files, Slots: slots}, nil
-}
-
-// unbuilt refuses what check accepts but this target can't build yet:
-// actions are checked (D-020), not generated.
-func unbuilt(part *ir.Part) error {
-	for _, c := range part.Components {
-		if len(c.Actions) > 0 {
-			return fmt.Errorf("component %s: nextjs can't build actions yet", c.Name)
-		}
-	}
-	return nil
 }
 
 // paths lists generated files for .prettierignore: philote owns their

@@ -42,6 +42,7 @@ component HorseCard(horse: Horse) {
 
 component HorseView(horse: Horse) {
   shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
+  actions: open "/horses/[horse.id]/edit", delete then "/horses"
   look: "a full dating profile: name and age as a big headline, @handle muted under it, breed badge, the bio as an about section"
 }
 

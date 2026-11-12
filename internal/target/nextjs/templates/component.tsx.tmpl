@@ -22,8 +22,30 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+{{- if .Actions}}
 
+import {{.Name}}Actions from "@/components/common/{{.Actions}}";
+{{- end}}
+
+{{- if .Actions}}
+
+// The actions sit under the body, outside its link: the model never sees
+// them, so changing one doesn't touch the pinned body (D-020).
+export default function {{.Name}}(props: {{.Name}}Props) {
+    return (
+        <div className="space-y-3">
 {{- if .Link}}
+            <Link href={{"{"}}{{.Link}}{{"}"}} className="block">
+                <{{.Name}}Body {...props} />
+            </Link>
+{{- else}}
+            <{{.Name}}Body {...props} />
+{{- end}}
+            <{{.Name}}Actions id={props.{{.Param}}.id} />
+        </div>
+    );
+}
+{{- else if .Link}}
 
 export default function {{.Name}}(props: {{.Name}}Props) {
     return (

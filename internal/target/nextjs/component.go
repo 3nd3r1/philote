@@ -15,7 +15,10 @@ var reserved = []string{"props", "item", "must", "cn", "Icons"}
 // marker is the line in a component file that the model's body replaces.
 const marker = "    // philote:body"
 
-type componentView struct{ Name, Param, Link, Marker string }
+type componentView struct {
+	Name, Param, Link, Marker string
+	Actions                   string // the actions file under the body, empty for none
+}
 
 type relationView struct{ Name, Type string }
 
@@ -43,6 +46,7 @@ func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error
 		}
 		path := "src/components/common/" + kebab(c.Name) + ".tsx"
 		files = append(files, render("component.tsx.tmpl", path, newComponentView(c)))
+		files = append(files, actionFiles(part, c)...)
 		slots = append(slots, target.Slot{
 			Node:   part.Name + "/" + c.Name,
 			File:   path,
@@ -70,6 +74,9 @@ func checkComponent(c *ir.Component) error {
 
 func newComponentView(c *ir.Component) componentView {
 	v := componentView{Name: c.Name, Param: c.Param, Marker: marker}
+	if len(c.Actions) > 0 {
+		v.Actions = kebab(c.Name) + "-actions"
+	}
 	if c.LinksTo != "" {
 		link := c.LinksTo
 		for _, f := range c.LinkBy {

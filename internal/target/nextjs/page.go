@@ -56,6 +56,14 @@ func pages(app *ir.App, backend, part *ir.Part) []target.File {
 	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...)))
 }
 
+// pageTitle is what a page calls itself in its heading and the nav.
+func pageTitle(pg *ir.Page) string {
+	if pg.Form != "" {
+		return formTitle(pg)
+	}
+	return title(pg)
+}
+
 // title is a list page's last segment, like "Horses" for /horses, or the
 // entity's name for a page by id.
 func title(pg *ir.Page) string {

@@ -27,6 +27,7 @@ src/app/page.tsx
 src/app/robots.ts
 src/app/sitemap.ts
 src/app/twitter-image.tsx
+src/components/common/author-card-actions.tsx
 src/components/common/author-card.tsx
 src/components/common/author-view.tsx
 src/components/common/book-card.tsx
@@ -43,6 +44,7 @@ src/components/ui/native-select.tsx
 src/components/ui/separator.tsx
 src/components/ui/sonner.tsx
 src/components/ui/textarea.tsx
+src/lib/actions/author-card.ts
 src/lib/api.ts
 src/lib/backend.ts
 src/lib/config.ts
