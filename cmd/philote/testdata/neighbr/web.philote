@@ -18,6 +18,22 @@ page "/matches" {
   empty: "No matches yet."
 }
 
+page "/horses/new" {
+  form: horses.create
+  then: "/horses/[id]"
+}
+
+page "/horses/[id]/edit" {
+  form: horses.update by id
+  then: "/horses/[id]"
+  not_found: "That horse doesn't exist."
+}
+
+page "/swipe" {
+  form: swipe
+  then: "/matches"
+}
+
 component HorseCard(horse: Horse) {
   shows: horse.name, horse.breed, horse.age
   links_to: "/horses/[horse.id]"

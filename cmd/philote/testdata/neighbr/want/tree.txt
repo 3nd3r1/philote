@@ -23,6 +23,9 @@ neighbr
     /horses: list of HorseCard
     /horses/[id]: HorseView
     /matches: list of MatchCard
+    /horses/new: form horses.create, then /horses/[id]
+    /horses/[id]/edit: form horses.update, then /horses/[id]
+    /swipe: form swipe, then /matches
     HorseCard(horse: Horse)
       shows: horse.name, horse.breed, horse.age
       links to /horses/[id]

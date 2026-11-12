@@ -17,6 +17,7 @@ library
     /authors: list of AuthorCard
     /authors/[id]: AuthorView
     /books: list of BookCard
+    /books/new: form books.create, then /books
     AuthorCard(author: Author)
       shows: author.name, author.born
       links to /authors/[id]

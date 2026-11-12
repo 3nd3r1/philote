@@ -24,6 +24,11 @@ app library {
       empty: "No books yet."
     }
 
+    page "/books/new" {
+      form: books.create
+      then: "/books"
+    }
+
     component AuthorCard(author: Author) {
       shows: author.name, author.born
       links_to: "/authors/[author.id]"

@@ -48,7 +48,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		}),
 		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
 		render("api.ts.tmpl", "src/lib/api.ts", api),
-	}, pages(part))
+	}, pages(app, backend, part))
 	files, err := baseFiles()
 	if err != nil {
 		return target.Output{}, err
@@ -62,13 +62,8 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 }
 
 // unbuilt refuses what check accepts but this target can't build yet:
-// forms and actions are checked (D-020), not generated.
+// actions are checked (D-020), not generated.
 func unbuilt(part *ir.Part) error {
-	for _, pg := range part.Pages {
-		if pg.Form != "" {
-			return fmt.Errorf("page %s: nextjs can't build form pages yet", pg.Route)
-		}
-	}
 	for _, c := range part.Components {
 		if len(c.Actions) > 0 {
 			return fmt.Errorf("component %s: nextjs can't build actions yet", c.Name)

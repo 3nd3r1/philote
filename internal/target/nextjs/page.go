@@ -18,11 +18,19 @@ type pageView struct {
 type navView struct{ Title, Href string }
 
 // pages renders each page, plus a not-found file for pages that load by id,
-// and the nav that links to the list pages.
-func pages(part *ir.Part) []target.File {
+// and the nav that links to the list pages, then the forms that make a
+// new record.
+func pages(app *ir.App, backend, part *ir.Part) []target.File {
 	var files []target.File
-	var nav []navView
+	var nav, forms []navView
 	for _, pg := range part.Pages {
+		if pg.Form != "" {
+			files = append(files, formFiles(app, backend, pg)...)
+			if !pg.ByID {
+				forms = append(forms, navView{jsString(formTitle(pg)), jsString(pg.Route)})
+			}
+			continue
+		}
 		comp := component(part, pg.Component)
 		v := pageView{
 			Route:         pg.Route,
@@ -45,7 +53,7 @@ func pages(part *ir.Part) []target.File {
 		files = append(files, render("list-page.tsx.tmpl", dir+"page.tsx", v))
 		nav = append(nav, navView{v.Title, jsString(pg.Route)})
 	}
-	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", nav))
+	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...)))
 }
 
 // title is a list page's last segment, like "Horses" for /horses, or the

@@ -2,6 +2,9 @@
 src/app/authors/\[id\]/not-found.tsx
 src/app/authors/\[id\]/page.tsx
 src/app/authors/page.tsx
+src/app/books/new/actions.ts
+src/app/books/new/form.tsx
+src/app/books/new/page.tsx
 src/app/books/page.tsx
 src/components/common/author-card.tsx
 src/components/common/author-view.tsx

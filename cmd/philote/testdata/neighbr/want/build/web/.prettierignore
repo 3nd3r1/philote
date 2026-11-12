@@ -1,8 +1,18 @@
 # philote writes these files and owns their layout.
+src/app/horses/\[id\]/edit/actions.ts
+src/app/horses/\[id\]/edit/form.tsx
+src/app/horses/\[id\]/edit/not-found.tsx
+src/app/horses/\[id\]/edit/page.tsx
 src/app/horses/\[id\]/not-found.tsx
 src/app/horses/\[id\]/page.tsx
+src/app/horses/new/actions.ts
+src/app/horses/new/form.tsx
+src/app/horses/new/page.tsx
 src/app/horses/page.tsx
 src/app/matches/page.tsx
+src/app/swipe/actions.ts
+src/app/swipe/form.tsx
+src/app/swipe/page.tsx
 src/components/common/horse-card.tsx
 src/components/common/horse-view.tsx
 src/components/common/match-card.tsx
