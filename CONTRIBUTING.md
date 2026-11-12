@@ -8,7 +8,7 @@ Design notes live in [docs/ideation](docs/ideation/INDEX.md). Start with the [th
 nix-shell
 make setup   # once: enables the pre-commit hook
 make check   # lint, tests, architecture rules, ideation
-make smoke   # build the shop example, run the generated server, send real requests (needs network)
+make smoke   # build the neighbr test spec, run both apps, send real requests (needs network)
 ```
 
 ## Ideation items

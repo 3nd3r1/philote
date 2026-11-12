@@ -1,7 +1,7 @@
 +++
 id = "D-005"
 title = "Go for the prototype"
-status = "accepted"
+status = "superseded"
 summary = "The step-1 prototype is in Go: it's installed, quick to write, and the experiment is meant to be cheap. Rust stays open for the real compiler."
 created = 2026-11-09
 related = ["Q-009"]

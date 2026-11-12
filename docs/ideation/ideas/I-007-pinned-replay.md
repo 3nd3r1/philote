@@ -1,7 +1,7 @@
 +++
 id = "I-007"
 title = "Pinned replay: lockfile, content-addressed store, frozen builds"
-status = "exploring"
+status = "adopted"
 summary = "Each node's output is keyed by a hash of its inputs and kept in a store, like /nix/store. Normal builds regenerate dirty nodes only; frozen builds never call a model."
 created = 2026-11-09
 related = ["P-003", "D-003", "Q-006", "A-007"]

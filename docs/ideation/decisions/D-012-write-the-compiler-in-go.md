@@ -5,7 +5,7 @@ status = "accepted"
 summary = "The real compiler is Go, standard library first. Templates use text/template and embed."
 created = 2026-11-09
 answers = ["Q-009"]
-related = ["D-005"]
+supersedes = ["D-005"]
 +++
 
 ## Decision
