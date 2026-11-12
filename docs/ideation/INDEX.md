@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-17 answered, 1 open
+17 answered, 2 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -47,6 +47,7 @@ Nothing.
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 | [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | answered | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
+| [Q-019](questions/Q-019-what-does-a-step-s-prompt-include.md) | open | What does a step's prompt include? | Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares? |
 
 ## Decisions
 
@@ -94,12 +95,13 @@ Nothing.
 
 ## Experiments
 
-1 done, 1 running
+1 done, 2 running
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
 | [E-001](experiments/E-001-one-blog-one-week.md) | running | One week, one blog, five checks | Find out whether local regeneration and retargeting hold up. Steps 1 to 3 are done in the real compiler. Step 4 holds for model calls; step 5 and the Claude Code comparison are open. |
 | [E-002](experiments/E-002-authoring-loop.md) | done | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
+| [E-003](experiments/E-003-how-much-does-the-output-wiggle.md) | running | How much does the output wiggle? | Measure D-021's bet on neighbr: how much output a model writes, how far a spec edit spreads, and how much two fresh builds differ, against Claude Code with a SPEC.md. |
 
 ## Prior art
 
