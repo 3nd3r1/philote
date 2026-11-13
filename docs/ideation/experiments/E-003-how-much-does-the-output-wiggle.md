@@ -36,3 +36,13 @@ related = ["E-001", "Q-008", "Q-019"]
 The last row is a leak: every step's prompt lists every entity's type, so any data change invalidates every step, even `match_if_mutual`, which never takes a Horse. Q-019 asks what a step's prompt should include.
 
 **2026-11-13.** D-022 closes the leak: with declared tables, adding a field to Horse needs the model for `record_swipe` only, which takes a Horse. Steps 3 and 4 run next.
+
+**2026-11-13, step 3.** Two builds of neighbr from an empty lock, both with claude-opus-5-5. Each is 2913 lines. 94 lines differ, all of them in the five model-written bodies. Every template line is identical. The bodies themselves wander: of about 183 model-written lines per build, 89 are the same in both. The steps differ in style, like `return insert(...)` against `const row = insert(...); return row`. The components differ more, because their `look` leaves room. With the lock, the same spec gives 0 differing lines.
+
+| Node | Lines, run 1 | Lines, run 2 | Same in both |
+| --- | --- | --- | --- |
+| api/match_if_mutual | 33 | 25 | 18 |
+| api/record_swipe | 18 | 14 | 12 |
+| web/HorseCard | 40 | 48 | 20 |
+| web/HorseView | 58 | 69 | 26 |
+| web/MatchCard | 34 | 28 | 13 |
