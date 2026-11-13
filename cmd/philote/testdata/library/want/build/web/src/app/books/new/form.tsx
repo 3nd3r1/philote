@@ -25,7 +25,7 @@ export default function Form({
     const [state, submit] = useActionState(action, {});
     const values = state.values ?? initial;
     return (
-        <form action={submit} className="space-y-6">
+        <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="title" label={"Title"} issue={state.issues?.title}>
                 <Input id="title" name="title" type="text" required maxLength={120} defaultValue={values.title} aria-invalid={!!state.issues?.title} />
             </FormField>

@@ -24,7 +24,7 @@ export default function Form({
     const [state, submit] = useActionState(action, {});
     const values = state.values ?? initial;
     return (
-        <form action={submit} className="space-y-6">
+        <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="horse" label={"Horse"} issue={state.issues?.horse}>
                 <NativeSelect id="horse" name="horse" required defaultValue={values.horse ?? ""} aria-invalid={!!state.issues?.horse} className="w-full">
                     <NativeSelectOption value="">Choose…</NativeSelectOption>

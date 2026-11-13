@@ -2,11 +2,13 @@ import type { Issue } from "@/lib/backend";
 
 // FormState is what a form's server action returns when a save fails: the
 // error's message, each field's issue, and what was typed, so the form can
-// show it again.
+// show it again. attempt is new each time; the form is keyed on it, because
+// React's reset after an action puts a select back to its first option.
 export type FormState = {
     error?: string;
     issues?: Record<string, string>;
     values?: Record<string, string>;
+    attempt?: string;
 };
 
 // Messages for the built-in errors. A custom error shows as its name in
@@ -78,5 +80,10 @@ export function failed(
         }
     });
     const text = error === "not_found" && notFound ? notFound : message(error);
-    return { error: text, issues: byField, values };
+    return {
+        error: text,
+        issues: byField,
+        values,
+        attempt: crypto.randomUUID(),
+    };
 }

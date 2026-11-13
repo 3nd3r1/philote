@@ -29,7 +29,7 @@ export default function Form({
     const [state, submit] = useActionState(action, {});
     const values = state.values ?? initial;
     return (
-        <form action={submit} className="space-y-6">
+        <form key={state.attempt} action={submit} className="space-y-6">
 {{- range .Fields}}
             <FormField name="{{.Name}}" label={{"{"}}{{.Label}}{{"}"}} issue={state.issues?.{{.Name}}}>
 {{- if eq .Control "input"}}
