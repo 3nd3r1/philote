@@ -138,6 +138,46 @@ func TestStepNeverTypechecks(t *testing.T) {
 	}
 }
 
+// A step's file only lets it touch the tables it declares, so a body that
+// writes another table fails tsc and goes back to the model (D-022).
+func TestStepTouchesAnUndeclaredTable(t *testing.T) {
+	spec := copySpec(t)
+	out := filepath.Join(filepath.Dir(spec), "build")
+	linkNodeModules(t, "testdata/neighbr/want/build/api/package.json", filepath.Join(out, "api"))
+	stray := "```ts\ninsert(\"Horse\", { name: \"stray\" });\n```"
+	r := useReplies(t, map[string][]string{
+		"recordSwipe":   {goodSwipe},
+		"matchIfMutual": {stray, goodMatch},
+	})
+	runOK(t, "build", "--out", out, spec)
+	prompts := r.prompts["matchIfMutual"]
+	if len(prompts) != 2 || !strings.Contains(prompts[1], `"Horse"' is not assignable to parameter of type '"Match"'`) {
+		t.Fatalf("want a retry that names the undeclared table, got %d prompts:\n%s", len(prompts), prompts[len(prompts)-1])
+	}
+	if strings.Contains(prompts[0], "type Horse") {
+		t.Errorf("match_if_mutual doesn't reach Horse, but its prompt shows it:\n%s", prompts[0])
+	}
+}
+
+// Adding a field to Horse rebuilds the step that takes a Horse, and leaves
+// the one that doesn't pinned (E-003, D-022).
+func TestFieldReachesOnlyItsSteps(t *testing.T) {
+	spec := copySpec(t)
+	dir := filepath.Dir(spec)
+	lock := readFile(t, "testdata/neighbr/philote.lock")
+	src := strings.Replace(readFile(t, spec), "  bio: string(max 280)\n", "  bio: string(max 280)\n  color: string(max 20)\n", 1)
+	for name, data := range map[string]string{"philote.lock": lock, "neighbr.philote": src} {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(data), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"build", "--frozen", "--out", filepath.Join(dir, "build"), spec}, &stdout, &stderr)
+	if code != 1 || !strings.Contains(stderr.String(), "step record_swipe has no body") || strings.Contains(stderr.String(), "match_if_mutual") {
+		t.Errorf("exit %d; want only record_swipe to need the model:\n%s", code, stderr.String())
+	}
+}
+
 func readFile(t *testing.T, path string) string {
 	t.Helper()
 	data, err := os.ReadFile(path)

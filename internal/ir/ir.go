@@ -195,6 +195,8 @@ type Step struct {
 	Params []*Value
 	Result *Value // nil when the step returns nothing
 	Fails  []string
+	Reads  []string // entities whose tables it only reads
+	Writes []string // entities whose tables it writes, and may read
 	Intent string
 }
 

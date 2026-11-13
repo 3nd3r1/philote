@@ -2,7 +2,7 @@
 # Commit this file and review its diff like code. Don't edit it by hand.
 
 step api/match_if_mutual
-key 3dccc11fd5aab25ba6fbbadc2762b15202a76443d2a32de629e147bd7eb55570
+key 385a38fde97e6b9d9d46abe828733b3db8e405ce9b4320bf9235b35dda3e84a7
 model claude-opus-5-5
 | if (!swipe.liked) {
 |   return;
@@ -38,7 +38,7 @@ model claude-opus-5-5
 | });
 
 step api/record_swipe
-key e32c9a061360476a308484b023c98dfdef73922c00fdd3a7b00cc0651d35a54d
+key 56deeecfd9ea24dc54a254b3428a855cec85ddf9faff643293833c02225a5ce7
 model claude-opus-5-5
 | if (horse.id === target.id) {
 |   fail("same_horse");

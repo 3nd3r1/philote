@@ -123,10 +123,14 @@ func (p *parser) step() Item {
 		p.next()
 		s.Result = p.param()
 	}
-	p.keyed("step", []string{"fails", "intent"}, func(key Ident) {
+	p.keyed("step", []string{"fails", "reads", "writes", "intent"}, func(key Ident) {
 		switch key.Name {
 		case "fails":
 			s.Fails = p.identList("an error name")
+		case "reads":
+			s.Reads = p.identList("an entity")
+		case "writes":
+			s.Writes = p.identList("an entity")
 		case "intent":
 			s.Intent = p.str(`a short description in quotes`)
 		}

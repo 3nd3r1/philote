@@ -104,13 +104,15 @@ type Endpoint struct {
 	Steps  []Ident
 }
 
-// Step is `step <name>(<params>) [-> <name>: <Type>] { fails: a, b  intent: "..." }`.
-// Its body is written by a model.
+// Step is `step <name>(<params>) [-> <name>: <Type>] { fails: a, b  reads: A
+// writes: B  intent: "..." }`. Its body is written by a model.
 type Step struct {
 	Name   Ident
 	Params []*Field
 	Result *Field
 	Fails  []Ident
+	Reads  []Ident
+	Writes []Ident
 	Intent *Str
 }
 

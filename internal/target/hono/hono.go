@@ -26,7 +26,7 @@ type Hono struct{}
 
 func (Hono) Name() string      { return "hono" }
 func (Hono) Kind() ir.PartKind { return ir.Backend }
-func (Hono) Version() string   { return "0.3.0" }
+func (Hono) Version() string   { return "0.4.0" }
 
 // reserved are names the generated endpoint handlers use themselves.
 var reserved = []string{"ctx", "checked", "error", "app"}
@@ -39,7 +39,7 @@ func (Hono) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
-	types := render("types.ts.tmpl", "src/types.ts", newTypesView(app))
+	types := render("types.ts.tmpl", "src/types.ts", newTypesView(app.Enums, app.Entities))
 	out := target.Output{Files: append(files, types,
 		render("package.json.tmpl", "package.json", struct{ Name string }{app.Name + "-" + part.Name}))}
 
@@ -62,7 +62,7 @@ func (Hono) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 			Node:   part.Name + "/" + s.Name,
 			File:   path,
 			Marker: marker,
-			Prompt: prompt(v, string(types.Data)),
+			Prompt: prompt(v, string(render("types.ts.tmpl", "", newTypesView(stepTypes(app, s))).Data)),
 		})
 	}
 	out.Files = append(out.Files, render("app.ts.tmpl", "src/app.ts", appView))

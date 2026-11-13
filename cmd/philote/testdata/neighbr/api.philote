@@ -12,9 +12,12 @@ endpoint swipe {
 
 step record_swipe(horse: Horse, target: Horse, liked: bool) -> swipe: Swipe {
   fails: same_horse, already_swiped
+  writes: Swipe
   intent: "store the swipe; a horse can't swipe itself, or swipe the same horse twice"
 }
 
 step match_if_mutual(swipe: Swipe) {
+  reads: Swipe
+  writes: Match
   intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
 }

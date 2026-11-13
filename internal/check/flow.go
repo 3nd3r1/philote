@@ -104,6 +104,8 @@ func (c *checker) step(part *ir.Part, s *syntax.Step) {
 			st.Fails = append(st.Fails, f.Name)
 		}
 	}
+	st.Reads = c.tables(s.Reads, nil)
+	st.Writes = c.tables(s.Writes, st.Reads)
 	switch {
 	case s.Intent == nil:
 		c.d.Errorf(s.Name.Pos, "step %s needs an intent", st.Name)
@@ -114,6 +116,24 @@ func (c *checker) step(part *ir.Part, s *syntax.Step) {
 		st.Intent = s.Intent.Value
 	}
 	part.Steps = append(part.Steps, st)
+}
+
+// tables resolves a step's reads or writes. A table read and written goes
+// under writes only, so the lists never overlap (D-022).
+func (c *checker) tables(names []syntax.Ident, reads []string) []string {
+	var out []string
+	for _, n := range names {
+		switch {
+		case slices.Contains(out, n.Name):
+			c.d.Errorf(n.Pos, "'%s' is listed twice", n.Name)
+		case slices.Contains(reads, n.Name):
+			c.d.Errorf(n.Pos, "%s is under both reads and writes", n.Name)
+			c.d.Hint("writes covers reading too; drop it from reads")
+		case c.lookupEntity(n) != nil:
+			out = append(out, n.Name)
+		}
+	}
+	return out
 }
 
 func (c *checker) endpoint(part *ir.Part, e *syntax.Endpoint) {
