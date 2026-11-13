@@ -208,13 +208,21 @@ Philote doesn't know what a horse is, or what Tinder is. Everything it builds co
 
 ## Try it
 
+Build the horse app from its committed lock, with no model calls:
+
 ```sh
 go install github.com/3nd3r1/philote/cmd/philote@latest
-philote check neighbr.philote  # errors point at the spec line
-philote build neighbr.philote  # writes build/api and build/web; new steps need the claude CLI
-philote build --frozen neighbr.philote  # for CI: never calls a model, fails if a step isn't in the lock
-cd build/api && npm install && npm start
+git clone https://github.com/3nd3r1/philote && cd philote/cmd/philote/testdata/neighbr
+philote build --frozen neighbr.philote
+cd build/api && npm install && npm start   # port 3000
+```
+
+In a second terminal:
+
+```sh
 cd build/web && npm install && API_URL=http://localhost:3000 npm run dev -- -p 3001
 ```
+
+To write your own app, see [the language](docs/language.md). `philote check` points at the spec line that's wrong. `philote build` asks the claude CLI for new bodies and pins them in `philote.lock`.
 
 To work on philote, see [CONTRIBUTING.md](CONTRIBUTING.md).
