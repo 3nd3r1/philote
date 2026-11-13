@@ -82,7 +82,7 @@ Nothing.
 
 ## Ideas
 
-2 adopted, 3 exploring, 4 raw
+2 adopted, 3 exploring, 5 raw
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -95,6 +95,7 @@ Nothing.
 | [I-007](ideas/I-007-pinned-replay.md) | adopted | Pinned replay: lockfile, content-addressed store, frozen builds | Each node's output is keyed by a hash of its inputs and kept in a store, like /nix/store. Normal builds regenerate dirty nodes only; frozen builds never call a model. |
 | [I-008](ideas/I-008-dogfood-ideation.md) | raw | Write the ideation itself in the language | The ideation format (D-007) is a small ontology: items, kinds, typed links, statuses. Once the language exists, it could describe its own ideation tool as a first non-blog target. |
 | [I-009](ideas/I-009-zoom-levels-a-tree-of-nodes-lowered-one.md) | exploring | Zoom levels: a tree of nodes, lowered one level at a time | The app is a tree: system, then frontend/backend, then resources, then endpoints, then steps. Stop at any level; what's below is generated, pinned, and viewable as spec. |
+| [I-010](ideas/I-010-check-that-a-component-body-renders-ever.md) | raw | Check that a component body renders every field it shows | tsc proves a body uses fields that exist, not that it uses every field in shows. A check that each shown field appears in the body would catch a model that drops one, and retry like a type error. |
 
 ## Experiments
 
