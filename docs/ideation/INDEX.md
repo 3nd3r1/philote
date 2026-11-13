@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-18 answered, 1 open
+18 answered, 3 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -48,6 +48,8 @@ Nothing.
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 | [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | answered | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
 | [Q-019](questions/Q-019-what-does-a-step-s-prompt-include.md) | answered | What does a step's prompt include? | Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares? |
+| [Q-020](questions/Q-020-how-does-a-spec-mark-a-field-the-app-set.md) | open | How does a spec mark a field the app sets, not the user? | A Task's finished_at is set by a step, but the create form and POST /tasks still take it. How does a field say that only steps write it? |
+| [Q-021](questions/Q-021-does-a-related-record-link-to-its-page.md) | open | Does a related record link to its page? | A project's tasks show as chips, and a task shows its project, but neither links to the record's page, so /tasks/[id] can only be reached by URL. Link by default, declare it, or never? |
 
 ## Decisions
 
