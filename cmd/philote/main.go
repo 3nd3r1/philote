@@ -58,11 +58,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 	frozen := flags.Bool("frozen", false, "never call the model")
 	modelName := flags.String("model", defaultModel, "model for step and component bodies")
 	redo := flags.String("redo", "", "nodes to write fresh, comma-separated")
-	if flags.Parse(args[1:]) != nil {
+	positional, err := parseAnywhere(flags, args[1:])
+	if err != nil {
 		return 2
 	}
 	wantArgs := map[string]int{"check": 1, "tree": 1, "expand": 2, "build": 1}
-	if n, ok := wantArgs[cmd]; !ok || flags.NArg() != n {
+	if n, ok := wantArgs[cmd]; !ok || len(positional) != n {
 		fmt.Fprint(stderr, usage)
 		return 2
 	}
@@ -70,7 +71,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "--redo asks the model for new bodies, so it can't be used with --frozen")
 		return 2
 	}
-	spec := flags.Arg(0)
+	spec := positional[0]
 	app, texts := load(spec, stderr)
 	if app == nil {
 		return 1
@@ -79,9 +80,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 	case "tree":
 		fmt.Fprint(stdout, lower.Tree(app, *depth))
 	case "expand":
-		text, ok := lower.Show(app, flags.Arg(1))
+		text, ok := lower.Show(app, positional[1])
 		if !ok {
-			fmt.Fprintf(stderr, "nothing at %s\n", flags.Arg(1))
+			fmt.Fprintf(stderr, "nothing at %s\n", positional[1])
 			return 1
 		}
 		fmt.Fprint(stdout, text)
@@ -92,6 +93,22 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return writeBuild(app, texts, *out, buildOptions(spec, *modelName, *frozen, *redo), stdout, stderr)
 	}
 	return 0
+}
+
+// parseAnywhere parses flags before, between and after the positional
+// arguments, since `philote build app.philote --frozen` is how people type it.
+func parseAnywhere(flags *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	for {
+		if err := flags.Parse(args); err != nil {
+			return nil, err
+		}
+		if flags.NArg() == 0 {
+			return positional, nil
+		}
+		positional = append(positional, flags.Arg(0))
+		args = flags.Args()[1:]
+	}
 }
 
 func buildOptions(spec, modelName string, frozen bool, redo string) build.Options {
