@@ -25,7 +25,7 @@ Nothing.
 
 ## Questions
 
-17 answered, 2 open
+18 answered, 1 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -47,11 +47,11 @@ Nothing.
 | [Q-016](questions/Q-016-should-the-source-read-like-english.md) | answered | Should the source read like English? | Near-English sentences make review fast (P-008) but are harder to parse strictly. How far toward controlled English should the syntax go? |
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 | [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | answered | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
-| [Q-019](questions/Q-019-what-does-a-step-s-prompt-include.md) | open | What does a step's prompt include? | Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares? |
+| [Q-019](questions/Q-019-what-does-a-step-s-prompt-include.md) | answered | What does a step's prompt include? | Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares? |
 
 ## Decisions
 
-20 accepted, 1 superseded
+21 accepted, 1 superseded
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -76,6 +76,7 @@ Nothing.
 | [D-019](decisions/D-019-components-model-written-bodies-pinned-l.md) | accepted | Components: model-written bodies, pinned like steps | A component's JSX is written by the model from its props, the base's shadcn components and an optional look line, then pinned in philote.lock. The spec still owns data and links. |
 | [D-020](decisions/D-020-forms-and-actions-first-slice.md) | accepted | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page or delete the record. Deletes refuse with in_use while anything points at the record. |
 | [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | accepted | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
+| [D-022](decisions/D-022-steps-declare-the-tables-they-read-and-w.md) | accepted | Steps declare the tables they read and write | A step lists the tables it reads and writes. Its prompt shows only the types it reaches, and its file can only touch those tables, so tsc refuses a body that strays. |
 
 ## Ideas
 

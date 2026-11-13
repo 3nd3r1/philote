@@ -1,7 +1,8 @@
 +++
 id = "Q-019"
 title = "What does a step's prompt include?"
-status = "open"
+status = "answered"
+answered_by = "D-022"
 summary = "Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares?"
 created = 2026-11-12
 related = ["E-003", "D-015", "D-021", "P-005"]
