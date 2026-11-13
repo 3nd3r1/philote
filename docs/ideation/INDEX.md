@@ -99,13 +99,13 @@ Nothing.
 
 ## Experiments
 
-1 done, 2 running
+2 done, 1 running
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
 | [E-001](experiments/E-001-one-blog-one-week.md) | running | One week, one blog, five checks | Find out whether local regeneration and retargeting hold up. Steps 1 to 3 are done in the real compiler. Step 4 holds for model calls; step 5 and the Claude Code comparison are open. |
 | [E-002](experiments/E-002-authoring-loop.md) | done | Can a model write a clean, correct source from a prose brief? | Give a model a prose brief and the checker. Count rounds to a clean check, then judge whether the result is correct and quick to review. |
-| [E-003](experiments/E-003-how-much-does-the-output-wiggle.md) | running | How much does the output wiggle? | Measure D-021's bet on neighbr: how much output a model writes, how far a spec edit spreads, and how much two fresh builds differ, against Claude Code with a SPEC.md. |
+| [E-003](experiments/E-003-how-much-does-the-output-wiggle.md) | done | How much does the output wiggle? | Two fresh philote builds differ in 3% of lines, all in model bodies; two Claude Code builds share 5 of 41 files. A feature change is 3 spec lines to review against about 50 lines of code. |
 
 ## Prior art
 

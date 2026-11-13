@@ -1,8 +1,8 @@
 +++
 id = "E-003"
 title = "How much does the output wiggle?"
-status = "running"
-summary = "Measure D-021's bet on neighbr: how much output a model writes, how far a spec edit spreads, and how much two fresh builds differ, against Claude Code with a SPEC.md."
+status = "done"
+summary = "Two fresh philote builds differ in 3% of lines, all in model bodies; two Claude Code builds share 5 of 41 files. A feature change is 3 spec lines to review against about 50 lines of code."
 created = 2026-11-12
 tests = ["D-021", "P-005"]
 related = ["E-001", "Q-008", "Q-019"]
@@ -46,3 +46,29 @@ The last row is a leak: every step's prompt lists every entity's type, so any da
 | web/HorseCard | 40 | 48 | 20 |
 | web/HorseView | 58 | 69 | 26 |
 | web/MatchCard | 34 | 28 | 13 |
+
+**2026-11-13, step 4.** Claude Code (claude-opus-5-5, the same model) built neighbr twice from a SPEC.md that says in prose what the spec says, in fresh repos with npm and file tools allowed. Both builds worked and typechecked.
+
+| | Run 1 | Run 2 |
+| --- | --- | --- |
+| Cost, time | $1.24, 5 min, 62 turns | $1.75, 7 min, 76 turns |
+| Files, lines | 41, 1689 | 47, 1946 |
+| Same file paths | 31 | |
+| Byte-identical files | 5, all boilerplate (`utils.ts`, `next.config.ts`, ...) | |
+| Non-blank lines found anywhere in the other | 866 of 1507 | 866 of 1722 |
+
+They differ in behavior too, not just in style: the API port, whether unknown request fields are refused, and whether `POST /swipes` also makes matches.
+
+Then the same change both ways: horses get a `color`, editable in the forms and shown on the profile.
+
+| | Philote | Claude Code, run 1 | Claude Code, run 2 |
+| --- | --- | --- | --- |
+| Source to review | spec +2 −1, lock 4 lines | SPEC.md 4 lines | SPEC.md 4 lines |
+| Code changed | 23 lines in 11 files, 2 of them written by the model | 49 lines in 9 files | 55 lines in 8 files |
+| Model work | 2 bodies, 27 s | 35 turns, $0.45, 67 s | 34 turns, $0.48, 71 s |
+
+In philote, `record_swipe` went back to the model because it takes a Horse, and its body came back unchanged. HorseView's body changed in 2 lines.
+
+## Result
+
+Neither kill criterion holds. Fresh philote builds differ in 3% of lines, all inside model bodies, and the lock takes that to 0. Two Claude Code builds of the same prose differ in layout, code and behavior. With D-022, spec edits rebuild only the nodes that reach what changed. A feature change is a few spec lines to review, where an agent gives 50 or more lines of code. The bet in D-021 holds on this app. It hasn't been tested on a larger app, or on changes that the language can't express yet.
