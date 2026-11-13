@@ -3,6 +3,7 @@ package build
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"slices"
@@ -25,6 +26,7 @@ type Options struct {
 	Model  model.Model // named in every key, so it's needed even when frozen
 	Frozen bool        // never call the model; every body must be in the lock
 	Redo   []string    // nodes, like web/HorseCard, to write fresh even if pinned
+	Log    io.Writer   // told which nodes go to the model, since that takes a while
 }
 
 // node is a spec node whose body a model writes: a step or a component.
@@ -69,7 +71,10 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	if d.HasErrors() {
 		return nil, nil
 	}
-	failed, err := writeBodies(dir, outs, pins, jobs, opts.Model, nodes)
+	if len(jobs) > 0 {
+		fmt.Fprintf(opts.Log, "asking %s for %s\n", opts.Model.Name(), nodeList(jobs))
+	}
+	failed, err := writeBodies(dir, outs, pins, jobs, opts, nodes)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +141,8 @@ func plan(outs []Output, old map[string]pin, opts Options, nodes map[string]node
 // writeBodies asks the model for each job's body, writes the parts and
 // typechecks them, and retries bodies that fail. Bodies that pass are added
 // to pins; it returns the jobs that never passed.
-func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, m model.Model, nodes map[string]node) ([]*job, error) {
+func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, opts Options, nodes map[string]node) ([]*job, error) {
+	m := opts.Model
 	for try := 0; ; try++ {
 		ask(m, jobs)
 		bodies, err := latest(pins, jobs)
@@ -159,8 +165,19 @@ func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, m 
 		if len(failed) == 0 || try == retries {
 			return failed, nil
 		}
+		fmt.Fprintf(opts.Log, "%s didn't typecheck; asking again with the errors\n", nodeList(failed))
 		jobs = failed
 	}
+}
+
+// nodeList names the jobs' nodes, like api/record_swipe, web/HorseCard.
+func nodeList(jobs []*job) string {
+	names := make([]string, len(jobs))
+	for i, j := range jobs {
+		names[i] = j.slot.Node
+	}
+	slices.Sort(names)
+	return strings.Join(names, ", ")
 }
 
 // latest is every slot's body: pinned, or the latest try.

@@ -90,7 +90,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if *out == "" {
 			*out = filepath.Join(filepath.Dir(spec), "build")
 		}
-		return writeBuild(app, texts, *out, buildOptions(spec, *modelName, *frozen, *redo), stdout, stderr)
+		return writeBuild(app, texts, *out, buildOptions(spec, *modelName, *frozen, *redo, stderr), stdout, stderr)
 	}
 	return 0
 }
@@ -111,8 +111,9 @@ func parseAnywhere(flags *flag.FlagSet, args []string) ([]string, error) {
 	}
 }
 
-func buildOptions(spec, modelName string, frozen bool, redo string) build.Options {
+func buildOptions(spec, modelName string, frozen bool, redo string, log io.Writer) build.Options {
 	opts := build.Options{
+		Log:    log,
 		Lock:   filepath.Join(filepath.Dir(spec), "philote.lock"),
 		Model:  newModel(modelName),
 		Frozen: frozen,

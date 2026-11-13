@@ -132,6 +132,11 @@ func TestStepNeverTypechecks(t *testing.T) {
 	if n := len(r.prompts["recordSwipe"]); n != 3 {
 		t.Errorf("recordSwipe was asked %d times, want 3", n)
 	}
+	for _, want := range []string{"asking recorded for api/match_if_mutual, api/record_swipe\n", "api/record_swipe didn't typecheck; asking again"} {
+		if !strings.Contains(stderr.String(), want) {
+			t.Errorf("the build doesn't say %q:\n%s", want, stderr.String())
+		}
+	}
 	lock := readFile(t, filepath.Join(filepath.Dir(spec), "philote.lock"))
 	if strings.Contains(lock, "record_swipe") || !strings.Contains(lock, "step api/match_if_mutual") {
 		t.Errorf("want only the passing step pinned:\n%s", lock)
