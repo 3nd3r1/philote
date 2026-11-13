@@ -35,4 +35,4 @@ related = ["E-001", "Q-008", "Q-019"]
 
 The last row is a leak: every step's prompt lists every entity's type, so any data change invalidates every step, even `match_if_mutual`, which never takes a Horse. Q-019 asks what a step's prompt should include.
 
-Steps 3 and 4 spend model calls, so they wait for the user's go-ahead.
+**2026-11-13.** D-022 closes the leak: with declared tables, adding a field to Horse needs the model for `record_swipe` only, which takes a Horse. Steps 3 and 4 run next.

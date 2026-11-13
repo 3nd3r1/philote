@@ -30,10 +30,13 @@ app neighbr {
 
     step record_swipe(horse: Horse, target: Horse, liked: bool) -> swipe: Swipe {
       fails: same_horse, already_swiped
+      writes: Swipe
       intent: "store the swipe; a horse can't swipe itself, or swipe the same horse twice"
     }
 
     step match_if_mutual(swipe: Swipe) {
+      reads: Swipe
+      writes: Match
       intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
     }
   }
@@ -166,11 +169,11 @@ endpoint horses.create {
 }
 ```
 
-Templates write everything except the inside of each step. Philote writes the step's file, its signature and its errors, then asks a model for the body. The body has to typecheck, or it goes back to the model with the errors. It's pinned in `philote.lock` next to the spec, keyed by a hash of the model and the prompt:
+Templates write everything except the inside of each step. Philote writes the step's file, its signature and its errors, then asks a model for the body. A step can only touch the tables it lists under `reads` and `writes`, and its prompt shows only the types it reaches, so a new field on Horse doesn't touch `match_if_mutual`. The body has to typecheck, or it goes back to the model with the errors. It's pinned in `philote.lock` next to the spec, keyed by a hash of the model and the prompt:
 
 ```
 step api/record_swipe
-key e32c9a061360476a308484b023c98dfdef73922c00fdd3a7b00cc0651d35a54d
+key 56deeecfd9ea24dc54a254b3428a855cec85ddf9faff643293833c02225a5ce7
 model claude-opus-5-5
 | if (horse.id === target.id) {
 |   fail("same_horse");
