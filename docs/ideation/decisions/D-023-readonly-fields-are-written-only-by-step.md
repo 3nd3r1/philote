@@ -1,7 +1,7 @@
 +++
 id = "D-023"
 title = "Readonly fields are written only by steps"
-status = "proposed"
+status = "accepted"
 summary = "A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity."
 created = 2026-11-15
 answers = ["Q-020"]

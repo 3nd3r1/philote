@@ -1,7 +1,8 @@
 +++
 id = "Q-020"
 title = "How does a spec mark a field the app sets, not the user?"
-status = "open"
+status = "answered"
+answered_by = "D-023"
 summary = "A Task's finished_at is set by a step, but the create form and POST /tasks still take it. How does a field say that only steps write it?"
 created = 2026-11-13
 related = ["D-020", "D-022", "P-001", "P-007"]

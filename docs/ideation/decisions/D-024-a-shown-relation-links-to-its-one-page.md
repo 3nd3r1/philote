@@ -1,7 +1,7 @@
 +++
 id = "D-024"
 title = "A shown relation links to its one page"
-status = "proposed"
+status = "accepted"
 summary = "If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it."
 created = 2026-11-15
 answers = ["Q-021"]

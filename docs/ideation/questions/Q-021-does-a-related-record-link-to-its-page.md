@@ -1,7 +1,8 @@
 +++
 id = "Q-021"
 title = "Does a related record link to its page?"
-status = "open"
+status = "answered"
+answered_by = "D-024"
 summary = "A project's tasks show as chips, and a task shows its project, but neither links to the record's page, so /tasks/[id] can only be reached by URL. Link by default, declare it, or never?"
 created = 2026-11-13
 related = ["D-017", "D-018", "Q-011"]

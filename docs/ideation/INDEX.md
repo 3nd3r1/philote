@@ -6,12 +6,7 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Proposed but not yet accepted by a human.
-
-| ID | Title | Summary |
-| --- | --- | --- |
-| [D-023](decisions/D-023-readonly-fields-are-written-only-by-step.md) | Readonly fields are written only by steps | A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity. |
-| [D-024](decisions/D-024-a-shown-relation-links-to-its-one-page.md) | A shown relation links to its one page | If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it. |
+Nothing.
 
 ## Principles
 
@@ -30,7 +25,7 @@ Proposed but not yet accepted by a human.
 
 ## Questions
 
-18 answered, 3 open
+20 answered, 1 open
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -53,12 +48,12 @@ Proposed but not yet accepted by a human.
 | [Q-017](questions/Q-017-how-much-design-freedom-does-the-model-g.md) | answered | How much design freedom does the model get? | Tokens keep the look deterministic but narrow. The point of using a model is that it can build anything. Where can it design freely while builds stay pinned? |
 | [Q-018](questions/Q-018-what-happens-to-records-that-point-at-a.md) | answered | What happens to records that point at a deleted record? | Deleting a Horse leaves its Swipes and Matches pointing at an id that no longer exists, and pages that show them fail. Refuse the delete, delete the dependents, or something declared per relation? |
 | [Q-019](questions/Q-019-what-does-a-step-s-prompt-include.md) | answered | What does a step's prompt include? | Every step's prompt lists every entity's type, so adding a field anywhere rewrites every step (E-003). All types, only the ones the step reaches, or the ones it declares? |
-| [Q-020](questions/Q-020-how-does-a-spec-mark-a-field-the-app-set.md) | open | How does a spec mark a field the app sets, not the user? | A Task's finished_at is set by a step, but the create form and POST /tasks still take it. How does a field say that only steps write it? |
-| [Q-021](questions/Q-021-does-a-related-record-link-to-its-page.md) | open | Does a related record link to its page? | A project's tasks show as chips, and a task shows its project, but neither links to the record's page, so /tasks/[id] can only be reached by URL. Link by default, declare it, or never? |
+| [Q-020](questions/Q-020-how-does-a-spec-mark-a-field-the-app-set.md) | answered | How does a spec mark a field the app sets, not the user? | A Task's finished_at is set by a step, but the create form and POST /tasks still take it. How does a field say that only steps write it? |
+| [Q-021](questions/Q-021-does-a-related-record-link-to-its-page.md) | answered | Does a related record link to its page? | A project's tasks show as chips, and a task shows its project, but neither links to the record's page, so /tasks/[id] can only be reached by URL. Link by default, declare it, or never? |
 
 ## Decisions
 
-21 accepted, 2 proposed, 1 superseded
+23 accepted, 1 superseded
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -84,8 +79,8 @@ Proposed but not yet accepted by a human.
 | [D-020](decisions/D-020-forms-and-actions-first-slice.md) | accepted | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page or delete the record. Deletes refuse with in_use while anything points at the record. |
 | [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | accepted | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
 | [D-022](decisions/D-022-steps-declare-the-tables-they-read-and-w.md) | accepted | Steps declare the tables they read and write | A step lists the tables it reads and writes. Its prompt shows only the types it reaches, and its file can only touch those tables, so tsc refuses a body that strays. |
-| [D-023](decisions/D-023-readonly-fields-are-written-only-by-step.md) | proposed | Readonly fields are written only by steps | A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity. |
-| [D-024](decisions/D-024-a-shown-relation-links-to-its-one-page.md) | proposed | A shown relation links to its one page | If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it. |
+| [D-023](decisions/D-023-readonly-fields-are-written-only-by-step.md) | accepted | Readonly fields are written only by steps | A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity. |
+| [D-024](decisions/D-024-a-shown-relation-links-to-its-one-page.md) | accepted | A shown relation links to its one page | If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it. |
 
 ## Ideas
 
