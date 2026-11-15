@@ -90,6 +90,9 @@ func TestErrors(t *testing.T) {
 		{"display of a missing field", "entity Product {", "entity Product {\n  display: nme", "display: »nme", "did you mean 'name'"},
 		{"display of an int", "entity Review {", "entity Review {\n  display: stars", "display: »stars", "must be a string, slug, email or enum"},
 		{"two display fields", "entity Product {", "entity Product {\n  display: name\n  display: slug", "»display: slug", "already has a display field"},
+		{"readonly not optional", "price: int(min 0)", "price: int(min 0) readonly", "int(min 0) »readonly", "must be optional"},
+		{"readonly slug", "slug from name", "slug from name readonly", "name »readonly", "already left out of input"},
+		{"readonly nothing writes", "price: int(min 0)", "price: int(min 0) optional readonly", "»price: int", "nothing writes Product.price"},
 		{"missing body file", "backend api: hono {\n    resource products: Product\n  }", "backend api: hono", "backend »api", "api.philote doesn't exist"},
 	}
 	runErrorCases(t, base, cases)

@@ -1,0 +1,27 @@
+# philote writes these files and owns their layout.
+src/app/complete/actions.ts
+src/app/complete/form.tsx
+src/app/complete/page.tsx
+src/app/projects/\[id\]/not-found.tsx
+src/app/projects/\[id\]/page.tsx
+src/app/projects/new/actions.ts
+src/app/projects/new/form.tsx
+src/app/projects/new/page.tsx
+src/app/projects/page.tsx
+src/app/tasks/\[id\]/not-found.tsx
+src/app/tasks/\[id\]/page.tsx
+src/app/tasks/new/actions.ts
+src/app/tasks/new/form.tsx
+src/app/tasks/new/page.tsx
+src/components/common/project-card.tsx
+src/components/common/project-view-actions.tsx
+src/components/common/project-view.tsx
+src/components/common/task-view-actions.tsx
+src/components/common/task-view.tsx
+src/lib/actions/project-view.ts
+src/lib/actions/task-view.ts
+src/lib/api.ts
+src/lib/config.ts
+src/lib/nav.ts
+src/lib/reads.ts
+src/lib/types.ts

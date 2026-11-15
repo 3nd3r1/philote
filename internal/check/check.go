@@ -26,6 +26,13 @@ type checker struct {
 	entities  map[string]*ir.Entity
 	members   map[string]map[string]member
 	frontends []*frontendSrc
+	readonly  []readonlyAt
+}
+
+// readonlyAt is a readonly field, kept until steps are known.
+type readonlyAt struct {
+	entity string
+	field  syntax.Ident
 }
 
 // Run checks a loaded source and returns its IR. The IR is only meaningful
@@ -61,6 +68,7 @@ func Run(src *syntax.Source, targets Targets, d *diag.List) *ir.App {
 		c.relation(r)
 	}
 	c.parts(app)
+	c.readonlyWritten()
 	return c.app
 }
 

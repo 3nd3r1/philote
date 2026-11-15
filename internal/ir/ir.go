@@ -45,6 +45,7 @@ type Field struct {
 	SlugFrom string // for Slug fields made from another field
 	Unique   bool
 	Optional bool
+	Readonly bool // only steps write it, so it's left out of resource input (D-023)
 }
 
 // Relation is one side of a relation, as seen from the entity that has it.

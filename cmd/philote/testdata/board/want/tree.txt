@@ -1,0 +1,37 @@
+board
+  api (backend, hono)
+    projects: Project
+      GET /projects
+      GET /projects/[id]
+      POST /projects
+      PATCH /projects/[id]
+      DELETE /projects/[id]
+      GET /projects/[id]/tasks
+    tasks: Task
+      GET /tasks
+      GET /tasks/[id]
+      POST /tasks
+      PATCH /tasks/[id]
+      DELETE /tasks/[id]
+    complete (endpoint)
+      POST /complete
+      steps: finish_task
+  web (frontend, nextjs) uses api
+    /projects: list of ProjectCard
+    /projects/[id]: ProjectView
+    /projects/new: form projects.create, then /projects/[id]
+    /tasks/new: form tasks.create, then /projects
+    /tasks/[id]: TaskView
+    /complete: form complete, then /tasks/[id]
+    ProjectCard(project: Project)
+      shows: project.name, project.summary
+      links to /projects/[id]
+    ProjectView(project: Project)
+      shows: project.name, project.summary, project.tasks as chips
+      deletes via projects.delete, then /projects
+    TaskView(task: Task)
+      shows: task.title, task.status, task.due, task.project, task.finished_at
+      deletes via tasks.delete, then /projects
+  data (2 entities)
+    Project
+    Task

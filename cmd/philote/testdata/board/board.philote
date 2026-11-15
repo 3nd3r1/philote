@@ -1,0 +1,89 @@
+app board {
+  backend api: hono {
+    resource projects: Project
+    resource tasks: Task
+
+    endpoint complete {
+      route: POST "/complete"
+      input: { task: Task }
+      output: Task
+      errors: already_done
+      steps: finish_task
+    }
+
+    step finish_task(task: Task) -> done: Task {
+      fails: already_done
+      writes: Task
+      intent: "mark the task done and set finished_at to now; fail if it's already done"
+    }
+  }
+  frontend web: nextjs {
+    uses: api
+
+    page "/projects" {
+      data: projects
+      layout: list of ProjectCard
+      empty: "No projects yet. Start one."
+    }
+
+    page "/projects/[id]" {
+      data: projects by id
+      layout: ProjectView
+      not_found: "That project doesn't exist."
+    }
+
+    page "/projects/new" {
+      form: projects.create
+      then: "/projects/[id]"
+    }
+
+    page "/tasks/new" {
+      form: tasks.create
+      then: "/projects"
+    }
+
+    page "/tasks/[id]" {
+      data: tasks by id
+      layout: TaskView
+      not_found: "That task doesn't exist."
+    }
+
+    page "/complete" {
+      form: complete
+      then: "/tasks/[id]"
+    }
+
+    component ProjectCard(project: Project) {
+      shows: project.name, project.summary
+      links_to: "/projects/[project.id]"
+    }
+
+    component ProjectView(project: Project) {
+      shows: project.name, project.summary, project.tasks as chips
+      actions: delete then "/projects"
+    }
+
+    component TaskView(task: Task) {
+      shows: task.title, task.status, task.due, task.project, task.finished_at
+      actions: delete then "/projects"
+    }
+  }
+}
+
+enum Status { todo, doing, done }
+
+entity Project {
+  display: name
+  name: string(max 80)
+  summary: string(max 400)
+}
+
+entity Task {
+  display: title
+  title: string(max 120)
+  status: Status
+  due: date optional
+  finished_at: datetime optional readonly
+}
+
+Project has many tasks: Task

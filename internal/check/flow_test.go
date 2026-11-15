@@ -30,3 +30,16 @@ func TestStepTableErrors(t *testing.T) {
 		{"unknown key", stepIntent, "      changes: Product\n" + stepIntent, "»changes: Product", "step keys: fails, reads, writes, intent"},
 	})
 }
+
+func TestReadonlyWrittenByAStep(t *testing.T) {
+	src := strings.Replace(forms, stepIntent, "      writes: Product\n"+stepIntent, 1)
+	src = strings.Replace(src, "  status: Status\n}", "  status: Status\n  featured_at: datetime optional readonly\n}", 1)
+	app, d := load(map[string]string{"app.philote": src})
+	if len(d.Items) > 0 {
+		t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": src}))
+	}
+	fields := app.Entity("Product").Fields
+	if f := fields[len(fields)-1]; f.Name != "featured_at" || !f.Readonly {
+		t.Errorf("Product.featured_at should be readonly, got %+v", f)
+	}
+}

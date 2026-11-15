@@ -104,11 +104,12 @@ func relationReads(r *ir.Resource, e *ir.Entity) []*ir.Endpoint {
 }
 
 // inputs are the fields a client sends: every field except slugs the server
-// derives, plus a foreign key for each relation this entity belongs to.
+// derives and readonly fields only steps write, plus a foreign key for each
+// relation this entity belongs to.
 func inputs(e *ir.Entity) []*ir.Input {
 	var out []*ir.Input
 	for _, f := range e.Fields {
-		if f.Kind == ir.Slug && f.SlugFrom != "" {
+		if f.Kind == ir.Slug && f.SlugFrom != "" || f.Readonly {
 			continue
 		}
 		out = append(out, &ir.Input{Name: f.Name, Field: f})

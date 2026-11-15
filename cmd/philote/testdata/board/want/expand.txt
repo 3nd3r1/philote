@@ -1,0 +1,73 @@
+endpoint projects.list {
+  route: GET "/projects"
+  output: [Project]
+}
+
+endpoint projects.get {
+  route: GET "/projects/[id]"
+  output: Project
+  errors: not_found
+}
+
+endpoint projects.create {
+  route: POST "/projects"
+  input: { name: string(max 80), summary: string(max 400) }
+  output: Project
+  errors: invalid_input
+}
+
+endpoint projects.update {
+  route: PATCH "/projects/[id]"
+  input: { name: string(max 80), summary: string(max 400) } (all optional)
+  output: Project
+  errors: not_found, invalid_input
+}
+
+endpoint projects.delete {
+  route: DELETE "/projects/[id]"
+  errors: not_found, in_use
+}
+
+endpoint projects.tasks {
+  route: GET "/projects/[id]/tasks"
+  output: [Task]
+  errors: not_found
+}
+
+endpoint tasks.list {
+  route: GET "/tasks"
+  output: [Task]
+}
+
+endpoint tasks.get {
+  route: GET "/tasks/[id]"
+  output: Task
+  errors: not_found
+}
+
+endpoint tasks.create {
+  route: POST "/tasks"
+  input: { title: string(max 120), status: Status, due: date, project_id: Project.id }
+  output: Task
+  errors: invalid_input
+}
+
+endpoint tasks.update {
+  route: PATCH "/tasks/[id]"
+  input: { title: string(max 120), status: Status, due: date, project_id: Project.id } (all optional)
+  output: Task
+  errors: not_found, invalid_input
+}
+
+endpoint tasks.delete {
+  route: DELETE "/tasks/[id]"
+  errors: not_found
+}
+
+endpoint complete {
+  route: POST "/complete"
+  input: { task: Task }
+  output: Task
+  errors: invalid_input, already_done
+  steps: finish_task
+}

@@ -88,7 +88,7 @@ func (c *checker) field(ent *ir.Entity, e *syntax.Entity, f *syntax.Field) *ir.F
 	}
 	c.limits(fd, f)
 	c.slugFrom(fd, e, f)
-	c.modifiers(fd, f)
+	c.modifiers(ent, fd, f)
 	return fd
 }
 
@@ -143,7 +143,7 @@ func (c *checker) slugFrom(fd *ir.Field, e *syntax.Entity, f *syntax.Field) {
 	}
 }
 
-func (c *checker) modifiers(fd *ir.Field, f *syntax.Field) {
+func (c *checker) modifiers(ent *ir.Entity, fd *ir.Field, f *syntax.Field) {
 	for _, m := range f.Mods {
 		switch m.Name {
 		case "unique":
@@ -153,9 +153,46 @@ func (c *checker) modifiers(fd *ir.Field, f *syntax.Field) {
 			fd.Unique = true
 		case "optional":
 			fd.Optional = true
+		case "readonly":
+			c.readonlyField(ent, fd, f, m)
 		default:
 			c.d.Errorf(m.Pos, "unknown modifier '%s'", m.Name)
-			c.d.HintNames(m.Name, []string{"unique", "optional"}, "modifiers")
+			c.d.HintNames(m.Name, []string{"unique", "optional", "readonly"}, "modifiers")
+		}
+	}
+}
+
+// readonlyField marks a field only steps write (D-023). A resource creates the
+// record without it, so it has to be optional.
+func (c *checker) readonlyField(ent *ir.Entity, fd *ir.Field, f *syntax.Field, m syntax.Ident) {
+	if f.From != nil {
+		c.d.Errorf(m.Pos, "a slug made from another field is already left out of input")
+		c.d.Hint("drop readonly")
+		return
+	}
+	if !slices.ContainsFunc(f.Mods, func(x syntax.Ident) bool { return x.Name == "optional" }) {
+		c.d.Errorf(m.Pos, "a readonly field must be optional: records are created without it")
+		c.d.Hint("`%s: %s optional readonly`", f.Name.Name, f.Type.Name)
+	}
+	fd.Readonly = true
+	c.readonly = append(c.readonly, readonlyAt{ent.Name, f.Name})
+}
+
+// readonlyWritten reports readonly fields on entities no step writes: nothing
+// could ever set them.
+func (c *checker) readonlyWritten() {
+	written := map[string]bool{}
+	for _, p := range c.app.Parts {
+		for _, st := range p.Steps {
+			for _, w := range st.Writes {
+				written[w] = true
+			}
+		}
+	}
+	for _, r := range c.readonly {
+		if !written[r.entity] {
+			c.d.Errorf(r.field.Pos, "nothing writes %s.%s: it's readonly and no step writes %s", r.entity, r.field.Name, r.entity)
+			c.d.Hint("list %s in a step's writes, or drop readonly", r.entity)
 		}
 	}
 }
