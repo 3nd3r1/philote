@@ -118,3 +118,44 @@ func TestViewErrors(t *testing.T) {
 		{"link by a missing field", "/products/[product.id]", "/products/[product.sku]", `links_to: »"/products/[product.sku]"`, "no field 'sku'"},
 	})
 }
+
+// A shown relation links to its entity's page when exactly one page loads
+// that entity by id, and the component isn't a link itself (D-024).
+func TestRelationLinks(t *testing.T) {
+	secondPage := `    component ProductCard(`
+	reviewPage := `    page "/reviews/[id]" {
+      data: reviews by id
+      layout: ReviewCard
+      not_found: "That review doesn't exist."
+    }
+
+    component ProductCard(`
+	cases := []struct {
+		name, old, new string
+		want, reviews  string // where review.product and product.reviews link
+	}{
+		{"one page", "", "", "/products/[id]", ""},
+		{"two pages", secondPage, "    page \"/items/[id]\" {\n      data: products by id\n      layout: ProductView\n      not_found: \"Gone.\"\n    }\n\n" + secondPage, "", ""},
+		{"linked component", "      shows: review.stars, review.product\n", "      shows: review.stars, review.product\n      links_to: \"/reviews/[review.id]\"\n", "", "/reviews/[id]"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			src := strings.Replace(views, tc.old, tc.new, 1)
+			if tc.name == "linked component" {
+				src = strings.Replace(src, "{ only: list }", "{ only: list, get }", 1)
+				src = strings.Replace(src, secondPage, reviewPage, 1)
+			}
+			app, d := load(map[string]string{"app.philote": src})
+			if len(d.Items) > 0 {
+				t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": src}))
+			}
+			review := findComponent(app.Parts[1], "ReviewCard")
+			if got := review.Shows[1].Href; got != tc.want {
+				t.Errorf("review.product links to %q, want %q", got, tc.want)
+			}
+			if got := findComponent(app.Parts[1], "ProductView").Shows[2].Href; got != tc.reviews {
+				t.Errorf("product.reviews links to %q, want %q", got, tc.reviews)
+			}
+		})
+	}
+}

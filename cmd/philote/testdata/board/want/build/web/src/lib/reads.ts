@@ -23,7 +23,7 @@ export async function readProjectCard(project: Project): Promise<ProjectCardProp
 
 export type ProjectViewProps = {
     project: Pick<Project, "id" | "name" | "summary"> & {
-        tasks: Pick<Task, "id" | "title">[];
+        tasks: (Pick<Task, "id" | "title"> & { href: string })[];
     };
 };
 
@@ -36,14 +36,14 @@ export async function readProjectView(project: Project): Promise<ProjectViewProp
             id: project.id,
             name: project.name,
             summary: project.summary,
-            tasks: tasks.map((item) => ({ id: item.id, title: item.title })),
+            tasks: tasks.map((item) => ({ id: item.id, title: item.title, href: `/tasks/${encodeURIComponent(item.id)}` })),
         },
     };
 }
 
 export type TaskViewProps = {
     task: Pick<Task, "id" | "title" | "status" | "due" | "finished_at"> & {
-        project: Pick<Project, "id" | "name">;
+        project: Pick<Project, "id" | "name"> & { href: string };
     };
 };
 
@@ -58,7 +58,7 @@ export async function readTaskView(task: Task): Promise<TaskViewProps> {
             status: task.status,
             due: task.due,
             finished_at: task.finished_at,
-            project: { id: project.id, name: project.name },
+            project: { id: project.id, name: project.name, href: `/projects/${encodeURIComponent(project.id)}` },
         },
     };
 }

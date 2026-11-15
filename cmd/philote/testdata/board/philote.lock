@@ -38,7 +38,7 @@ model claude-opus-5-5
 | );
 
 component web/ProjectView
-key 726dfb269b0bb2127bc50604c40fa507cd8b6f1a0b8ad0d10c1f9c2c6a2d1497
+key 81460f88c9d87efe0b82f9fad4e56744843dd0660e5fccfe6a722064a31ff347
 model claude-opus-5-5
 | const { name, summary, tasks } = project;
 | const taskCount = tasks.length;
@@ -83,18 +83,20 @@ model claude-opus-5-5
 |         ) : (
 |           <ul className="flex flex-col border">
 |             {tasks.map((task, index) => (
-|               <li
-|                 key={task.id}
-|                 className={cn(
-|                   "flex items-center gap-3 px-3 py-2 text-sm text-card-foreground",
-|                   index > 0 && "border-t"
-|                 )}
-|               >
-|                 <span className="w-6 shrink-0 text-xs tabular-nums text-muted-foreground">
-|                   {String(index + 1).padStart(2, "0")}
-|                 </span>
-|                 <Icons.Circle className="size-3 shrink-0 text-muted-foreground" />
-|                 <span className="min-w-0 flex-1 break-words">{task.title}</span>
+|               <li key={task.id} className={cn(index > 0 && "border-t")}>
+|                 <Link
+|                   href={task.href}
+|                   className="group flex items-center gap-3 px-3 py-2 text-sm text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+|                 >
+|                   <span className="w-6 shrink-0 text-xs tabular-nums text-muted-foreground">
+|                     {String(index + 1).padStart(2, "0")}
+|                   </span>
+|                   <Icons.Circle className="size-3 shrink-0 text-muted-foreground" />
+|                   <span className="min-w-0 flex-1 break-words group-hover:underline underline-offset-4">
+|                     {task.title}
+|                   </span>
+|                   <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+|                 </Link>
 |               </li>
 |             ))}
 |           </ul>
@@ -105,7 +107,7 @@ model claude-opus-5-5
 | );
 
 component web/TaskView
-key 7ebe12d5e3c249bc0efd99e22d28a9eb619d6d5c71936b3ba6528de01f9fac0c
+key c380088a43ac75f6951e537f3e6fc0b6127c3e9629a0789e6fb7198154e48314
 model claude-opus-5-5
 | const statusLabel: Record<TaskViewProps["task"]["status"], string> = {
 |   todo: "To do",
@@ -154,43 +156,46 @@ model claude-opus-5-5
 |
 |       <CardContent>
 |         <dl className="grid grid-cols-1 gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
-|           <div className="flex flex-col gap-1">
-|             <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|               <Icons.CalendarDays className="size-4" />
-|               Due
-|             </dt>
-|             <dd className="text-card-foreground">
-|               {task.due ? (
+|           {task.due ? (
+|             <div className="flex flex-col gap-1">
+|               <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|                 <Icons.CalendarDays className="size-4" />
+|                 Due
+|               </dt>
+|               <dd className="text-card-foreground">
 |                 <time dateTime={task.due}>{formatDate(task.due)}</time>
-|               ) : (
-|                 <span className="text-muted-foreground">—</span>
-|               )}
-|             </dd>
-|           </div>
+|               </dd>
+|             </div>
+|           ) : null}
 |
 |           <div className="flex flex-col gap-1">
 |             <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
 |               <Icons.Folder className="size-4" />
 |               Project
 |             </dt>
-|             <dd className="text-card-foreground">{task.project.name}</dd>
+|             <dd className="text-card-foreground">
+|               <Link
+|                 href={task.project.href}
+|                 className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|               >
+|                 {task.project.name}
+|               </Link>
+|             </dd>
 |           </div>
 |
-|           <div className="flex flex-col gap-1">
-|             <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|               <Icons.CheckCheck className="size-4" />
-|               Finished
-|             </dt>
-|             <dd className="text-card-foreground">
-|               {task.finished_at ? (
+|           {task.finished_at ? (
+|             <div className="flex flex-col gap-1">
+|               <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|                 <Icons.CheckCheck className="size-4" />
+|                 Finished
+|               </dt>
+|               <dd className="text-card-foreground">
 |                 <time dateTime={task.finished_at}>
 |                   {formatDateTime(task.finished_at)}
 |                 </time>
-|               ) : (
-|                 <span className="text-muted-foreground">—</span>
-|               )}
-|             </dd>
-|           </div>
+|               </dd>
+|             </div>
+|           ) : null}
 |         </dl>
 |       </CardContent>
 |     </Card>

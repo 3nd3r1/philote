@@ -35,6 +35,8 @@ neighbr
       deletes via horses.delete, then /horses
     MatchCard(match: Match)
       shows: match.first, match.second, match.matched_at
+      match.first links to /horses/[id]
+      match.second links to /horses/[id]
   data (3 entities)
     Horse
     Swipe

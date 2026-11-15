@@ -39,7 +39,11 @@ Already imported. Use only these:
 - Icons: every lucide-react icon, as <Icons.Heart className="size-4" />.
 - formatDate(iso: string): string, formatDateTime(iso: string): string, formatBool(value: boolean): string.
 - cn(...classes) to join class names.
-
+`)
+	if slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" }) {
+		b.WriteString("- Link from next/link, for the records that have an href.\n")
+	}
+	b.WriteString(`
 Rules:
 - Write only the statements inside the function, ending with a return of JSX. No imports, no other functions.
 - It renders on the server: no hooks, no state, no event handlers, no "use client".
@@ -84,6 +88,9 @@ func propsType(app *ir.App, c *ir.Component, indent string) string {
 		}
 		display := findField(app.Entity(s.Relation.Target), s.Display)
 		t := fmt.Sprintf("{ id: string; %s%s: %s }", s.Display, optional(display), promptType(app, display))
+		if s.Href != "" {
+			t = fmt.Sprintf("{ id: string; %s%s: %s; href: string }", s.Display, optional(display), promptType(app, display))
+		}
 		if s.Relation.Many {
 			t += "[]"
 		}
@@ -95,8 +102,12 @@ func propsType(app *ir.App, c *ir.Component, indent string) string {
 
 func showHint(app *ir.App, s *ir.Show) string {
 	switch {
+	case s.Relation != nil && s.Relation.Many && s.Href != "":
+		return fmt.Sprintf("a list of %s records; show each one's %s as a <Link href={item.href}> to its page", s.Relation.Target, s.Display)
 	case s.Relation != nil && s.Relation.Many:
 		return fmt.Sprintf("a list of %s records; show each one's %s", s.Relation.Target, s.Display)
+	case s.Relation != nil && s.Href != "":
+		return fmt.Sprintf("a %s; show its %s as a <Link href={...href}> to its page", s.Relation.Target, s.Display)
 	case s.Relation != nil:
 		return fmt.Sprintf("a %s; show its %s", s.Relation.Target, s.Display)
 	}

@@ -103,6 +103,7 @@ component TaskCard(task: Task) {
 
 - `shows` lists every field the component reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
 - The model writes the component's body from its `shows` and `look`. Links and actions are rendered around the body by templates.
+- A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
 - Form fields are the endpoint's input, in order. Pages without `[id]` go in the nav.
 
 ## Build

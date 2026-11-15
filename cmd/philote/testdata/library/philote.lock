@@ -89,7 +89,7 @@ model claude-opus-5-5
 | );
 
 component web/BookCard
-key 20c778987143c23dcf58a91931d91e7f5edb47ae62935f3ef7be443387948b8c
+key c28c50ad89a4636ba487c708a4ce892efcbeeaca472215a120943b3466774c18
 model claude-opus-5-5
 | const genreLabel: Record<BookCardProps["book"]["genre"], string> = {
 |   fiction: "Fiction",
@@ -112,7 +112,12 @@ model claude-opus-5-5
 |       </CardTitle>
 |       <CardDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
 |         <Icons.User className="size-3.5 shrink-0" aria-hidden="true" />
-|         <span className="truncate">{book.author.name}</span>
+|         <Link
+|           href={book.author.href}
+|           className="truncate text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|         >
+|           {book.author.name}
+|         </Link>
 |       </CardDescription>
 |       <CardAction>
 |         <Badge

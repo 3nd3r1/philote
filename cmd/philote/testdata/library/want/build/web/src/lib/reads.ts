@@ -43,7 +43,7 @@ export async function readAuthorView(author: Author): Promise<AuthorViewProps> {
 
 export type BookCardProps = {
     book: Pick<Book, "id" | "title" | "genre" | "published" | "in_print"> & {
-        author: Pick<Author, "id" | "name">;
+        author: Pick<Author, "id" | "name"> & { href: string };
     };
 };
 
@@ -58,7 +58,7 @@ export async function readBookCard(book: Book): Promise<BookCardProps> {
             genre: book.genre,
             published: book.published,
             in_print: book.in_print,
-            author: { id: author.id, name: author.name },
+            author: { id: author.id, name: author.name, href: `/authors/${encodeURIComponent(author.id)}` },
         },
     };
 }

@@ -37,8 +37,30 @@ func (c *checker) views(f *frontendSrc, backend *ir.Part) {
 	for _, comp := range f.part.Components {
 		if s := srcs[comp]; s.LinksTo != nil {
 			c.link(f.part, comp, s.LinksTo)
+		} else {
+			relationLinks(f.part, comp)
 		}
 		c.actions(f.part, backend, comp, srcs[comp].Actions)
+	}
+}
+
+// relationLinks points each relation a component shows at its entity's page,
+// when exactly one page loads that entity by id (D-024). A component with
+// links_to is a link already, and links can't nest, so it gets none.
+func relationLinks(part *ir.Part, comp *ir.Component) {
+	for _, s := range comp.Shows {
+		if s.Relation == nil {
+			continue
+		}
+		var routes []string
+		for _, pg := range part.Pages {
+			if pg.ByID && pg.Form == "" && pg.Entity == s.Relation.Target {
+				routes = append(routes, pg.Route)
+			}
+		}
+		if len(routes) == 1 {
+			s.Href = routes[0]
+		}
 	}
 }
 

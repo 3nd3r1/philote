@@ -28,9 +28,11 @@ board
       links to /projects/[id]
     ProjectView(project: Project)
       shows: project.name, project.summary, project.tasks as chips
+      project.tasks links to /tasks/[id]
       deletes via projects.delete, then /projects
     TaskView(task: Task)
       shows: task.title, task.status, task.due, task.project, task.finished_at
+      task.project links to /projects/[id]
       deletes via tasks.delete, then /projects
   data (2 entities)
     Project

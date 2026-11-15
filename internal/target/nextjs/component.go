@@ -18,6 +18,7 @@ const marker = "    // philote:body"
 type componentView struct {
 	Name, Param, Link, Marker string
 	Actions                   string // the actions file under the body, empty for none
+	ImportLink                bool   // the wrapper or the body renders a Link
 }
 
 type relationView struct{ Name, Type string }
@@ -84,6 +85,7 @@ func newComponentView(c *ir.Component) componentView {
 		}
 		v.Link = "`" + link + "`"
 	}
+	v.ImportLink = v.Link != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" })
 	return v
 }
 
@@ -112,8 +114,13 @@ func newReadView(c *ir.Component, clients, types map[string]bool) readView {
 		clients[client], types[rel.Target] = true, true
 		pick := fmt.Sprintf("Pick<%s, %s>", rel.Target, union([]string{"id", s.Display}))
 		record := fmt.Sprintf("{ id: %%[1]s.id, %[1]s: %%[1]s.%[1]s }", s.Display)
+		if s.Href != "" {
+			pick += " & { href: string }"
+			href := strings.Replace(s.Href, "[id]", "${encodeURIComponent(%[1]s.id)}", 1)
+			record = fmt.Sprintf("{ id: %%[1]s.id, %[1]s: %%[1]s.%[1]s, href: `%[2]s` }", s.Display, href)
+		}
 		if rel.Many {
-			v.Relations = append(v.Relations, relationView{s.Name, pick + "[]"})
+			v.Relations = append(v.Relations, relationView{s.Name, list(pick)})
 			v.Loads = append(v.Loads, fmt.Sprintf("%s.%s(%s.id)", client, camel(rel.Name), c.Param))
 			v.Values = append(v.Values, fmt.Sprintf("%s: %s.map((item) => (%s))", s.Name, s.Name, fmt.Sprintf(record, "item")))
 		} else {
@@ -130,6 +137,15 @@ func newReadView(c *ir.Component, clients, types map[string]bool) readView {
 	v.Values = append(fieldValues, v.Values...)
 	v.Pick, v.LoadNames = union(fields), strings.Join(names, ", ")
 	return v
+}
+
+// list makes a record type into an array type, with parentheses when it's an
+// intersection.
+func list(t string) string {
+	if strings.Contains(t, " & ") {
+		return "(" + t + ")[]"
+	}
+	return t + "[]"
 }
 
 // union prints names as a union of string literal types.

@@ -96,25 +96,35 @@ func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 		fmt.Fprintf(b, "    %s: %s\n", pg.Route, layout)
 	}
 	for _, c := range p.Components {
-		fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
-		if depth < 3 {
-			continue
+		componentTree(b, c, depth)
+	}
+}
+
+// componentTree prints one component and, at depth 3, what it shows and links to.
+func componentTree(b *strings.Builder, c *ir.Component, depth int) {
+	fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
+	if depth < 3 {
+		return
+	}
+	var shows []string
+	for _, s := range c.Shows {
+		show := c.Param + "." + s.Name
+		if s.Relation != nil && s.Relation.Many {
+			show += " as chips"
 		}
-		var shows []string
-		for _, s := range c.Shows {
-			show := c.Param + "." + s.Name
-			if s.Relation != nil && s.Relation.Many {
-				show += " as chips"
-			}
-			shows = append(shows, show)
+		shows = append(shows, show)
+	}
+	fmt.Fprintf(b, "      shows: %s\n", strings.Join(shows, ", "))
+	if c.LinksTo != "" {
+		fmt.Fprintf(b, "      links to %s\n", c.LinksTo)
+	}
+	for _, s := range c.Shows {
+		if s.Href != "" {
+			fmt.Fprintf(b, "      %s.%s links to %s\n", c.Param, s.Name, s.Href)
 		}
-		fmt.Fprintf(b, "      shows: %s\n", strings.Join(shows, ", "))
-		if c.LinksTo != "" {
-			fmt.Fprintf(b, "      links to %s\n", c.LinksTo)
-		}
-		for _, a := range c.Actions {
-			fmt.Fprintf(b, "      %s\n", action(a))
-		}
+	}
+	for _, a := range c.Actions {
+		fmt.Fprintf(b, "      %s\n", action(a))
 	}
 }
 

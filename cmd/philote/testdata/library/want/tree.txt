@@ -26,6 +26,7 @@ library
       shows: author.name, author.born, author.books as chips
     BookCard(book: Book)
       shows: book.title, book.author, book.genre, book.published, book.in_print
+      book.author links to /authors/[id]
   data (2 entities)
     Author
     Book

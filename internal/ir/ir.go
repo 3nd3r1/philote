@@ -134,6 +134,7 @@ type Show struct {
 	Relation *Relation // set for a relation; a has-many one shows as chips
 	Display  string    // for a relation: the target's display field
 	Resource string    // for a relation: the backend resource that loads it
+	Href     string    // for a relation: the page each related record links to, params as [id]; empty for none (D-024)
 }
 
 // Op is a standard operation on a resource.

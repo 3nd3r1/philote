@@ -41,8 +41,8 @@ export async function readHorseView(horse: Horse): Promise<HorseViewProps> {
 
 export type MatchCardProps = {
     match: Pick<Match, "id" | "matched_at"> & {
-        first: Pick<Horse, "id" | "name">;
-        second: Pick<Horse, "id" | "name">;
+        first: Pick<Horse, "id" | "name"> & { href: string };
+        second: Pick<Horse, "id" | "name"> & { href: string };
     };
 };
 
@@ -55,8 +55,8 @@ export async function readMatchCard(match: Match): Promise<MatchCardProps> {
         match: {
             id: match.id,
             matched_at: match.matched_at,
-            first: { id: first.id, name: first.name },
-            second: { id: second.id, name: second.name },
+            first: { id: first.id, name: first.name, href: `/horses/${encodeURIComponent(first.id)}` },
+            second: { id: second.id, name: second.name, href: `/horses/${encodeURIComponent(second.id)}` },
         },
     };
 }

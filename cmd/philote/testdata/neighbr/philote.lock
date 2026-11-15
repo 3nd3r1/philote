@@ -161,7 +161,7 @@ model claude-opus-5-5
 | );
 
 component web/MatchCard
-key 8fbcdec4c462f8dbc71de2278037a0992f6d335b22d16c33309dc00b0d01f785
+key e97be6ae21a9f1c9d6fd35e9ea0d8b9fd387b90c0995010956c88cf05a06a458
 model claude-opus-5-5
 | const matchedAt = formatDateTime(match.matched_at);
 |
@@ -174,7 +174,12 @@ model claude-opus-5-5
 |     </CardHeader>
 |     <CardContent className="flex flex-col items-center gap-3 text-center">
 |       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-|         {match.first.name}
+|         <Link
+|           href={match.first.href}
+|           className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|         >
+|           {match.first.name}
+|         </Link>
 |       </CardTitle>
 |       <div className="flex w-full items-center gap-3">
 |         <Separator className="flex-1" />
@@ -184,7 +189,12 @@ model claude-opus-5-5
 |         <Separator className="flex-1" />
 |       </div>
 |       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-|         {match.second.name}
+|         <Link
+|           href={match.second.href}
+|           className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|         >
+|           {match.second.name}
+|         </Link>
 |       </CardTitle>
 |     </CardContent>
 |     <CardFooter className="justify-center">
