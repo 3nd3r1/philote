@@ -35,3 +35,7 @@ Q-020: the task board's New Task form had a "Finished at" picker for a field onl
 `readonly` is the word people know from forms and APIs. It describes the field from the user's side, which is the side the spec is about.
 
 The language has no default values, so requiring `optional` is the simple rule for now. If defaults come later, a readonly field with a default can drop it.
+
+## Progress
+
+Built on main, 2026-11-15. The `board` golden case marks `finished_at` readonly: it's gone from the task rules and the New Task form, and every pinned body still fit.

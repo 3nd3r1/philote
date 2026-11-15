@@ -33,3 +33,7 @@ Q-021: on the task board, `/tasks/[id]` could only be reached by typing the URL.
 Declaring `links_to` on each relation would be the same line in almost every spec. Two pages over one entity are rare, and `tree` shows when a relation stays unlinked.
 
 Putting the href in the props keeps the URL out of the model's hands: it can't link to a page that doesn't exist. Whether it actually renders the link is the same question as whether it renders every shown field, which I-010 would check.
+
+## Progress
+
+Built on main, 2026-11-15. Five relations across the three golden cases started linking, and four component bodies were rewritten. Each new body renders every href. BookCard came back with only its author line changed.
