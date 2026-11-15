@@ -6,7 +6,12 @@ Start with the [thesis](thesis.md).
 
 ## Waiting for review
 
-Nothing.
+Proposed but not yet accepted by a human.
+
+| ID | Title | Summary |
+| --- | --- | --- |
+| [D-023](decisions/D-023-readonly-fields-are-written-only-by-step.md) | Readonly fields are written only by steps | A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity. |
+| [D-024](decisions/D-024-a-shown-relation-links-to-its-one-page.md) | A shown relation links to its one page | If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it. |
 
 ## Principles
 
@@ -53,7 +58,7 @@ Nothing.
 
 ## Decisions
 
-21 accepted, 1 superseded
+21 accepted, 2 proposed, 1 superseded
 
 | ID | Status | Title | Summary |
 | --- | --- | --- | --- |
@@ -79,6 +84,8 @@ Nothing.
 | [D-020](decisions/D-020-forms-and-actions-first-slice.md) | accepted | Forms and actions first slice | A page can be a form over a write endpoint. Components list actions: open a page or delete the record. Deletes refuse with in_use while anything points at the record. |
 | [D-021](decisions/D-021-the-bet-is-a-deterministic-compiler-from.md) | accepted | The bet is a deterministic compiler from spec to code | Philote's value over a SPEC.md and an agent is determinism: the same spec builds the same app, and an edit moves only what it touches. Retargeting and upgrades are side effects. |
 | [D-022](decisions/D-022-steps-declare-the-tables-they-read-and-w.md) | accepted | Steps declare the tables they read and write | A step lists the tables it reads and writes. Its prompt shows only the types it reaches, and its file can only touch those tables, so tsc refuses a body that strays. |
+| [D-023](decisions/D-023-readonly-fields-are-written-only-by-step.md) | proposed | Readonly fields are written only by steps | A field marked readonly leaves every resource's input and form. Only steps write it. It must be optional, and some step must write its entity. |
+| [D-024](decisions/D-024-a-shown-relation-links-to-its-one-page.md) | proposed | A shown relation links to its one page | If exactly one page loads an entity by id, every shown relation to that entity links there. The link comes in the props as an href, so the template decides it and the model only renders it. |
 
 ## Ideas
 
