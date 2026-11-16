@@ -3,7 +3,7 @@ id: doc-1
 title: Direction
 type: other
 created_date: '2026-11-16T12:10:00Z'
-updated_date: '2026-11-16T12:19:00Z'
+updated_date: '2026-11-16T12:20:00Z'
 ---
 Owned by the user. Agents read it and don't edit it.
 
@@ -17,7 +17,7 @@ Philote builds CRUD apps: a Hono backend and a Next.js frontend, with model-writ
 
 ## Milestones, in order
 
-1. **Neighbr demo video.** About 60 seconds. First 30: neighbr is created from its spec, fast and easy to follow, and the first seconds hook. Last 30: one thing in the spec changes, the app rebuilds, and it looks exactly the same except that one part, the only thing regenerated. The app looks great, not like the plain dark default.
+1. **Good enough to demo.** The product is good enough that an honest demo is worth publishing; no demo-only tricks, every fix improves what philote builds for any spec. The proof is a video of about 60 seconds, filmed on neighbr. First 30: neighbr is created from its spec, fast and easy to follow, and the first seconds hook. Last 30: one thing in the spec changes, the app rebuilds, and it looks exactly the same except that one part, the only thing regenerated. The app looks great, not like the plain dark default.
 2. **CLI tool.** No UI, no database. Finds out what the language needs beyond CRUD nouns.
 3. **Game server.** State, time, events.
 4. **Data pipeline.** External APIs, effects, retries.

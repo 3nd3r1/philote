@@ -4,6 +4,7 @@ title: Script and dry-run the 60-second demo
 status: To Do
 assignee: []
 created_date: '2026-11-16T12:19:00Z'
+updated_date: '2026-11-16T12:20:00Z'
 labels: []
 milestone: m-5
 dependencies:
@@ -15,7 +16,7 @@ ordinal: 5000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-Write the shot list for a video of about 60 seconds: 0–30s neighbr is created from its spec, 30–60s one spec change rebuilds one part. The first seconds have to hook. Do a timed dry run of every step, including how long building from an empty lock takes, so the user knows where to cut or speed up. The user records the video.
+Once TASK-3 and TASK-4 are done, write the shot list for an honest video of about 60 seconds: 0–30s neighbr is built from its spec, 30–60s one spec change rebuilds one part. Nothing is staged; the video shows what philote really does. Do a timed dry run of every step, including a build from an empty lock, so the user knows where to cut or speed up. Anything slow or ugly the dry run finds is a product task, not a video trick. The user records the video.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria

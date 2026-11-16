@@ -1,6 +1,6 @@
 ---
 id: m-5
-title: "Neighbr demo video"
+title: "Good enough to demo"
 ---
 
 ## Description
