@@ -13,9 +13,9 @@ export const metadata: Metadata = { title: "Projects" };
 
 export default function Page() {
     return (
-        <main className="flex-1 p-8">
+        <main className="flex-1 px-4 py-10">
             <div className="mx-auto max-w-4xl space-y-6">
-                <h1 className="font-heading text-4xl">{"Projects"}</h1>
+                <h1 className="font-heading text-3xl font-semibold tracking-tight">{"Projects"}</h1>
                 <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
                     <Records />
                 </Suspense>
@@ -32,7 +32,7 @@ async function Records() {
     }
     const items = await Promise.all(records.map(readProjectCard));
     return (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
             {items.map((item) => (
                 <ProjectCard key={item.project.id} {...item} />
             ))}

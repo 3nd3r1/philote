@@ -26,7 +26,7 @@ type Nextjs struct{}
 
 func (Nextjs) Name() string      { return "nextjs" }
 func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
-func (Nextjs) Version() string   { return "0.2.0" }
+func (Nextjs) Version() string   { return "0.3.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	backend := usedBackend(app, part)
@@ -38,7 +38,10 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
+	css, themeSlots := globals(part)
+	slots = append(slots, themeSlots...)
 	generated := slices.Concat(views, []target.File{
+		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
 			jsString(app.Name), jsString("The " + app.Name + " app, built by philote."),
 		}),

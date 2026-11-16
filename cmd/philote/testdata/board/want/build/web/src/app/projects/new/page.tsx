@@ -11,9 +11,9 @@ export const metadata: Metadata = { title: "New Project" };
 
 export default function Page() {
     return (
-        <main className="flex-1 p-8">
+        <main className="flex-1 px-4 py-10">
             <div className="mx-auto max-w-xl space-y-6">
-                <h1 className="font-heading text-4xl">{"New Project"}</h1>
+                <h1 className="font-heading text-3xl font-semibold tracking-tight">{"New Project"}</h1>
                 <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
                     <Loaded />
                 </Suspense>

@@ -35,90 +35,68 @@ export default function TaskView(props: TaskViewProps) {
 }
 
 function TaskViewBody({ task }: TaskViewProps): React.ReactNode {
-    const statusLabel: Record<TaskViewProps["task"]["status"], string> = {
-      todo: "To do",
-      doing: "Doing",
-      done: "Done",
-    };
-
-    const statusVariant: Record<
+    const statusMeta: Record<
       TaskViewProps["task"]["status"],
-      "default" | "secondary" | "outline"
+      { label: string; variant: "default" | "secondary" | "outline"; Icon: typeof Icons.Circle }
     > = {
-      todo: "outline",
-      doing: "secondary",
-      done: "default",
+      todo: { label: "To do", variant: "outline", Icon: Icons.Circle },
+      doing: { label: "In progress", variant: "secondary", Icon: Icons.CircleDashed },
+      done: { label: "Done", variant: "default", Icon: Icons.CircleCheck },
     };
 
-    const StatusIcon =
-      task.status === "done"
-        ? Icons.CircleCheck
-        : task.status === "doing"
-          ? Icons.CircleDot
-          : Icons.Circle;
+    const status = statusMeta[task.status];
+    const StatusIcon = status.Icon;
 
     return (
       <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-        <Card className="rounded-none">
-          <CardHeader className="gap-2">
-            <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Task
-            </CardDescription>
-            <CardTitle className="font-heading text-2xl leading-tight text-card-foreground">
+        <Card className="rounded-xl">
+          <CardHeader>
+            <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground">
               {task.title}
             </CardTitle>
             <CardAction>
-              <Badge
-                variant={statusVariant[task.status]}
-                className="rounded-none gap-1 text-xs uppercase tracking-wide"
-              >
+              <Badge variant={status.variant} className="gap-1">
                 <StatusIcon className="size-3.5" />
-                {statusLabel[task.status]}
+                {status.label}
               </Badge>
             </CardAction>
           </CardHeader>
-
-          <Separator orientation="horizontal" />
-
+          <Separator />
           <CardContent>
-            <dl className="grid grid-cols-1 gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+            <dl className="grid gap-4 sm:grid-cols-3">
               {task.due ? (
                 <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Icons.CalendarDays className="size-4" />
                     Due
                   </dt>
-                  <dd className="text-card-foreground">
-                    <time dateTime={task.due}>{formatDate(task.due)}</time>
+                  <dd className="text-sm font-medium text-card-foreground">
+                    {formatDate(task.due)}
                   </dd>
                 </div>
               ) : null}
-
               <div className="flex flex-col gap-1">
-                <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <Icons.Folder className="size-4" />
                   Project
                 </dt>
-                <dd className="text-card-foreground">
+                <dd className="text-sm font-medium">
                   <Link
                     href={task.project.href}
-                    className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {task.project.name}
                   </Link>
                 </dd>
               </div>
-
               {task.finished_at ? (
                 <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Icons.CheckCheck className="size-4" />
                     Finished
                   </dt>
-                  <dd className="text-card-foreground">
-                    <time dateTime={task.finished_at}>
-                      {formatDateTime(task.finished_at)}
-                    </time>
+                  <dd className="text-sm font-medium text-card-foreground">
+                    {formatDateTime(task.finished_at)}
                   </dd>
                 </div>
               ) : null}

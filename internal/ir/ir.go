@@ -77,6 +77,13 @@ type Part struct {
 	Endpoints  []*Endpoint  // every route: resources expanded by lower, then Custom
 	Pages      []*Page      // frontend only
 	Components []*Component // frontend only
+	Look       *Look        // frontend only: how the app looks, for the model that writes its theme
+}
+
+// Look is a frontend's look line.
+type Look struct {
+	Text string
+	Pos  diag.Pos
 }
 
 // Page is a frontend route that loads records from a backend resource and

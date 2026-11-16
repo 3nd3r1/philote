@@ -122,6 +122,13 @@ type Uses struct {
 	Part Ident
 }
 
+// Look is `look: "<text>"` in a frontend: how the whole app should look,
+// for the model that writes its theme.
+type Look struct {
+	Word  Ident
+	Value *Str
+}
+
 // Page is `page "<route>" { data: <resource> [by id]  layout: [list of] <Component>
 // empty: "..."  not_found: "..." }`, or a form: `page "<route>" { form:
 // <resource>.<op> [by id]  then: "<route>"  not_found: "..." }`.
@@ -175,5 +182,6 @@ func (e *Entity) Start() diag.Pos    { return e.Name.Pos }
 func (r *Relation) Start() diag.Pos  { return r.From.Pos }
 func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
 func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
+func (l *Look) Start() diag.Pos      { return l.Word.Pos }
 func (p *Page) Start() diag.Pos      { return p.Word.Pos }
 func (c *Component) Start() diag.Pos { return c.Name.Pos }

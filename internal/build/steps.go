@@ -29,7 +29,8 @@ type Options struct {
 	Log    io.Writer   // told which nodes go to the model, since that takes a while
 }
 
-// node is a spec node whose body a model writes: a step or a component.
+// node is a spec node whose body a model writes: a step, a component, or a
+// frontend's theme.
 type node struct {
 	kind, name string
 	pos        diag.Pos
@@ -64,7 +65,7 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	nodes := bodyNodes(app)
 	for _, r := range opts.Redo {
 		if _, ok := nodes[r]; !ok {
-			return nil, fmt.Errorf("--redo %s: there is no step or component at that path; paths look like web/HorseCard", r)
+			return nil, fmt.Errorf("--redo %s: there is no step, component or theme at that path; paths look like web/HorseCard or web/theme", r)
 		}
 	}
 	pins, jobs := plan(outs, old, opts, nodes, d)
@@ -80,8 +81,8 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	}
 	for _, j := range failed {
 		n := nodes[j.slot.Node]
-		d.Errorf(n.pos, "the model's body for %s still doesn't typecheck after %d tries", n, retries+1)
-		d.Hint("tsc: %s (see %s)", j.problems[0], filepath.Join(dir, outs[j.part].Part, j.slot.File))
+		d.Errorf(n.pos, "the model's body for %s still fails its checks after %d tries", n, retries+1)
+		d.Hint("%s (see %s)", j.problems[0], filepath.Join(dir, outs[j.part].Part, j.slot.File))
 		// Keep the old body: it's the model's starting point next time.
 		if p, ok := old[j.slot.Node]; ok {
 			pins[j.slot.Node] = p
@@ -104,6 +105,10 @@ func bodyNodes(app *ir.App) map[string]node {
 		for _, c := range p.Components {
 			nodes[p.Name+"/"+c.Name] = node{"component", c.Name, c.Pos}
 		}
+		// Component names start with a capital letter, so this never clashes.
+		if p.Look != nil {
+			nodes[p.Name+"/theme"] = node{"theme", p.Name, p.Look.Pos}
+		}
 	}
 	return nodes
 }
@@ -117,7 +122,7 @@ func plan(outs []Output, old map[string]pin, opts Options, nodes map[string]node
 		for _, s := range o.Slots {
 			n, ok := nodes[s.Node]
 			if !ok {
-				panic("build: slot " + s.Node + " is not a step or component in the IR")
+				panic("build: slot " + s.Node + " is not a step, component or theme in the IR")
 			}
 			k := key(opts.Model.Name(), s.Prompt)
 			p, ok := old[s.Node]
@@ -165,7 +170,7 @@ func writeBodies(dir string, outs []Output, pins map[string]pin, jobs []*job, op
 		if len(failed) == 0 || try == retries {
 			return failed, nil
 		}
-		fmt.Fprintf(opts.Log, "%s didn't typecheck; asking again with the errors\n", nodeList(failed))
+		fmt.Fprintf(opts.Log, "%s failed its checks; asking again with the errors\n", nodeList(failed))
 		jobs = failed
 	}
 }
@@ -214,13 +219,13 @@ func (j *job) prompt() string {
 	var b strings.Builder
 	b.WriteString(j.slot.Prompt)
 	if j.previous != "" {
-		b.WriteString("\nAn earlier version of this function had the body below. Keep what still fits and change only what the description above needs.\n")
-		b.WriteString("```ts\n" + j.previous + "\n```\n")
+		b.WriteString("\nAn earlier version had the body below. Keep what still fits and change only what the description above needs.\n")
+		b.WriteString("```\n" + j.previous + "\n```\n")
 	}
 	if j.problems != nil {
-		b.WriteString("\nYour last reply did not typecheck. The file with it in place:\n")
-		b.WriteString("```ts\n" + string(j.file) + "```\n")
-		b.WriteString("tsc reported:\n" + strings.Join(j.problems, "\n") + "\nReply with the fixed statements.\n")
+		b.WriteString("\nYour last reply failed its checks. The file with it in place:\n")
+		b.WriteString("```\n" + string(j.file) + "```\n")
+		b.WriteString("The checks reported:\n" + strings.Join(j.problems, "\n") + "\nReply with the fixed version.\n")
 	}
 	return b.String()
 }

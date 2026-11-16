@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function ProjectCard(props: ProjectCardProps) {
     return (
-        <Link href={`/projects/${encodeURIComponent(props.project.id)}`} className="block">
+        <Link href={`/projects/${encodeURIComponent(props.project.id)}`} className="block transition-transform hover:-translate-y-0.5">
             <ProjectCardBody {...props} />
         </Link>
     );
@@ -31,22 +31,18 @@ export default function ProjectCard(props: ProjectCardProps) {
 
 function ProjectCardBody({ project }: ProjectCardProps): React.ReactNode {
     return (
-      <Card className="h-full rounded-none border bg-card text-card-foreground transition-colors group-hover:bg-accent">
-        <CardHeader className="gap-2">
-          <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            <Icons.FolderKanban className="size-4" />
-            <span>Project</span>
-          </div>
-          <CardTitle className="font-heading text-base leading-tight tracking-tight">
+      <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+        <CardHeader>
+          <CardTitle className="font-heading text-lg leading-snug text-card-foreground">
             {project.name}
           </CardTitle>
-        </CardHeader>
-        <Separator orientation="horizontal" />
-        <CardContent>
-          <CardDescription className="line-clamp-3 text-sm text-muted-foreground">
+          <CardDescription className="line-clamp-3 text-muted-foreground">
             {project.summary}
           </CardDescription>
-        </CardContent>
+          <CardAction>
+            <Icons.FolderKanban className="size-4 text-muted-foreground" />
+          </CardAction>
+        </CardHeader>
       </Card>
     );
 }

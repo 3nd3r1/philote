@@ -15,91 +15,70 @@ model claude-opus-5-5
 | return updated ?? { ...current, status: "done", finished_at: new Date().toISOString() };
 
 component web/ProjectCard
-key b7784abfe91962ca21f270a4024d85de09ad00b121d845290caf510f5cf06190
+key 64a9bb7089265817bee090fdfe6ba530fe8c765574d66f27363002a325b3bdc0
 model claude-opus-5-5
 | return (
-|   <Card className="h-full rounded-none border bg-card text-card-foreground transition-colors group-hover:bg-accent">
-|     <CardHeader className="gap-2">
-|       <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|         <Icons.FolderKanban className="size-4" />
-|         <span>Project</span>
-|       </div>
-|       <CardTitle className="font-heading text-base leading-tight tracking-tight">
+|   <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+|     <CardHeader>
+|       <CardTitle className="font-heading text-lg leading-snug text-card-foreground">
 |         {project.name}
 |       </CardTitle>
-|     </CardHeader>
-|     <Separator orientation="horizontal" />
-|     <CardContent>
-|       <CardDescription className="line-clamp-3 text-sm text-muted-foreground">
+|       <CardDescription className="line-clamp-3 text-muted-foreground">
 |         {project.summary}
 |       </CardDescription>
-|     </CardContent>
+|       <CardAction>
+|         <Icons.FolderKanban className="size-4 text-muted-foreground" />
+|       </CardAction>
+|     </CardHeader>
 |   </Card>
 | );
 
 component web/ProjectView
-key 81460f88c9d87efe0b82f9fad4e56744843dd0660e5fccfe6a722064a31ff347
+key 858e5d440e054e79997216ba55e1cf501c440792a60ba169fc6079e814e400f7
 model claude-opus-5-5
 | const { name, summary, tasks } = project;
-| const taskCount = tasks.length;
 |
 | return (
-|   <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-4 py-8">
-|     <header className="flex flex-col gap-3">
-|       <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|         Project
-|       </span>
-|       <h1 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-|         {name}
-|       </h1>
-|       <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-|         {summary}
-|       </p>
-|     </header>
-|
-|     <Separator orientation="horizontal" />
-|
-|     <Card className="rounded-none">
-|       <CardHeader>
-|         <CardTitle className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
-|           <Icons.ListChecks className="size-4" />
-|           Tasks
+|   <div className="mx-auto w-full max-w-[900px] px-4 py-10">
+|     <Card className="rounded-xl">
+|       <CardHeader className="gap-2">
+|         <CardTitle className="font-heading text-3xl font-semibold tracking-tight text-card-foreground">
+|           {name}
 |         </CardTitle>
-|         <CardDescription className="text-xs">
-|           {taskCount === 1 ? "1 task" : `${taskCount} tasks`}
+|         <CardDescription className="text-base leading-relaxed text-muted-foreground">
+|           {summary}
 |         </CardDescription>
-|         <CardAction>
-|           <Badge variant="secondary" className="rounded-none tabular-nums">
-|             {taskCount}
-|           </Badge>
-|         </CardAction>
 |       </CardHeader>
-|       <CardContent>
-|         {taskCount === 0 ? (
-|           <div className="flex items-center gap-2 border border-dashed px-3 py-4 text-sm text-muted-foreground">
-|             <Icons.Inbox className="size-4" />
-|             No tasks yet.
-|           </div>
-|         ) : (
-|           <ul className="flex flex-col border">
-|             {tasks.map((task, index) => (
-|               <li key={task.id} className={cn(index > 0 && "border-t")}>
+|       <Separator orientation="horizontal" />
+|       <CardContent className="flex flex-col gap-4">
+|         <div className="flex items-center gap-2">
+|           <Icons.ListTodo className="size-4 text-muted-foreground" />
+|           <h2 className="font-heading text-lg font-medium text-card-foreground">
+|             Tasks
+|           </h2>
+|           <Badge variant="secondary">{tasks.length}</Badge>
+|         </div>
+|         {tasks.length > 0 ? (
+|           <ul className="flex flex-col divide-y rounded-lg border">
+|             {tasks.map((item) => (
+|               <li key={item.id}>
 |                 <Link
-|                   href={task.href}
-|                   className="group flex items-center gap-3 px-3 py-2 text-sm text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+|                   href={item.href}
+|                   className="group flex items-center justify-between gap-3 px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 |                 >
-|                   <span className="w-6 shrink-0 text-xs tabular-nums text-muted-foreground">
-|                     {String(index + 1).padStart(2, "0")}
-|                   </span>
-|                   <Icons.Circle className="size-3 shrink-0 text-muted-foreground" />
-|                   <span className="min-w-0 flex-1 break-words group-hover:underline underline-offset-4">
-|                     {task.title}
+|                   <span className="flex min-w-0 items-center gap-3">
+|                     <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
+|                     <span className="truncate">{item.title}</span>
 |                   </span>
 |                   <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
 |                 </Link>
 |               </li>
 |             ))}
 |           </ul>
+|         ) : (
+|           <p className="rounded-lg bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
+|             No tasks yet.
+|           </p>
 |         )}
 |       </CardContent>
 |     </Card>
@@ -107,92 +86,70 @@ model claude-opus-5-5
 | );
 
 component web/TaskView
-key c380088a43ac75f6951e537f3e6fc0b6127c3e9629a0789e6fb7198154e48314
+key 13d0cc19420b17792b940a94178efbc2e5a786d3b3f024f06d729330da4fe2af
 model claude-opus-5-5
-| const statusLabel: Record<TaskViewProps["task"]["status"], string> = {
-|   todo: "To do",
-|   doing: "Doing",
-|   done: "Done",
-| };
-|
-| const statusVariant: Record<
+| const statusMeta: Record<
 |   TaskViewProps["task"]["status"],
-|   "default" | "secondary" | "outline"
+|   { label: string; variant: "default" | "secondary" | "outline"; Icon: typeof Icons.Circle }
 | > = {
-|   todo: "outline",
-|   doing: "secondary",
-|   done: "default",
+|   todo: { label: "To do", variant: "outline", Icon: Icons.Circle },
+|   doing: { label: "In progress", variant: "secondary", Icon: Icons.CircleDashed },
+|   done: { label: "Done", variant: "default", Icon: Icons.CircleCheck },
 | };
 |
-| const StatusIcon =
-|   task.status === "done"
-|     ? Icons.CircleCheck
-|     : task.status === "doing"
-|       ? Icons.CircleDot
-|       : Icons.Circle;
+| const status = statusMeta[task.status];
+| const StatusIcon = status.Icon;
 |
 | return (
 |   <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-|     <Card className="rounded-none">
-|       <CardHeader className="gap-2">
-|         <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|           Task
-|         </CardDescription>
-|         <CardTitle className="font-heading text-2xl leading-tight text-card-foreground">
+|     <Card className="rounded-xl">
+|       <CardHeader>
+|         <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground">
 |           {task.title}
 |         </CardTitle>
 |         <CardAction>
-|           <Badge
-|             variant={statusVariant[task.status]}
-|             className="rounded-none gap-1 text-xs uppercase tracking-wide"
-|           >
+|           <Badge variant={status.variant} className="gap-1">
 |             <StatusIcon className="size-3.5" />
-|             {statusLabel[task.status]}
+|             {status.label}
 |           </Badge>
 |         </CardAction>
 |       </CardHeader>
-|
-|       <Separator orientation="horizontal" />
-|
+|       <Separator />
 |       <CardContent>
-|         <dl className="grid grid-cols-1 gap-x-8 gap-y-5 text-sm sm:grid-cols-2">
+|         <dl className="grid gap-4 sm:grid-cols-3">
 |           {task.due ? (
 |             <div className="flex flex-col gap-1">
-|               <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|               <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |                 <Icons.CalendarDays className="size-4" />
 |                 Due
 |               </dt>
-|               <dd className="text-card-foreground">
-|                 <time dateTime={task.due}>{formatDate(task.due)}</time>
+|               <dd className="text-sm font-medium text-card-foreground">
+|                 {formatDate(task.due)}
 |               </dd>
 |             </div>
 |           ) : null}
-|
 |           <div className="flex flex-col gap-1">
-|             <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|             <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |               <Icons.Folder className="size-4" />
 |               Project
 |             </dt>
-|             <dd className="text-card-foreground">
+|             <dd className="text-sm font-medium">
 |               <Link
 |                 href={task.project.href}
-|                 className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|                 className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 |               >
 |                 {task.project.name}
 |               </Link>
 |             </dd>
 |           </div>
-|
 |           {task.finished_at ? (
 |             <div className="flex flex-col gap-1">
-|               <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+|               <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |                 <Icons.CheckCheck className="size-4" />
 |                 Finished
 |               </dt>
-|               <dd className="text-card-foreground">
-|                 <time dateTime={task.finished_at}>
-|                   {formatDateTime(task.finished_at)}
-|                 </time>
+|               <dd className="text-sm font-medium text-card-foreground">
+|                 {formatDateTime(task.finished_at)}
 |               </dd>
 |             </div>
 |           ) : null}

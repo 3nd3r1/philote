@@ -1,4 +1,5 @@
 # philote writes these files and owns their layout.
+src/app/globals.css
 src/app/horses/\[id\]/edit/actions.ts
 src/app/horses/\[id\]/edit/form.tsx
 src/app/horses/\[id\]/edit/not-found.tsx

@@ -2,6 +2,7 @@
 src/app/complete/actions.ts
 src/app/complete/form.tsx
 src/app/complete/page.tsx
+src/app/globals.css
 src/app/projects/\[id\]/not-found.tsx
 src/app/projects/\[id\]/page.tsx
 src/app/projects/new/actions.ts

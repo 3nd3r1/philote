@@ -33,6 +33,7 @@ src/components/common/author-view.tsx
 src/components/common/book-card.tsx
 src/components/common/form-field.tsx
 src/components/common/layouts/main-navbar.tsx
+src/components/common/layouts/mode-toggle.tsx
 src/components/common/layouts/theme-provider.tsx
 src/components/common/submit-button.tsx
 src/components/ui/badge.tsx

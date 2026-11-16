@@ -25,54 +25,47 @@ export default function AuthorView(props: AuthorViewProps) {
 }
 
 function AuthorViewBody({ author }: AuthorViewProps): React.ReactNode {
-    const bookCount = author.books.length;
+    const books = author.books;
 
     return (
       <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-        <Card className="rounded-none">
+        <Card className="rounded-xl">
           <CardHeader>
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Author
-            </span>
-            <CardTitle className="font-heading text-2xl text-card-foreground">
+            <CardTitle className="font-heading text-3xl tracking-tight">
               {author.name}
             </CardTitle>
-            <CardDescription className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Icons.Calendar className="size-4" />
-              <span className="text-xs uppercase tracking-wide">Born</span>
-              <span className="text-foreground">{formatDate(author.born)}</span>
+            <CardDescription className="flex items-center gap-2 text-muted-foreground">
+              <Icons.Cake className="size-4" />
+              <span>Born {formatDate(author.born)}</span>
             </CardDescription>
             <CardAction>
-              <Badge variant="secondary" className="rounded-none uppercase tracking-wide">
-                {bookCount} {bookCount === 1 ? "Book" : "Books"}
+              <Badge variant="secondary" className="gap-1">
+                <Icons.BookOpen className="size-3.5" />
+                {books.length} {books.length === 1 ? "book" : "books"}
               </Badge>
             </CardAction>
           </CardHeader>
-          <Separator orientation="horizontal" />
-          <CardContent className="flex flex-col gap-3">
-            <h2 className="font-heading flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              <Icons.BookOpen className="size-4" />
+          <Separator />
+          <CardContent className="flex flex-col gap-4">
+            <h2 className="font-heading text-lg font-semibold text-card-foreground">
               Books
             </h2>
-            {bookCount > 0 ? (
-              <ul className="flex flex-col border">
-                {author.books.map((book, index) => (
+            {books.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No books.</p>
+            ) : (
+              <ul className="grid gap-2 sm:grid-cols-2">
+                {books.map((book) => (
                   <li
                     key={book.id}
-                    className={cn(
-                      "flex items-center gap-3 bg-card px-3 py-2 text-sm text-card-foreground",
-                      index > 0 && "border-t"
-                    )}
+                    className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
                   >
-                    <Icons.Book className="size-4 text-muted-foreground" />
-                    <span>{book.title}</span>
+                    <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">
+                      {book.title}
+                    </span>
                   </li>
                 ))}
               </ul>
-            ) : (
-              <p className="border bg-muted px-3 py-2 text-xs uppercase tracking-wide text-muted-foreground">
-                No books
-              </p>
             )}
           </CardContent>
         </Card>

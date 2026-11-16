@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Task" };
 
 export default function Page({ params }: PageProps<"/tasks/[id]">) {
     return (
-        <main className="flex-1 p-8">
+        <main className="flex-1 px-4 py-10">
             <div className="mx-auto max-w-4xl">
                 <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
                     <Record params={params} />

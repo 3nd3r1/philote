@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function HorseCard(props: HorseCardProps) {
     return (
-        <Link href={`/horses/${encodeURIComponent(props.horse.id)}`} className="block">
+        <Link href={`/horses/${encodeURIComponent(props.horse.id)}`} className="block transition-transform hover:-translate-y-0.5">
             <HorseCardBody {...props} />
         </Link>
     );
@@ -38,39 +38,26 @@ function HorseCardBody({ horse }: HorseCardProps): React.ReactNode {
         other: "Other",
     };
 
-    const initial = horse.name.trim().charAt(0).toUpperCase();
-
     return (
-        <Card className="h-full gap-0 overflow-hidden rounded-none p-0">
-            <div className="relative flex aspect-[3/4] flex-col justify-between bg-muted">
-                <div className="flex justify-end p-4">
-                    <Badge variant="secondary" className="rounded-none text-[10px] uppercase tracking-wider">
+        <Card className="h-full overflow-hidden rounded-xl p-0 gap-0">
+            <div className="relative flex h-full min-h-64 flex-col justify-between gap-6 bg-muted p-5 sm:min-h-80">
+                <div className="flex items-start justify-between gap-3">
+                    <Badge variant="secondary" className="gap-1">
+                        <Icons.Sparkles className="size-3" aria-hidden="true" />
                         {breedLabels[horse.breed]}
                     </Badge>
+                    <Icons.Heart className="size-5 text-muted-foreground" aria-hidden="true" />
                 </div>
-                <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 flex items-center justify-center font-heading text-[8rem] font-bold leading-none text-muted-foreground/20 select-none"
-                >
-                    {initial}
-                </div>
-                <div className="relative bg-gradient-to-t from-background/90 via-background/60 to-transparent p-4 pt-12">
-                    <CardHeader className="gap-1 p-0">
-                        <CardTitle className="flex items-baseline gap-2 font-heading">
-                            <span className="truncate text-3xl font-bold leading-tight text-foreground">
-                                {horse.name}
-                            </span>
-                            <span className="shrink-0 text-2xl font-light text-muted-foreground">
-                                {horse.age}
-                            </span>
-                        </CardTitle>
-                        <CardDescription className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-                            <Icons.Cake className="size-3.5" />
-                            <span>
-                                {horse.age} {horse.age === 1 ? "year" : "years"} old
-                            </span>
-                        </CardDescription>
-                    </CardHeader>
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <h3 className="min-w-0 font-heading text-3xl font-bold tracking-tight break-words text-foreground sm:text-4xl">
+                        {horse.name}
+                    </h3>
+                    <span
+                        className="font-heading text-2xl font-medium text-muted-foreground sm:text-3xl"
+                        aria-label={`${horse.age} ${horse.age === 1 ? "year" : "years"} old`}
+                    >
+                        {horse.age}
+                    </span>
                 </div>
             </div>
         </Card>

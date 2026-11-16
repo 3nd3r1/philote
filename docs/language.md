@@ -76,6 +76,16 @@ A step's parameters come from the endpoint's input, or from earlier steps' resul
 ## Frontend
 
 ```
+frontend web: nextjs {
+  uses: api
+  look: "calm and focused; deep green, rounded cards"   // optional, up to 200 chars
+  ...
+}
+```
+
+The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+
+```
 page "/tasks" {
   data: tasks
   layout: list of TaskCard
@@ -114,7 +124,7 @@ philote tree app.philote             # what the spec becomes
 philote expand app.philote api/tasks  # one level down
 philote build app.philote            # build/api and build/web; new bodies call the claude CLI
 philote build --frozen app.philote   # never calls a model
-philote build --redo web/TaskCard app.philote
+philote build --redo web/TaskCard app.philote   # or web/theme
 ```
 
 Model-written bodies are pinned in `philote.lock` next to the spec. Commit it. A body is written again only when its prompt changes, and then it starts from the old body.

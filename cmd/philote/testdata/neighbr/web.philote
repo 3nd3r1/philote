@@ -1,4 +1,5 @@
 uses: api
+look: "a warm, playful dating app: coral and cream, soft rounded cards, friendly rounded type"
 
 page "/horses" {
   data: horses

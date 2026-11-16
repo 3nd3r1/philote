@@ -13,9 +13,18 @@ import (
 // tscError matches tsc's plain output: src/lib/api.ts(12,7): error TS2339: ...
 var tscError = regexp.MustCompile(`^(\S+)\((\d+),(\d+)\): error (.*)$`)
 
-// Verify installs dependencies if needed and typechecks the project. Route
-// types like LayoutProps come from next typegen, so it runs first.
+// Verify checks the theme, installs dependencies if needed and typechecks
+// the project. Route types like LayoutProps come from next typegen, so it
+// runs first.
 func (Nextjs) Verify(dir string) (map[string][]string, error) {
+	css, err := os.ReadFile(filepath.Join(dir, "src/app/globals.css"))
+	if err != nil {
+		return nil, err
+	}
+	problems := map[string][]string{}
+	if p := checkTheme(string(css)); len(p) > 0 {
+		problems["src/app/globals.css"] = p
+	}
 	if _, err := os.Stat(filepath.Join(dir, "node_modules")); errors.Is(err, os.ErrNotExist) {
 		if out, err := command(dir, "npm", "install", "--silent", "--no-audit", "--no-fund"); err != nil {
 			return nil, fmt.Errorf("npm install in %s: %w\n%s", dir, err, out)
@@ -25,7 +34,6 @@ func (Nextjs) Verify(dir string) (map[string][]string, error) {
 		return nil, fmt.Errorf("next typegen in %s: %w\n%s", dir, err, out)
 	}
 	out, err := command(dir, "npx", "--no-install", "tsc", "--noEmit", "--pretty", "false")
-	problems := map[string][]string{}
 	for _, line := range strings.Split(out, "\n") {
 		if m := tscError.FindStringSubmatch(line); m != nil {
 			problems[m[1]] = append(problems[m[1]], fmt.Sprintf("line %s: %s", m[2], m[4]))

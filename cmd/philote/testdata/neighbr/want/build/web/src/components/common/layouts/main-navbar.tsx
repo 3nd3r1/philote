@@ -1,39 +1,45 @@
 import Link from "next/link";
 
-import { Library } from "lucide-react";
-
 import { siteConfig } from "@/lib/config";
 import { nav } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 import { buttonVariants } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+
+import ModeToggle from "@/components/common/layouts/mode-toggle";
 
 const MainNavbar = () => {
     return (
-        <header className="w-full border-b">
-            <div className="flex flex-row">
-                <div className="px-4 py-3">
-                    <Library />
-                </div>
-                <Separator orientation="vertical" />
-                <nav className="grow px-4 py-2">
-                    <Link
-                        href="/"
-                        className={cn(buttonVariants({ variant: "ghost" }))}
-                    >
-                        {siteConfig.name}
-                    </Link>
+        <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
+            <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-4 px-4 py-2">
+                <Link
+                    href="/"
+                    className="font-heading text-lg font-semibold tracking-tight"
+                >
+                    {siteConfig.name}
+                </Link>
+                {/* On a phone the links get a row of their own, scrolling sideways
+                    without a visible bar. */}
+                <nav className="order-last -mx-2 flex w-full [scrollbar-width:none] items-center gap-1 overflow-x-auto sm:order-none sm:mx-0 sm:w-auto sm:flex-1">
                     {nav.map((item) => (
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={cn(buttonVariants({ variant: "ghost" }))}
+                            className={cn(
+                                buttonVariants({
+                                    variant: "ghost",
+                                    size: "sm",
+                                }),
+                                "text-muted-foreground hover:text-foreground"
+                            )}
                         >
                             {item.title}
                         </Link>
                     ))}
                 </nav>
+                <div className="ml-auto sm:ml-0">
+                    <ModeToggle />
+                </div>
             </div>
         </header>
     );

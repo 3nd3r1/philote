@@ -1,5 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
+import {
+    Bricolage_Grotesque,
+    DM_Sans,
+    DM_Serif_Display,
+    Fraunces,
+    Geist,
+    Geist_Mono,
+    Instrument_Serif,
+    Inter,
+    Manrope,
+    Nunito,
+    Playfair_Display,
+    Space_Grotesk,
+} from "next/font/google";
 
 import { siteConfig } from "@/lib/config";
 import { getThemeColors } from "@/lib/theme";
@@ -12,20 +25,97 @@ import ThemeProvider from "@/components/common/layouts/theme-provider";
 
 import "./globals.css";
 
+// Every font a theme can pick, as --font-<name>. next/font needs one const
+// per font. None is preloaded, so a browser downloads only the fonts the
+// theme's CSS uses.
 const geist = Geist({
-    variable: "--font-sans",
+    variable: "--font-geist",
     subsets: ["latin"],
+    preload: false,
+});
+
+const inter = Inter({
+    variable: "--font-inter",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const dmSans = DM_Sans({
+    variable: "--font-dm-sans",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const manrope = Manrope({
+    variable: "--font-manrope",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const nunito = Nunito({
+    variable: "--font-nunito",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const spaceGrotesk = Space_Grotesk({
+    variable: "--font-space-grotesk",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const bricolageGrotesque = Bricolage_Grotesque({
+    variable: "--font-bricolage-grotesque",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const fraunces = Fraunces({
+    variable: "--font-fraunces",
+    subsets: ["latin"],
+    preload: false,
 });
 
 const playfairDisplay = Playfair_Display({
-    variable: "--font-heading",
+    variable: "--font-playfair-display",
     subsets: ["latin"],
+    preload: false,
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+    variable: "--font-dm-serif-display",
+    weight: "400",
+    subsets: ["latin"],
+    preload: false,
+});
+
+const instrumentSerif = Instrument_Serif({
+    variable: "--font-instrument-serif",
+    weight: "400",
+    subsets: ["latin"],
+    preload: false,
 });
 
 const geistMono = Geist_Mono({
     variable: "--font-mono",
     subsets: ["latin"],
+    preload: false,
 });
+
+const fonts = [
+    geist,
+    inter,
+    dmSans,
+    manrope,
+    nunito,
+    spaceGrotesk,
+    bricolageGrotesque,
+    fraunces,
+    playfairDisplay,
+    dmSerifDisplay,
+    instrumentSerif,
+    geistMono,
+];
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteConfig.url),
@@ -81,9 +171,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <html
             lang={siteConfig.language}
             className={cn(
-                geist.variable,
-                playfairDisplay.variable,
-                geistMono.variable,
+                ...fonts.map((font) => font.variable),
                 "h-full font-sans antialiased"
             )}
             suppressHydrationWarning
@@ -99,7 +187,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <body className="flex min-h-full flex-col">
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="dark"
+                    defaultTheme="system"
                     enableSystem
                     disableTransitionOnChange
                 >

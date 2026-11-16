@@ -36,65 +36,48 @@ export default function ProjectView(props: ProjectViewProps) {
 
 function ProjectViewBody({ project }: ProjectViewProps): React.ReactNode {
     const { name, summary, tasks } = project;
-    const taskCount = tasks.length;
 
     return (
-      <div className="mx-auto flex w-full max-w-[900px] flex-col gap-6 px-4 py-8">
-        <header className="flex flex-col gap-3">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Project
-          </span>
-          <h1 className="font-heading text-2xl font-semibold leading-tight text-foreground">
-            {name}
-          </h1>
-          <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-            {summary}
-          </p>
-        </header>
-
-        <Separator orientation="horizontal" />
-
-        <Card className="rounded-none">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide">
-              <Icons.ListChecks className="size-4" />
-              Tasks
+      <div className="mx-auto w-full max-w-[900px] px-4 py-10">
+        <Card className="rounded-xl">
+          <CardHeader className="gap-2">
+            <CardTitle className="font-heading text-3xl font-semibold tracking-tight text-card-foreground">
+              {name}
             </CardTitle>
-            <CardDescription className="text-xs">
-              {taskCount === 1 ? "1 task" : `${taskCount} tasks`}
+            <CardDescription className="text-base leading-relaxed text-muted-foreground">
+              {summary}
             </CardDescription>
-            <CardAction>
-              <Badge variant="secondary" className="rounded-none tabular-nums">
-                {taskCount}
-              </Badge>
-            </CardAction>
           </CardHeader>
-          <CardContent>
-            {taskCount === 0 ? (
-              <div className="flex items-center gap-2 border border-dashed px-3 py-4 text-sm text-muted-foreground">
-                <Icons.Inbox className="size-4" />
-                No tasks yet.
-              </div>
-            ) : (
-              <ul className="flex flex-col border">
-                {tasks.map((task, index) => (
-                  <li key={task.id} className={cn(index > 0 && "border-t")}>
+          <Separator orientation="horizontal" />
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <Icons.ListTodo className="size-4 text-muted-foreground" />
+              <h2 className="font-heading text-lg font-medium text-card-foreground">
+                Tasks
+              </h2>
+              <Badge variant="secondary">{tasks.length}</Badge>
+            </div>
+            {tasks.length > 0 ? (
+              <ul className="flex flex-col divide-y rounded-lg border">
+                {tasks.map((item) => (
+                  <li key={item.id}>
                     <Link
-                      href={task.href}
-                      className="group flex items-center gap-3 px-3 py-2 text-sm text-card-foreground outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
+                      href={item.href}
+                      className="group flex items-center justify-between gap-3 px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
-                      <span className="w-6 shrink-0 text-xs tabular-nums text-muted-foreground">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <Icons.Circle className="size-3 shrink-0 text-muted-foreground" />
-                      <span className="min-w-0 flex-1 break-words group-hover:underline underline-offset-4">
-                        {task.title}
+                      <span className="flex min-w-0 items-center gap-3">
+                        <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
+                        <span className="truncate">{item.title}</span>
                       </span>
                       <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   </li>
                 ))}
               </ul>
+            ) : (
+              <p className="rounded-lg bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
+                No tasks yet.
+              </p>
             )}
           </CardContent>
         </Card>

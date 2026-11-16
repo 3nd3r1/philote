@@ -23,8 +23,8 @@ const (
 		"    insert(\"Match\", { matched_at: new Date().toISOString(), first_id: swipe.horse_id, second_id: swipe.target_id });\n```"
 )
 
-// recorded replays replies in order for each step function, and keeps the
-// prompts it was sent.
+// recorded replays replies in order for each body's function, or for the
+// theme under the name "theme", and keeps the prompts it was sent.
 type recorded struct {
 	mu      sync.Mutex
 	replies map[string][]string // by function name
@@ -37,7 +37,7 @@ func (r *recorded) Write(prompt string) (string, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for fn, queue := range r.replies {
-		if !strings.Contains(prompt, "function "+fn+"(") {
+		if !strings.Contains(prompt, "function "+fn+"(") && (fn != "theme" || !strings.Contains(prompt, "Write the theme")) {
 			continue
 		}
 		r.prompts[fn] = append(r.prompts[fn], prompt)
@@ -76,7 +76,7 @@ func TestStepRetryAndReuse(t *testing.T) {
 		t.Fatalf("recordSwipe was asked %d times, want 2", n)
 	}
 	retry := r.prompts["recordSwipe"][1]
-	for _, want := range []string{"did not typecheck", "makeSwipe", "TS2304"} {
+	for _, want := range []string{"failed its checks", "makeSwipe", "TS2304"} {
 		if !strings.Contains(retry, want) {
 			t.Errorf("the retry prompt doesn't mention %q:\n%s", want, retry)
 		}
@@ -125,14 +125,14 @@ func TestStepNeverTypechecks(t *testing.T) {
 	})
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"build", "--out", out, spec}, &stdout, &stderr)
-	want := "api.philote:13:6: error: the model's body for step record_swipe still doesn't typecheck after 3 tries"
+	want := "api.philote:13:6: error: the model's body for step record_swipe still fails its checks after 3 tries"
 	if code != 1 || !strings.Contains(stderr.String(), want) || !strings.Contains(stderr.String(), "TS2304") {
 		t.Errorf("exit %d, want 1 and %q with the tsc error in:\n%s", code, want, stderr.String())
 	}
 	if n := len(r.prompts["recordSwipe"]); n != 3 {
 		t.Errorf("recordSwipe was asked %d times, want 3", n)
 	}
-	for _, want := range []string{"asking recorded for api/match_if_mutual, api/record_swipe\n", "api/record_swipe didn't typecheck; asking again"} {
+	for _, want := range []string{"asking recorded for api/match_if_mutual, api/record_swipe\n", "api/record_swipe failed its checks; asking again"} {
 		if !strings.Contains(stderr.String(), want) {
 			t.Errorf("the build doesn't say %q:\n%s", want, stderr.String())
 		}

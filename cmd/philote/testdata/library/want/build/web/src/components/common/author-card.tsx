@@ -28,7 +28,7 @@ import AuthorCardActions from "@/components/common/author-card-actions";
 export default function AuthorCard(props: AuthorCardProps) {
     return (
         <div className="space-y-3">
-            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block">
+            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block transition-transform hover:-translate-y-0.5">
                 <AuthorCardBody {...props} />
             </Link>
             <AuthorCardActions id={props.author.id} />
@@ -37,30 +37,37 @@ export default function AuthorCard(props: AuthorCardProps) {
 }
 
 function AuthorCardBody({ author }: AuthorCardProps): React.ReactNode {
+    const initials = author.name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("");
+
     return (
-      <Card className="h-full rounded-none transition-colors group-hover:bg-accent">
-        <CardHeader>
-          <CardTitle className="font-heading text-base leading-tight">
-            {author.name}
-          </CardTitle>
-          <CardAction>
-            <Icons.UserRound className="size-4 text-muted-foreground" />
+      <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+        <CardHeader className="flex flex-row items-center gap-4">
+          <div
+            aria-hidden="true"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-heading text-base font-semibold text-secondary-foreground"
+          >
+            {initials || <Icons.User className="size-5" />}
+          </div>
+          <div className="flex min-w-0 flex-col gap-1">
+            <CardTitle className="truncate font-heading text-lg leading-tight">
+              {author.name}
+            </CardTitle>
+            <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
+              <Icons.Cake className="size-4 shrink-0" />
+              <span>
+                Born <time dateTime={author.born}>{formatDate(author.born)}</time>
+              </span>
+            </CardDescription>
+          </div>
+          <CardAction className="self-center text-muted-foreground">
+            <Icons.ChevronRight className="size-4" />
           </CardAction>
         </CardHeader>
-        <Separator />
-        <CardContent>
-          <dl className="flex items-center justify-between gap-2">
-            <dt className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
-              <Icons.Cake className="size-3.5" />
-              Born
-            </dt>
-            <dd>
-              <Badge variant="secondary" className="rounded-none font-mono text-xs">
-                {formatDate(author.born)}
-              </Badge>
-            </dd>
-          </dl>
-        </CardContent>
       </Card>
     );
 }

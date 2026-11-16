@@ -26,46 +26,36 @@ export default function MatchCard(props: MatchCardProps) {
 }
 
 function MatchCardBody({ match }: MatchCardProps): React.ReactNode {
-    const matchedAt = formatDateTime(match.matched_at);
-
     return (
-      <Card className="h-full">
-        <CardHeader className="items-center text-center">
-          <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            It&apos;s a match
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center gap-3 text-center">
-          <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-            <Link
-              href={match.first.href}
-              className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {match.first.name}
-            </Link>
-          </CardTitle>
-          <div className="flex w-full items-center gap-3">
-            <Separator className="flex-1" />
-            <span className="flex size-9 items-center justify-center border bg-primary text-primary-foreground">
-              <Icons.Heart className="size-4 fill-current" aria-label="matched with" />
-            </span>
-            <Separator className="flex-1" />
-          </div>
-          <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-            <Link
-              href={match.second.href}
-              className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {match.second.name}
-            </Link>
-          </CardTitle>
-        </CardContent>
-        <CardFooter className="justify-center">
-          <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
-            <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
-            <time dateTime={match.matched_at}>{matchedAt}</time>
-          </p>
-        </CardFooter>
-      </Card>
+        <Card className="h-full rounded-xl">
+            <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
+                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                    <Link
+                        href={match.first.href}
+                        className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
+                    >
+                        {match.first.name}
+                    </Link>
+                    <span
+                        role="img"
+                        aria-label="matched with"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                    >
+                        <Icons.Heart className="size-5 fill-current" aria-hidden="true" />
+                    </span>
+                    <Link
+                        href={match.second.href}
+                        className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
+                    >
+                        {match.second.name}
+                    </Link>
+                </div>
+                <Separator className="w-full" />
+                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
+                    <time dateTime={match.matched_at}>{formatDateTime(match.matched_at)}</time>
+                </p>
+            </CardContent>
+        </Card>
     );
 }

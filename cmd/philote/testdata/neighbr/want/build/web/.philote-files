@@ -39,6 +39,7 @@ src/components/common/horse-card.tsx
 src/components/common/horse-view-actions.tsx
 src/components/common/horse-view.tsx
 src/components/common/layouts/main-navbar.tsx
+src/components/common/layouts/mode-toggle.tsx
 src/components/common/layouts/theme-provider.tsx
 src/components/common/match-card.tsx
 src/components/common/submit-button.tsx

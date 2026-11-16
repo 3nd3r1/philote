@@ -56,7 +56,7 @@ model claude-opus-5-5
 | }) as Swipe;
 
 component web/HorseCard
-key 4536197ae0a1ff7a5b0503f13fdaea90f05d4daf6100f6d7ffe9f84dab7d2a21
+key 3f853df521dd23216c77c9d8c9d2ebb4b86d31ce920d0086c4207c1e4d6d759e
 model claude-opus-5-5
 | const breedLabels: Record<HorseCardProps["horse"]["breed"], string> = {
 |     arabian: "Arabian",
@@ -66,46 +66,33 @@ model claude-opus-5-5
 |     other: "Other",
 | };
 |
-| const initial = horse.name.trim().charAt(0).toUpperCase();
-|
 | return (
-|     <Card className="h-full gap-0 overflow-hidden rounded-none p-0">
-|         <div className="relative flex aspect-[3/4] flex-col justify-between bg-muted">
-|             <div className="flex justify-end p-4">
-|                 <Badge variant="secondary" className="rounded-none text-[10px] uppercase tracking-wider">
+|     <Card className="h-full overflow-hidden rounded-xl p-0 gap-0">
+|         <div className="relative flex h-full min-h-64 flex-col justify-between gap-6 bg-muted p-5 sm:min-h-80">
+|             <div className="flex items-start justify-between gap-3">
+|                 <Badge variant="secondary" className="gap-1">
+|                     <Icons.Sparkles className="size-3" aria-hidden="true" />
 |                     {breedLabels[horse.breed]}
 |                 </Badge>
+|                 <Icons.Heart className="size-5 text-muted-foreground" aria-hidden="true" />
 |             </div>
-|             <div
-|                 aria-hidden="true"
-|                 className="pointer-events-none absolute inset-0 flex items-center justify-center font-heading text-[8rem] font-bold leading-none text-muted-foreground/20 select-none"
-|             >
-|                 {initial}
-|             </div>
-|             <div className="relative bg-gradient-to-t from-background/90 via-background/60 to-transparent p-4 pt-12">
-|                 <CardHeader className="gap-1 p-0">
-|                     <CardTitle className="flex items-baseline gap-2 font-heading">
-|                         <span className="truncate text-3xl font-bold leading-tight text-foreground">
-|                             {horse.name}
-|                         </span>
-|                         <span className="shrink-0 text-2xl font-light text-muted-foreground">
-|                             {horse.age}
-|                         </span>
-|                     </CardTitle>
-|                     <CardDescription className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-muted-foreground">
-|                         <Icons.Cake className="size-3.5" />
-|                         <span>
-|                             {horse.age} {horse.age === 1 ? "year" : "years"} old
-|                         </span>
-|                     </CardDescription>
-|                 </CardHeader>
+|             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+|                 <h3 className="min-w-0 font-heading text-3xl font-bold tracking-tight break-words text-foreground sm:text-4xl">
+|                     {horse.name}
+|                 </h3>
+|                 <span
+|                     className="font-heading text-2xl font-medium text-muted-foreground sm:text-3xl"
+|                     aria-label={`${horse.age} ${horse.age === 1 ? "year" : "years"} old`}
+|                 >
+|                     {horse.age}
+|                 </span>
 |             </div>
 |         </div>
 |     </Card>
 | );
 
 component web/HorseView
-key 93508cd81d4c5e522beda8b5549e6d5f8e64f6aebcc86759517fb1aee8885bd6
+key 30667140ac49f2f6e14dd0b1c9c15c1fe3eb90b8ab974abb585c02a9e16ec566
 model claude-opus-5-5
 | const breedLabels: Record<HorseViewProps["horse"]["breed"], string> = {
 |     arabian: "Arabian",
@@ -115,44 +102,40 @@ model claude-opus-5-5
 |     other: "Other",
 | };
 |
+| const breedLabel = breedLabels[horse.breed];
+|
 | return (
-|     <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-|         <Card className="rounded-none">
-|             <CardHeader className="gap-3">
+|     <div className="mx-auto w-full max-w-[900px] px-4 py-8 sm:py-12">
+|         <Card className="overflow-hidden rounded-xl">
+|             <CardHeader className="gap-3 pt-6">
 |                 <div className="flex flex-col gap-1">
-|                     <CardTitle className="font-heading text-4xl font-bold leading-tight tracking-tight text-card-foreground sm:text-5xl">
+|                     <CardTitle className="font-heading text-4xl font-bold tracking-tight break-words sm:text-5xl">
 |                         {horse.name}
-|                         <span className="text-muted-foreground">, {horse.age}</span>
+|                         <span className="text-muted-foreground font-normal">, {horse.age}</span>
 |                     </CardTitle>
-|                     <CardDescription className="text-sm text-muted-foreground">
+|                     <CardDescription className="text-muted-foreground text-base break-all">
 |                         @{horse.handle}
 |                     </CardDescription>
 |                 </div>
 |                 <CardAction>
-|                     <Badge variant="secondary" className="rounded-none text-xs uppercase tracking-wide">
-|                         <Icons.Tag className="size-3" />
-|                         {breedLabels[horse.breed]}
-|                     </Badge>
+|                     <Icons.Heart className="text-primary size-6" aria-hidden="true" />
 |                 </CardAction>
-|                 <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-|                     <span className="flex items-center gap-1">
-|                         <Icons.Cake className="size-3.5" />
-|                         {horse.age} {horse.age === 1 ? "year" : "years"} old
-|                     </span>
-|                     <Separator orientation="vertical" className="h-3" />
-|                     <span className="flex items-center gap-1">
-|                         <Icons.Sparkles className="size-3.5" />
-|                         {breedLabels[horse.breed]}
-|                     </span>
+|                 <div className="flex flex-wrap items-center gap-2">
+|                     <Badge variant="default" className="gap-1">
+|                         <Icons.Sparkles className="size-3.5" aria-hidden="true" />
+|                         {breedLabel}
+|                     </Badge>
 |                 </div>
 |             </CardHeader>
+|
 |             <Separator />
-|             <CardContent className="flex flex-col gap-3">
-|                 <h2 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|                     <Icons.Heart className="size-4" />
+|
+|             <CardContent className="flex flex-col gap-3 py-6">
+|                 <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
+|                     <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
 |                     About
 |                 </h2>
-|                 <p className="whitespace-pre-line text-sm leading-relaxed text-card-foreground">
+|                 <p className="text-card-foreground leading-relaxed whitespace-pre-line break-words">
 |                     {horse.bio}
 |                 </p>
 |             </CardContent>
@@ -161,47 +144,85 @@ model claude-opus-5-5
 | );
 
 component web/MatchCard
-key e97be6ae21a9f1c9d6fd35e9ea0d8b9fd387b90c0995010956c88cf05a06a458
+key 7d53550ce90af5911e2306b16b39b5a0ac92273ed4f7b5fd9d635170f237a908
 model claude-opus-5-5
-| const matchedAt = formatDateTime(match.matched_at);
-|
 | return (
-|   <Card className="h-full">
-|     <CardHeader className="items-center text-center">
-|       <CardDescription className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-|         It&apos;s a match
-|       </CardDescription>
-|     </CardHeader>
-|     <CardContent className="flex flex-col items-center gap-3 text-center">
-|       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-|         <Link
-|           href={match.first.href}
-|           className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-|         >
-|           {match.first.name}
-|         </Link>
-|       </CardTitle>
-|       <div className="flex w-full items-center gap-3">
-|         <Separator className="flex-1" />
-|         <span className="flex size-9 items-center justify-center border bg-primary text-primary-foreground">
-|           <Icons.Heart className="size-4 fill-current" aria-label="matched with" />
-|         </span>
-|         <Separator className="flex-1" />
-|       </div>
-|       <CardTitle className="font-heading text-2xl font-semibold leading-tight text-card-foreground break-words">
-|         <Link
-|           href={match.second.href}
-|           className="underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-|         >
-|           {match.second.name}
-|         </Link>
-|       </CardTitle>
-|     </CardContent>
-|     <CardFooter className="justify-center">
-|       <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted-foreground">
-|         <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
-|         <time dateTime={match.matched_at}>{matchedAt}</time>
-|       </p>
-|     </CardFooter>
-|   </Card>
+|     <Card className="h-full rounded-xl">
+|         <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
+|             <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
+|                 <Link
+|                     href={match.first.href}
+|                     className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
+|                 >
+|                     {match.first.name}
+|                 </Link>
+|                 <span
+|                     role="img"
+|                     aria-label="matched with"
+|                     className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+|                 >
+|                     <Icons.Heart className="size-5 fill-current" aria-hidden="true" />
+|                 </span>
+|                 <Link
+|                     href={match.second.href}
+|                     className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
+|                 >
+|                     {match.second.name}
+|                 </Link>
+|             </div>
+|             <Separator className="w-full" />
+|             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+|                 <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
+|                 <time dateTime={match.matched_at}>{formatDateTime(match.matched_at)}</time>
+|             </p>
+|         </CardContent>
+|     </Card>
 | );
+
+theme web/theme
+key 1320efa749dc40a0d37bdf2bb23436c1441fc653cba3cb811e8450e89f664ac0
+model claude-opus-5-5
+| :root {
+|     --radius: 1rem;
+|     --font-sans: var(--font-nunito);
+|     --font-heading: var(--font-fraunces);
+|     --background: oklch(0.985 0.012 75);
+|     --foreground: oklch(0.24 0.03 30);
+|     --card: oklch(0.995 0.006 75);
+|     --card-foreground: oklch(0.24 0.03 30);
+|     --popover: oklch(0.995 0.006 75);
+|     --popover-foreground: oklch(0.24 0.03 30);
+|     --primary: oklch(0.62 0.17 30);
+|     --primary-foreground: oklch(0.99 0.01 75);
+|     --secondary: oklch(0.95 0.03 60);
+|     --secondary-foreground: oklch(0.32 0.06 35);
+|     --muted: oklch(0.96 0.014 70);
+|     --muted-foreground: oklch(0.5 0.03 40);
+|     --accent: oklch(0.94 0.04 35);
+|     --accent-foreground: oklch(0.4 0.12 30);
+|     --destructive: oklch(0.577 0.22 25);
+|     --border: oklch(0.91 0.02 55);
+|     --input: oklch(0.89 0.022 55);
+|     --ring: oklch(0.7 0.14 30);
+| }
+|
+| .dark {
+|     --background: oklch(0.18 0.015 35);
+|     --foreground: oklch(0.96 0.012 75);
+|     --card: oklch(0.22 0.018 35);
+|     --card-foreground: oklch(0.96 0.012 75);
+|     --popover: oklch(0.22 0.018 35);
+|     --popover-foreground: oklch(0.96 0.012 75);
+|     --primary: oklch(0.72 0.15 30);
+|     --primary-foreground: oklch(0.2 0.03 30);
+|     --secondary: oklch(0.28 0.03 40);
+|     --secondary-foreground: oklch(0.95 0.015 70);
+|     --muted: oklch(0.26 0.02 40);
+|     --muted-foreground: oklch(0.72 0.03 55);
+|     --accent: oklch(0.32 0.06 30);
+|     --accent-foreground: oklch(0.95 0.02 60);
+|     --destructive: oklch(0.7 0.19 22);
+|     --border: oklch(1 0.02 60 / 10%);
+|     --input: oklch(1 0.02 60 / 15%);
+|     --ring: oklch(0.65 0.14 30);
+| }

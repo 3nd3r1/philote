@@ -85,6 +85,9 @@ func partTree(b *strings.Builder, p *ir.Part, depth int) {
 
 // viewTree prints a frontend's pages, then its components and what they show.
 func viewTree(b *strings.Builder, p *ir.Part, depth int) {
+	if p.Look != nil {
+		fmt.Fprintf(b, "    theme: from its look\n")
+	}
 	for _, pg := range p.Pages {
 		layout := pg.Component
 		switch {

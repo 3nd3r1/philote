@@ -116,7 +116,23 @@ func TestViewErrors(t *testing.T) {
 		{"look too long", "      links_to: \"/products/[product.id]\"\n", "      links_to: \"/products/[product.id]\"\n      look: \"" + strings.Repeat("a", 201) + "\"\n",
 			"      look: »\"aaa", "the cap is 200"},
 		{"link by a missing field", "/products/[product.id]", "/products/[product.sku]", `links_to: »"/products/[product.sku]"`, "no field 'sku'"},
+		{"app look too long", "    uses: api\n", "    uses: api\n    look: \"" + strings.Repeat("a", 201) + "\"\n", "    look: »\"aaa", "the cap is 200"},
+		{"app look empty", "    uses: api\n", "    uses: api\n    look: \"\"\n", `look: »""`, "the look is empty"},
+		{"two app looks", "    uses: api\n", "    uses: api\n    look: \"warm\"\n    look: \"cold\"\n", `»look: "cold"`, "already has a look"},
+		{"look in a backend", "    resource products: Product\n", "    look: \"warm\"\n    resource products: Product\n", `»look: "warm"`, "can't go inside a backend"},
 	})
+}
+
+// A frontend's look line reaches the IR for the theme's prompt.
+func TestAppLook(t *testing.T) {
+	src := strings.Replace(views, "    uses: api\n", "    uses: api\n    look: \"warm and playful\"\n", 1)
+	app, d := load(map[string]string{"app.philote": src})
+	if len(d.Items) > 0 {
+		t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": src}))
+	}
+	if l := app.Parts[1].Look; l == nil || l.Text != "warm and playful" || l.Pos.Line != 8 {
+		t.Errorf("look: %+v", l)
+	}
 }
 
 // A shown relation links to its entity's page when exactly one page loads

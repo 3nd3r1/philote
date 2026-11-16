@@ -42,44 +42,40 @@ function HorseViewBody({ horse }: HorseViewProps): React.ReactNode {
         other: "Other",
     };
 
+    const breedLabel = breedLabels[horse.breed];
+
     return (
-        <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-            <Card className="rounded-none">
-                <CardHeader className="gap-3">
+        <div className="mx-auto w-full max-w-[900px] px-4 py-8 sm:py-12">
+            <Card className="overflow-hidden rounded-xl">
+                <CardHeader className="gap-3 pt-6">
                     <div className="flex flex-col gap-1">
-                        <CardTitle className="font-heading text-4xl font-bold leading-tight tracking-tight text-card-foreground sm:text-5xl">
+                        <CardTitle className="font-heading text-4xl font-bold tracking-tight break-words sm:text-5xl">
                             {horse.name}
-                            <span className="text-muted-foreground">, {horse.age}</span>
+                            <span className="text-muted-foreground font-normal">, {horse.age}</span>
                         </CardTitle>
-                        <CardDescription className="text-sm text-muted-foreground">
+                        <CardDescription className="text-muted-foreground text-base break-all">
                             @{horse.handle}
                         </CardDescription>
                     </div>
                     <CardAction>
-                        <Badge variant="secondary" className="rounded-none text-xs uppercase tracking-wide">
-                            <Icons.Tag className="size-3" />
-                            {breedLabels[horse.breed]}
-                        </Badge>
+                        <Icons.Heart className="text-primary size-6" aria-hidden="true" />
                     </CardAction>
-                    <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                            <Icons.Cake className="size-3.5" />
-                            {horse.age} {horse.age === 1 ? "year" : "years"} old
-                        </span>
-                        <Separator orientation="vertical" className="h-3" />
-                        <span className="flex items-center gap-1">
-                            <Icons.Sparkles className="size-3.5" />
-                            {breedLabels[horse.breed]}
-                        </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="default" className="gap-1">
+                            <Icons.Sparkles className="size-3.5" aria-hidden="true" />
+                            {breedLabel}
+                        </Badge>
                     </div>
                 </CardHeader>
+
                 <Separator />
-                <CardContent className="flex flex-col gap-3">
-                    <h2 className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        <Icons.Heart className="size-4" />
+
+                <CardContent className="flex flex-col gap-3 py-6">
+                    <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
+                        <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
                         About
                     </h2>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-card-foreground">
+                    <p className="text-card-foreground leading-relaxed whitespace-pre-line break-words">
                         {horse.bio}
                     </p>
                 </CardContent>

@@ -26,75 +26,45 @@ export default function BookCard(props: BookCardProps) {
 }
 
 function BookCardBody({ book }: BookCardProps): React.ReactNode {
-    const genreLabel: Record<BookCardProps["book"]["genre"], string> = {
-      fiction: "Fiction",
-      poetry: "Poetry",
-      history: "History",
-    };
-
-    const GenreIcon =
-      book.genre === "fiction"
-        ? Icons.BookOpen
-        : book.genre === "poetry"
-          ? Icons.Feather
-          : Icons.Landmark;
+    const genreLabel = book.genre.charAt(0).toUpperCase() + book.genre.slice(1);
 
     return (
-      <Card className="h-full rounded-none">
+      <Card className="h-full rounded-xl bg-card text-card-foreground">
         <CardHeader>
-          <CardTitle className="font-heading text-base leading-tight text-card-foreground">
+          <CardTitle className="font-heading text-lg leading-snug">
             {book.title}
           </CardTitle>
-          <CardDescription className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Icons.User className="size-3.5 shrink-0" aria-hidden="true" />
+          <CardDescription className="text-muted-foreground">
             <Link
               href={book.author.href}
-              className="truncate text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline underline-offset-4"
             >
+              <Icons.User className="size-4" />
               {book.author.name}
             </Link>
           </CardDescription>
           <CardAction>
-            <Badge
-              variant="secondary"
-              className="rounded-none text-[10px] font-medium uppercase tracking-wide"
-            >
-              <GenreIcon className="size-3" aria-hidden="true" />
-              {genreLabel[book.genre]}
-            </Badge>
+            <Badge variant="secondary">{genreLabel}</Badge>
           </CardAction>
         </CardHeader>
-        <Separator />
-        <CardContent>
-          <dl className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex flex-col gap-1">
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                Published
-              </dt>
-              <dd className="flex items-center gap-1.5 text-foreground">
-                <Icons.Calendar className="size-3.5 text-muted-foreground" aria-hidden="true" />
-                <time dateTime={book.published}>{formatDate(book.published)}</time>
-              </dd>
-            </div>
-            <div className="flex flex-col gap-1">
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                In print
-              </dt>
-              <dd
-                className={cn(
-                  "flex items-center gap-1.5",
-                  book.in_print ? "text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {book.in_print ? (
-                  <Icons.CircleCheck className="size-3.5" aria-hidden="true" />
-                ) : (
-                  <Icons.CircleSlash className="size-3.5" aria-hidden="true" />
-                )}
-                <span>{formatBool(book.in_print)}</span>
-              </dd>
-            </div>
-          </dl>
+        <CardContent className="mt-auto">
+          <Separator className="mb-4" />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <Icons.Calendar className="size-4" />
+              <time dateTime={book.published}>{formatDate(book.published)}</time>
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              {book.in_print ? (
+                <Icons.BookCheck className="size-4" />
+              ) : (
+                <Icons.BookX className="size-4" />
+              )}
+              <span>
+                In print: <span className="text-foreground">{formatBool(book.in_print)}</span>
+              </span>
+            </span>
+          </div>
         </CardContent>
       </Card>
     );

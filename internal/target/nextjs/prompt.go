@@ -14,7 +14,7 @@ import (
 func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 	var b strings.Builder
 	b.WriteString(`Write the body of one React server component in a Next.js app that philote generated.
-The app uses shadcn/ui in the base-sera style (square corners, uppercase tracking-wide labels, compact type) with Tailwind CSS v4.
+The app uses shadcn/ui in the base-vega style with Tailwind CSS v4. The app's theme sets its colors, fonts and corner radius, and can change, so never assume a particular color, font or radius: use the theme's classes. Corners follow the theme with rounded-md, rounded-lg, rounded-xl and up.
 Colors come only from the theme's variables: bg-background, text-foreground, bg-card, text-card-foreground, bg-muted, text-muted-foreground, bg-primary, text-primary-foreground, bg-secondary, text-secondary-foreground, bg-accent, border, ring. Headings can use font-heading.
 
 `)
@@ -48,6 +48,7 @@ Rules:
 - Write only the statements inside the function, ending with a return of JSX. No imports, no other functions.
 - It renders on the server: no hooks, no state, no event handlers, no "use client".
 - Show only what the props hold. Don't invent data, placeholder text or images.
+- Show each value once. Don't repeat a field in a second place or a second format.
 - Style with Tailwind classes and the theme's variables. No inline styles, no hard-coded colors.
 - Reply with the statements in one ` + "```tsx" + ` block and nothing else.
 `)

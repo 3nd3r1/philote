@@ -20,6 +20,7 @@ neighbr
       POST /swipe
       steps: record_swipe, match_if_mutual
   web (frontend, nextjs) uses api
+    theme: from its look
     /horses: list of HorseCard
     /horses/[id]: HorseView
     /matches: list of MatchCard

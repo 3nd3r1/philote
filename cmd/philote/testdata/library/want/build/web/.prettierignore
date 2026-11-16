@@ -6,6 +6,7 @@ src/app/books/new/actions.ts
 src/app/books/new/form.tsx
 src/app/books/new/page.tsx
 src/app/books/page.tsx
+src/app/globals.css
 src/components/common/author-card-actions.tsx
 src/components/common/author-card.tsx
 src/components/common/author-view.tsx
