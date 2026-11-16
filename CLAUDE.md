@@ -1,12 +1,13 @@
 # philote
 
-A compiler: a strict spec goes in, a Next.js frontend and a Hono backend come out. Templates do as much as possible, a model fills only marked slots, and every output is pinned. Read `docs/ideation/thesis.md` and `docs/ideation/INDEX.md` first.
+A compiler: a strict spec goes in, a Next.js frontend and a Hono backend come out. Templates do as much as possible, a model fills only marked slots, and every output is pinned. Read `docs/thesis.md`, `docs/language.md` and the direction (`backlog doc view doc-1`) first.
 
 ## Layout
 
 - `cmd/philote/`: CLI wiring only. Parse flags, call packages, print.
 - `internal/<pkg>/`: one job per package, stated in its `doc.go`.
-- `docs/ideation/`: design notes. Format in CONTRIBUTING.md.
+- `docs/`: the thesis and the language reference. `docs/archive/` is frozen design history: read it for why, never edit it.
+- `backlog/`: the board, managed with the `backlog` CLI.
 - `tools/`: repo tooling.
 
 ## Architecture
@@ -43,10 +44,35 @@ Pipeline: `syntax` → `check` → `ir` → `lower` → `target` → `build`. On
 
 ## Workflow
 
-- Tools come from `nix-shell`. Run `make setup` once for the git hook. `make check` (lint, tests, archtest, ideation) must pass before every commit.
-- Build only what an accepted decision or the current experiment needs.
-- Language and architecture changes start as an ideation item (`make new KIND=... TITLE="..."`).
-- Decisions and principles you write are `proposed`. Only the user accepts. When they do, set `accepted` and mark each question in `answers` as answered with `answered_by`.
-- Don't delete ideation items: reject, retire, supersede or drop them, and say why. Run `make index` after editing. Never edit `INDEX.md` or `docs/ideation/archive/`.
-- Keep docs short. Don't add a doc when a rule, test or item would do.
+- Tools come from `nix-shell`, which also puts the pinned `backlog` CLI on the path. Run `make setup` once for the git hook. `make check` (lint, tests, archtest) must pass before every commit.
+- The user steers, like a CEO. They own the direction (doc-1): the goal, the milestone order, new language concepts, pivots. Bring them only direction calls, as one question with a recommendation, and record each answer with `backlog decision create`. Only the user edits doc-1.
+- Agents own the tasks: create, split, update and close them without asking. Never ask the user to review a task.
+- Keep the board small: tasks only for the current milestone, at most five open. No task for exploration or mechanical edits.
+- Build only what the current milestone needs.
+- A language change updates `docs/language.md` and gets a golden case.
+- Keep docs short. Don't add a doc when a rule, test or task would do.
 - Commits: `feat:`, `fix:`, `chore:`, `docs:`, `build:`, `test:`, optional scope. Short lowercase subject, no body, no co-authors or trailers. One logical change each.
+
+<!-- BACKLOG.MD GUIDELINES START -->
+<!-- backlog.md-instructions-version: 1.55.3 -->
+<CRITICAL_INSTRUCTION>
+
+## Backlog.md Workflow
+
+This project uses Backlog.md for task and project management.
+
+**At the beginning of each conversation in this project, run `backlog instructions overview` before answering or taking action. Re-read it only if you have not read it yet in the current conversation.**
+
+Use the overview to decide whether to search, read, create, or update Backlog tasks.
+
+Before task lifecycle actions, read the matching detailed guide:
+- `backlog instructions task-creation` before creating or splitting tasks
+- `backlog instructions task-execution` before planning, changing status or assignee, adding a plan or implementation notes, or implementing task work
+- `backlog instructions task-finalization` before checking acceptance criteria, writing final summaries, or moving tasks to terminal statuses
+
+Use `backlog <command> --help` before running unfamiliar commands. Help shows options, fields, and examples.
+
+Do not edit Backlog task, draft, document, decision, or milestone markdown files directly. Use the `backlog` CLI so metadata, relationships, and history stay consistent.
+
+</CRITICAL_INSTRUCTION>
+<!-- BACKLOG.MD GUIDELINES END -->

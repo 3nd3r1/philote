@@ -17,6 +17,15 @@ The source is an ontology of the product: concepts, the relations between them, 
 
 People review the ontology; the compiler guarantees the code matches it.
 
-## Where things live
+## Principles
 
-Everything else in this folder is one item per file: [principles](principles/), [questions](questions/), [decisions](decisions/), [ideas](ideas/), [experiments](experiments/) and [prior art](prior-art/). [INDEX.md](INDEX.md) lists them all. The original ideation doc is kept as-is in [archive/](archive/).
+1. **The source is strict.** Every object has a type and a fixed schema. Natural language only in named, length-capped fields.
+2. **Generated code is machine code.** It's never edited by hand. Changes go into the source or a native block.
+3. **Determinism comes from the build system.** Every node's output is pinned by a hash of its inputs. Identical inputs never call the model.
+4. **Verification comes from the source.** Types, routes and data shapes are checked mechanically. A node that fails is regenerated, or the build fails.
+5. **Regeneration stays local.** Changing one node rebuilds that node only, unless its interface changed.
+6. **Frameworks are backends.** The same source should compile to a second framework without edits.
+7. **Every word has a checkable meaning.** A word is a built-in term, a name you made up, or a note the compiler ignores.
+8. **People review the source, not the code.** A source diff has to be readable in a minute.
+
+Work and direction live in the board (`backlog board`). The design history up to 2026-11-16 is frozen in [archive/ideation](archive/ideation/INDEX.md).

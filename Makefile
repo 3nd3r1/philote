@@ -1,6 +1,6 @@
-.PHONY: check lint fmt test ideation index new setup smoke
+.PHONY: check lint fmt test setup smoke
 
-check: lint test ideation
+check: lint test
 
 lint:
 	@command -v golangci-lint >/dev/null || { echo "golangci-lint not found; run inside nix-shell"; exit 1; }
@@ -11,15 +11,6 @@ fmt:
 
 test:
 	go test ./...
-
-ideation:
-	python3 tools/ideation.py check
-
-index:
-	python3 tools/ideation.py index
-
-new:
-	python3 tools/ideation.py new "$(KIND)" "$(TITLE)"
 
 setup:
 	git config core.hooksPath .githooks

@@ -1,0 +1,3 @@
+#!/bin/sh
+# Pinned Backlog.md CLI. nodejs comes from nix-shell.
+exec npx -y backlog.md@1.55.3 "$@"

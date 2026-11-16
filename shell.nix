@@ -10,4 +10,9 @@ pkgs.mkShell {
     python3
     nodejs
   ];
+
+  # The pinned backlog CLI (tools/bin/backlog).
+  shellHook = ''
+    export PATH="$PWD/tools/bin:$PATH"
+  '';
 }
