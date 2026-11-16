@@ -4,7 +4,7 @@ title: Script and dry-run the 60-second demo
 status: To Do
 assignee: []
 created_date: '2026-11-16T12:19:00Z'
-updated_date: '2026-11-16T12:20:00Z'
+updated_date: '2026-11-16T12:49:00Z'
 labels: []
 milestone: m-5
 dependencies:
@@ -24,3 +24,9 @@ Once TASK-3 and TASK-4 are done, write the shot list for an honest video of abou
 - [ ] #1 A shot list with seconds per shot, short enough for the user to follow while recording
 - [ ] #2 Dry run done, with measured times for each step
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Recording: turn off Dark Reader for localhost, or light mode turns brown and Next shows hydration warnings. Use next build + next start, not next dev, so the dev badge doesn't show. A neighbr build with a fresh lock asks the model for 5-6 nodes in parallel; the last one took about 70s.
+<!-- SECTION:NOTES:END -->
