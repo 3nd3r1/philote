@@ -21,14 +21,14 @@ app board {
     uses: api
 
     page "/projects" {
-      data: projects
-      layout: list of ProjectCard
+      load: projects
+      shows: list of ProjectCard(projects)
       empty: "No projects yet. Start one."
     }
 
     page "/projects/[id]" {
-      data: projects by id
-      layout: ProjectView
+      load: project from projects by id
+      shows: ProjectView(project)
       not_found: "That project doesn't exist."
     }
 
@@ -43,8 +43,8 @@ app board {
     }
 
     page "/tasks/[id]" {
-      data: tasks by id
-      layout: TaskView
+      load: task from tasks by id
+      shows: TaskView(task)
       not_found: "That task doesn't exist."
     }
 

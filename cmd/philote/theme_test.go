@@ -9,7 +9,7 @@ import (
 
 // A frontend's theme goes through the same loop as a body: problems go back
 // to the model, a passing theme is pinned, and changing the look rewrites
-// the theme and the page layouts, never the components.
+// the theme and nothing else.
 func TestThemeFromLook(t *testing.T) {
 	spec := copyLibrary(t)
 	setLook(t, spec, "calm and bookish")
@@ -24,8 +24,7 @@ func TestThemeFromLook(t *testing.T) {
 		"theme":          {"```css\n" + unreadable + "\n```", "```css\n" + good + "\n```"},
 		"AuthorCardBody": {goodAuthorCard},
 		"AuthorViewBody": {goodAuthorView},
-		"BookCardBody":   {goodBookCard},
-		"PageBody":       libraryLayouts(),
+		"BookShelfBody":  {goodBookShelf},
 	})
 	runOK(t, "build", "--out", out, spec)
 	if n := len(r.prompts["theme"]); n != 2 || !strings.Contains(r.prompts["theme"][1], "--muted-foreground on --background has contrast") {
@@ -40,10 +39,10 @@ func TestThemeFromLook(t *testing.T) {
 	}
 
 	setLook(t, spec, "calm and bookish, but darker")
-	r = useReplies(t, map[string][]string{"theme": {"```css\n" + good + "\n```"}, "PageBody": libraryLayouts()})
+	r = useReplies(t, map[string][]string{"theme": {"```css\n" + good + "\n```"}})
 	runOK(t, "build", "--out", out, spec)
-	if len(r.prompts) != 2 || len(r.prompts["theme"]) != 1 || !strings.Contains(r.prompts["theme"][0], "An earlier version") {
-		t.Errorf("a new look should ask for the theme, starting from the old one, and the page layouts only; got %v", r.prompts)
+	if len(r.prompts) != 1 || len(r.prompts["theme"]) != 1 || !strings.Contains(r.prompts["theme"][0], "An earlier version") {
+		t.Errorf("a new look should ask for the theme only, starting from the old one; got %v", r.prompts)
 	}
 }
 

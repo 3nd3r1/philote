@@ -10,17 +10,36 @@ import { must } from "@/lib/backend";
 import type { {{.Types}} } from "@/lib/types";
 {{- end}}
 {{- range .Components}}
+{{- if .List}}
 
 export type {{.Name}}Props = {
-{{- if .Relations}}
-    {{.Param}}: Pick<{{.Entity}}, {{.Pick}}> & {
-{{- range .Relations}}
-        {{.Name}}: {{.Type}};
+    {{.Param}}: Array<{{template "read-type" .}}>;
+};
+
+export async function read{{.Name}}({{.Param}}: {{.Entity}}[]): Promise<{{.Name}}Props> {
+    return {
+        {{.Param}}: await Promise.all(
+            {{.Param}}.map(async (record) => {
+{{- if .Loads}}
+                const [{{.LoadNames}}] = await Promise.all([
+{{- range .Loads}}
+                    must({{.}}),
 {{- end}}
+                ]);
+{{- end}}
+                return {
+{{- range .Values}}
+                    {{.}},
+{{- end}}
+                };
+            }),
+        ),
     };
+}
 {{- else}}
-    {{.Param}}: Pick<{{.Entity}}, {{.Pick}}>;
-{{- end}}
+
+export type {{.Name}}Props = {
+    {{.Param}}: {{template "read-type" .}};
 };
 
 export async function read{{.Name}}({{.Param}}: {{.Entity}}): Promise<{{.Name}}Props> {
@@ -39,4 +58,15 @@ export async function read{{.Name}}({{.Param}}: {{.Entity}}): Promise<{{.Name}}P
         },
     };
 }
+{{- end}}
+{{- end}}
+
+{{- define "read-type"}}
+{{- if .Relations}}Pick<{{.Entity}}, {{.Pick}}> & {
+{{- range .Relations}}
+        {{.Name}}: {{.Type}};
+{{- end}}
+    }
+{{- else}}Pick<{{.Entity}}, {{.Pick}}>
+{{- end}}
 {{- end}}

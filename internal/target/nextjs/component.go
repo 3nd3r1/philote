@@ -10,21 +10,26 @@ import (
 )
 
 // reserved are names the generated component and read code use itself.
-var reserved = []string{"props", "item", "must", "cn", "Icons"}
+var reserved = []string{"props", "item", "record", "must", "cn", "Icons", "link", "actions", "says"}
 
 // marker is the line in a component file that the model's body replaces.
 const marker = "    // philote:body"
 
 type componentView struct {
-	Name, Param, Link, Marker string
-	Actions                   string // the actions file under the body, empty for none
-	ImportLink                bool   // the wrapper or the body renders a Link
+	Name, Marker string
+	Props        bool   // the component takes a record or a list, as XProps
+	Extras       string // props the wrapper adds for the body: link and actions
+	Says         string // the says array's items, as JavaScript strings
+	BodyArgs     string // the body's parameter list
+	Actions      string // the actions file the body places, empty for none
+	ImportLink   bool   // the body renders a Link
 }
 
 type relationView struct{ Name, Type string }
 
 type readView struct {
 	Name, Param, Entity, Pick, LoadNames string
+	List                                 bool // reads a list, each record as record
 	Relations                            []relationView
 	Loads, Values                        []string
 }
@@ -47,14 +52,16 @@ func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error
 		}
 		path := "src/components/common/" + kebab(c.Name) + ".tsx"
 		files = append(files, render("component.tsx.tmpl", path, newComponentView(c)))
-		files = append(files, actionFiles(part, c)...)
+		files = append(files, actionFiles(app, part, c)...)
 		slots = append(slots, target.Slot{
 			Node:   part.Name + "/" + c.Name,
 			File:   path,
 			Marker: marker,
 			Prompt: componentPrompt(app, part, c),
 		})
-		reads.Components = append(reads.Components, newReadView(c, clients, types))
+		if c.Param != "" {
+			reads.Components = append(reads.Components, newReadView(c, clients, types))
+		}
 	}
 	reads.Clients = strings.Join(sortedKeys(clients), ", ")
 	reads.Types = imports(app, types)
@@ -73,26 +80,94 @@ func checkComponent(c *ir.Component) error {
 	return nil
 }
 
+// newComponentView builds the wrapper that hands the body its props, plus
+// the link and actions it places, which the model never sees the targets of.
 func newComponentView(c *ir.Component) componentView {
-	v := componentView{Name: c.Name, Param: c.Param, Marker: marker}
+	v := componentView{Name: c.Name, Marker: marker, Props: c.Param != ""}
+	var extras []string
+	if c.LinksTo != "" {
+		link := jsString(c.LinksTo)
+		if len(c.LinkBy) > 0 {
+			link = c.LinksTo
+			for _, f := range c.LinkBy {
+				link = strings.Replace(link, "["+f+"]", "${encodeURIComponent(props."+c.Param+"."+f+")}", 1)
+			}
+			link = "`" + link + "`"
+		}
+		if c.LinkLabel != "" {
+			link += ", label: " + jsString(c.LinkLabel)
+		}
+		extras = append(extras, fmt.Sprintf(" link={{ href: %s }}", link))
+	}
 	if len(c.Actions) > 0 {
 		v.Actions = kebab(c.Name) + "-actions"
+		extras = append(extras, fmt.Sprintf(" actions={<%sActions id={props.%s.id} />}", c.Name, c.Param))
+	}
+	v.Extras = strings.Join(extras, "")
+	if len(c.Says) > 0 {
+		v.Says = strings.Join(jsStrings(c.Says), ", ")
+	}
+	names, types := bodyParams(c)
+	v.BodyArgs = bodyArgs(c, names, types)
+	v.ImportLink = c.LinksTo != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" })
+	return v
+}
+
+// bodyParams names what the body receives, and the type of what the
+// wrapper adds beside the record: the link and the actions.
+func bodyParams(c *ir.Component) ([]string, string) {
+	var names, types []string
+	if c.Param != "" {
+		names = append(names, c.Param)
 	}
 	if c.LinksTo != "" {
-		link := c.LinksTo
-		for _, f := range c.LinkBy {
-			link = strings.Replace(link, "["+f+"]", "${encodeURIComponent(props."+c.Param+"."+f+")}", 1)
+		names = append(names, "link")
+		if c.LinkLabel != "" {
+			types = append(types, "link: { href: string; label: string }")
+		} else {
+			types = append(types, "link: { href: string }")
 		}
-		v.Link = "`" + link + "`"
 	}
-	v.ImportLink = v.Link != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" })
-	return v
+	if len(c.Actions) > 0 {
+		names = append(names, "actions")
+		types = append(types, "actions: React.ReactNode")
+	}
+	return names, strings.Join(types, "; ")
+}
+
+// bodyArgs is the body's parameter list: its props, plus extras like
+// `link: { href: string }`.
+func bodyArgs(c *ir.Component, names []string, extras string) string {
+	if len(names) == 0 {
+		return ""
+	}
+	typ := c.Name + "Props"
+	switch {
+	case c.Param == "":
+		typ = "{ " + extras + " }"
+	case extras != "":
+		typ += " & { " + extras + " }"
+	}
+	return "{ " + strings.Join(names, ", ") + " }: " + typ
+}
+
+func jsStrings(items []string) []string {
+	out := make([]string, len(items))
+	for i, s := range items {
+		out[i] = jsString(s)
+	}
+	return out
 }
 
 // newReadView builds a component's props type and the read that fills it:
 // the record's shown fields, plus one request per relation it shows.
 func newReadView(c *ir.Component, clients, types map[string]bool) readView {
-	v := readView{Name: c.Name, Param: c.Param, Entity: c.Entity}
+	v := readView{Name: c.Name, Param: c.Param, Entity: c.Entity, List: c.List}
+	// A list's reads run once per record, named record.
+	name := c.Param
+	if c.List {
+		name = "record"
+	}
 	types[c.Entity] = true
 	fields := []string{"id"}
 	for _, s := range c.Shows {
@@ -121,18 +196,18 @@ func newReadView(c *ir.Component, clients, types map[string]bool) readView {
 		}
 		if rel.Many {
 			v.Relations = append(v.Relations, relationView{s.Name, list(pick)})
-			v.Loads = append(v.Loads, fmt.Sprintf("%s.%s(%s.id)", client, camel(rel.Name), c.Param))
+			v.Loads = append(v.Loads, fmt.Sprintf("%s.%s(%s.id)", client, camel(rel.Name), name))
 			v.Values = append(v.Values, fmt.Sprintf("%s: %s.map((item) => (%s))", s.Name, s.Name, fmt.Sprintf(record, "item")))
 		} else {
 			v.Relations = append(v.Relations, relationView{s.Name, pick})
-			v.Loads = append(v.Loads, fmt.Sprintf("%s.get(%s.%s)", client, c.Param, rel.FK))
+			v.Loads = append(v.Loads, fmt.Sprintf("%s.get(%s.%s)", client, name, rel.FK))
 			v.Values = append(v.Values, s.Name+": "+fmt.Sprintf(record, s.Name))
 		}
 		names = append(names, s.Name)
 	}
 	fieldValues := make([]string, len(fields))
 	for i, f := range fields {
-		fieldValues[i] = f + ": " + c.Param + "." + f
+		fieldValues[i] = f + ": " + name + "." + f
 	}
 	v.Values = append(fieldValues, v.Values...)
 	v.Pick, v.LoadNames = union(fields), strings.Join(names, ", ")

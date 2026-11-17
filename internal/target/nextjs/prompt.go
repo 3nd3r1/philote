@@ -20,16 +20,21 @@ Colors come only from the theme's variables: bg-background, text-foreground, bg-
 func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 	var b strings.Builder
 	b.WriteString("Write the body of one React server component in a Next.js app that philote generated.\n" + themeRules + "\n")
-	fmt.Fprintf(&b, "The component, %s, shows one %s. %s\n", c.Name, c.Entity, usage(part, c))
-	if c.LinksTo != "" {
-		b.WriteString("It's already wrapped in a link to the record's own page, so don't add links or anything else clickable.\n")
+	fmt.Fprintf(&b, "The component, %s, %s. %s\n", c.Name, subject(c), usage(part, c))
+	names, extras := bodyParams(c)
+	fmt.Fprintf(&b, "\nThe function whose body you write:\nfunction %sBody(%s): React.ReactNode\n\n", c.Name, bodyArgs(c, names, extras))
+	if c.Param != "" {
+		typ := propsType(app, c, "    ")
+		if c.List {
+			typ = "Array<" + typ + ">"
+		}
+		fmt.Fprintf(&b, "Its props, exactly. Nothing else is available:\ntype %sProps = {\n    %s: %s;\n};\n\n", c.Name, c.Param, typ)
+		b.WriteString("Show every one of these, in this order of importance:\n")
+		for _, s := range c.Shows {
+			fmt.Fprintf(&b, "- %s.%s: %s\n", c.Param, s.Name, showHint(app, s))
+		}
 	}
-	fmt.Fprintf(&b, "\nThe function whose body you write:\nfunction %sBody({ %s }: %sProps): React.ReactNode\n\n", c.Name, c.Param, c.Name)
-	fmt.Fprintf(&b, "Its props, exactly. Nothing else is available:\ntype %sProps = {\n    %s: %s;\n};\n\n", c.Name, c.Param, propsType(app, c, "    "))
-	b.WriteString("Show every one of these, in this order of importance:\n")
-	for _, s := range c.Shows {
-		fmt.Fprintf(&b, "- %s.%s: %s\n", c.Param, s.Name, showHint(app, s))
-	}
+	placed(&b, c)
 	if c.Look != "" {
 		fmt.Fprintf(&b, "\nHow it should look: %s\n", c.Look)
 	}
@@ -42,8 +47,8 @@ Already imported. Use only these:
 - formatDate(iso: string): string, formatDateTime(iso: string): string, formatBool(value: boolean): string.
 - cn(...classes) to join class names.
 `)
-	if slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" }) {
-		b.WriteString("- Link from next/link, for the records that have an href.\n")
+	if c.LinksTo != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" }) {
+		b.WriteString("- Link from next/link.\n")
 	}
 	b.WriteString(`
 Rules:
@@ -51,7 +56,7 @@ Rules:
 - It renders on the server: no hooks, no state, no event handlers, no "use client".
 - Show only what the props hold. Don't invent data, placeholder text or images.
 - Show each value once. Don't repeat a field in a second place or a second format.
-- Return one Card as the root, with nothing around it and no margin, width or padding on it: the page places it, and may join a bar of actions to its bottom.
+- Words come only from the props, says and link.label. Don't write any other text, except a field's name as its label.
 - Keep the card parts' own layout. CardAction already sits at the top right of its CardHeader.
 - Style with Tailwind classes and the theme's variables. No inline styles, no hard-coded colors.
 - Reply with the statements in one ` + "```tsx" + ` block and nothing else.
@@ -59,16 +64,49 @@ Rules:
 	return b.String()
 }
 
-// usage says where pages put the component, so it can size itself.
+func subject(c *ir.Component) string {
+	switch {
+	case c.Param == "":
+		return "shows no record"
+	case c.List:
+		return "shows a list of " + c.Entity + " records"
+	}
+	return "shows one " + c.Entity
+}
+
+// placed tells the model about what the template hands the body besides
+// its record: the link, the actions and the spec's words.
+func placed(b *strings.Builder, c *ir.Component) {
+	switch {
+	case c.LinkLabel != "":
+		b.WriteString("\nlink.href is another page and link.label is its button's text. Render <Link href={link.href}> with {link.label} in it as the main call to action, styled as a button.\n")
+	case c.LinksTo != "":
+		b.WriteString("\nlink.href is the record's own page. Make the whole card one link to it: a <Link href={link.href}> around the title, stretched over the card (the card relative, the link after:absolute after:inset-0). Anything else clickable sits above it with relative z-10.\n")
+	}
+	if len(c.Actions) > 0 {
+		b.WriteString("\nactions holds the record's buttons. Render {actions} exactly once, where buttons belong, like the bottom of the card.\n")
+	}
+	if len(c.Says) > 0 {
+		b.WriteString("\nsays holds the spec's words, in order. Render each one exactly once, as {says[0]} and so on, never retyped:\n")
+		for i, s := range c.Says {
+			fmt.Fprintf(b, "- says[%d]: %s\n", i, jsString(s))
+		}
+	}
+}
+
+// usage says where pages put the component, so it can size itself: a card
+// in a page's grid, or a full-width section.
 func usage(part *ir.Part, c *ir.Component) string {
 	var uses []string
 	for _, pg := range part.Pages {
-		switch {
-		case pg.Component != c.Name:
-		case pg.ByID:
-			uses = append(uses, fmt.Sprintf("It's the whole content of the %s page, in a centered column about 900px wide.", pg.Route))
-		default:
-			uses = append(uses, fmt.Sprintf("It's one item in a two-column grid of cards on the %s page.", pg.Route))
+		for _, sec := range pg.Sections {
+			switch {
+			case sec.Component != c.Name:
+			case sec.List:
+				uses = append(uses, fmt.Sprintf("It's one card in a grid of cards on the %s page: return one Card that fills its cell (h-full), and the grid sets its width.", pg.Route))
+			default:
+				uses = append(uses, fmt.Sprintf("It's a full-width section of the %s page, under the app's navbar: it sets its own width (center its content in max-w-5xl with px-4 sm:px-6, or go full-bleed), padding and spacing, for phones and laptops.", pg.Route))
+			}
 		}
 	}
 	if len(uses) == 0 {

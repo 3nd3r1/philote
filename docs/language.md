@@ -83,24 +83,42 @@ frontend web: nextjs {
 }
 ```
 
-The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites the theme and the page layouts, never the components. Without a look the app gets a plain default theme and no model call.
+The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+
+A page loads data and shows components, in order. Each component is a full-width section.
 
 ```
+page "/" {
+  load: tasks                     // a resource's list
+  shows: Welcome, TaskBoard(tasks)
+  empty: "No tasks yet."
+}
+
 page "/tasks" {
-  data: tasks
-  layout: list of TaskCard
+  load: tasks
+  shows: list of TaskCard(tasks)  // one TaskCard per task, in a grid
   empty: "No tasks yet."
 }
 
 page "/tasks/[id]" {
-  data: tasks by id
-  layout: TaskView
+  load: task from tasks by id     // one record, by the route's [id]
+  shows: TaskView(task)
   not_found: "That task doesn't exist."
 }
 
 page "/tasks/new" {
   form: tasks.create              // or tasks.update by id, or a custom endpoint
   then: "/tasks/[id]"             // [id] is the saved record
+}
+
+component Welcome {
+  says: "Get it done.", "Everything your team is working on."
+  links_to: "/tasks/new" as "New task"
+}
+
+component TaskBoard(tasks: list of Task) {
+  shows: tasks.title, tasks.status
+  look: "a kanban board, one column per status"
 }
 
 component TaskCard(task: Task) {
@@ -111,11 +129,14 @@ component TaskCard(task: Task) {
 }
 ```
 
-- `shows` lists every field the component reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
-- The model writes the component's body from its `shows` and `look`. Links and actions are rendered around the body by templates.
-- The model also writes each page's layout: its width, header and how the cards are arranged. Loading, empty and not-found states and forms stay templates. A layout is pinned under the page's route, like `web/tasks/[id]`, so `/theme` can't be a route.
+- `load: <name> [from <resource>] [by id]` names what the page fetches. A page loads at most one thing; a page that loads a list says what shows when it's `empty`, a page by id says what shows when it's `not_found`.
+- `shows` lists the page's sections. `C(name)` hands a component what the page loads, as it is; `list of C(name)` shows one `C` per record in a grid. A component without a parameter, like `Welcome`, takes nothing.
+- A component takes no record, one record, or `list of` an entity. Its `shows` lists every field it reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
+- `says` gives a component its words, up to 200 characters each. The body shows each one exactly as written, and other than these, data and labels, the model writes no text.
+- `links_to` makes a card a link to a record's page. With `as "<label>"` it's a button to any page instead. A component that takes a list can't have `links_to` or `actions`.
+- The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it.
 - A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
-- Form fields are the endpoint's input, in order. Pages without `[id]` go in the nav.
+- Form fields are the endpoint's input, in order. Pages without `[id]`, other than `/`, go in the nav.
 
 ## Build
 
@@ -125,7 +146,7 @@ philote tree app.philote             # what the spec becomes
 philote expand app.philote api/tasks  # one level down
 philote build app.philote            # build/api and build/web; new bodies call the claude CLI
 philote build --frozen app.philote   # never calls a model
-philote build --redo web/TaskCard app.philote   # or web/tasks/[id], or web/theme
+philote build --redo web/TaskCard app.philote   # or web/theme
 ```
 
 Model-written bodies are pinned in `philote.lock` next to the spec. Commit it. A body is written again only when its prompt changes, and then it starts from the old body.

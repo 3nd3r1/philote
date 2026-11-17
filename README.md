@@ -7,7 +7,7 @@ Can we bring Nix-style determinism to AI-driven coding?
 
 Describe your app as an ontology: the things in it, how they relate, and what you can do with them. Philote compiles it to code, from fixed templates wherever it can. Anything AI writes is pinned in a lockfile, so the same ontology always builds the same code.
 
-Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with list, detail and form pages that go through a typed client for that backend. Component bodies, page layouts and the theme are AI-written and pinned the same way.
+Status: early. It builds a Hono backend, with AI-written steps pinned in `philote.lock`, and a Next.js frontend with list, detail and form pages that go through a typed client for that backend. Component bodies and the theme are AI-written and pinned the same way.
 
 ## Example
 
@@ -44,20 +44,20 @@ app neighbr {
     uses: api
 
     page "/horses" {
-      data: horses
-      layout: list of HorseCard
+      load: horses
+      shows: list of HorseCard(horses)
       empty: "No horses yet."
     }
 
     page "/horses/[id]" {
-      data: horses by id
-      layout: HorseView
+      load: horse from horses by id
+      shows: HorseView(horse)
       not_found: "That horse doesn't exist."
     }
 
     page "/matches" {
-      data: matches
-      layout: list of MatchCard
+      load: matches
+      shows: list of MatchCard(matches)
       empty: "No matches yet."
     }
 

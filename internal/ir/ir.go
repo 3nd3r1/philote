@@ -86,33 +86,43 @@ type Look struct {
 	Pos  diag.Pos
 }
 
-// Page is a frontend route that loads records from a backend resource and
-// shows them with a component, or a form that submits to an endpoint.
+// Page is a frontend route that loads records and shows components in
+// order, or a form that submits to an endpoint.
 type Page struct {
-	Route     string // params as [id]
-	Pos       diag.Pos
-	Resource  string // in the backend the frontend uses; empty for a form on a custom endpoint
-	Entity    string
-	ByID      bool // loads the record named by the route's [id]; otherwise lists them all
-	Component string
-	Empty     string // list pages: shown when there are no records
-	NotFound  string // by-id pages: shown when the record doesn't exist
-	Form      string // form pages: the endpoint it submits to, like horses.create or swipe
-	Then      string // form pages: where to go after a save; [id] is the saved record's
+	Route    string // params as [id]
+	Load     string // the name of what it loads; empty for none, and for forms
+	Resource string // what it loads or submits to, in the backend the frontend uses; empty for a form on a custom endpoint
+	Entity   string
+	ByID     bool // loads the record named by the route's [id]; otherwise lists them all
+	Sections []*Section
+	Empty    string // pages that load a list: shown when there are no records
+	NotFound string // by-id pages: shown when the record doesn't exist
+	Form     string // form pages: the endpoint it submits to, like horses.create or swipe
+	Then     string // form pages: where to go after a save; [id] is the saved record's
 }
 
-// Component shows one record. What it shows is also what it reads, so a
-// page loads exactly that.
+// Section is one component a page shows, full width, in order.
+type Section struct {
+	Component string
+	List      bool // the page's list, each record as one Component in a grid
+	Arg       bool // the component gets what the page loads
+}
+
+// Component shows nothing, one record or a list. What it shows is also what
+// it reads, so a page loads exactly that.
 type Component struct {
-	Name    string
-	Pos     diag.Pos
-	Look    string // how it should look, for the model that writes its body
-	Param   string
-	Entity  string
-	Shows   []*Show
-	LinksTo string   // the route of the page it links to, empty for none
-	LinkBy  []string // the param's field for each of that route's params, in order
-	Actions []*Action
+	Name      string
+	Pos       diag.Pos
+	Look      string   // how it should look, for the model that writes its body
+	Says      []string // its words, from the spec, in order
+	Param     string   // empty for a component that takes no record
+	Entity    string
+	List      bool // the param is a list of Entity
+	Shows     []*Show
+	LinksTo   string   // the route of the page it links to, empty for none
+	LinkBy    []string // the param's field for each of that route's params, in order
+	LinkLabel string   // the link's button text; empty makes the whole component the link
+	Actions   []*Action
 }
 
 // ActionKind is what an action under a component does.

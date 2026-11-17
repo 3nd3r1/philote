@@ -57,6 +57,7 @@ type Display struct {
 // step parameters use the same shape without from or modifiers.
 type Field struct {
 	Name   Ident
+	List   bool // a component parameter's `list of`
 	Type   Ident
 	Limits []Limit
 	From   *Ident
@@ -129,32 +130,50 @@ type Look struct {
 	Value *Str
 }
 
-// Page is `page "<route>" { data: <resource> [by id]  layout: [list of] <Component>
-// empty: "..."  not_found: "..." }`, or a form: `page "<route>" { form:
-// <resource>.<op> [by id]  then: "<route>"  not_found: "..." }`.
+// Page is `page "<route>" { load: <name> [from <resource>] [by id]
+// shows: <section>, ...  empty: "..."  not_found: "..." }`, or a form:
+// `page "<route>" { form: <resource>.<op> [by id]  then: "<route>"
+// not_found: "..." }`.
 type Page struct {
 	Word     Ident
 	Route    *Str
-	Data     *Ident
-	By       *Ident // the field after `by`
-	List     bool   // layout: list of ...
-	Layout   *Ident
+	Load     *PageLoad
+	Shows    []Section
 	Empty    *Str
 	NotFound *Str
 	Form     *Ident // a resource, or a custom endpoint when FormOp is nil
 	FormOp   *Ident // the operation after the resource's '.'
+	By       *Ident // a form's `by <field>`
 	Then     *Str
 }
 
-// Component is `component <Name>(<param>: <Entity>) { shows: <path> [as <format>], ...
-// links_to: "<route>"  look: "..." }`. Its body is written by a model.
+// PageLoad is `<name> [from <resource>] [by <field>]`: what a page fetches.
+// Without from, the resource is the name.
+type PageLoad struct {
+	Name Ident
+	From *Ident
+	By   *Ident
+}
+
+// Section is one thing a page shows: `[list of] <Component>[(<load>)]`.
+type Section struct {
+	List      bool
+	Component Ident
+	Arg       *Ident
+}
+
+// Component is `component <Name>[(<param>: [list of] <Entity>)] { shows:
+// <path> [as <format>], ...  says: "...", ...  links_to: "<route>" [as
+// "<label>"]  look: "..." }`. Its body is written by a model.
 type Component struct {
-	Name    Ident
-	Params  []*Field
-	Shows   []Show
-	LinksTo *Str
-	Look    *Str
-	Actions []Action
+	Name      Ident
+	Params    []*Field
+	Shows     []Show
+	Says      []*Str
+	LinksTo   *Str
+	LinkLabel *Str
+	Look      *Str
+	Actions   []Action
 }
 
 // Action is something a component's record can have done to it: `open

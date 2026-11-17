@@ -2,30 +2,37 @@ package nextjs
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/3nd3r1/philote/internal/ir"
 	"github.com/3nd3r1/philote/internal/target"
 )
 
-// pageView is everything a page template prints. Title, Empty and NotFound
-// are JavaScript string literals.
+// pageView is everything a page template prints. Title, Empty and
+// NotFound are JavaScript string literals.
 type pageView struct {
-	Route, Title, Client, Read, Component, ComponentFile, Param string
-	Empty, NotFound, Marker                                     string
+	Route, Title, NotFound string
+	Load, Client           string // what the page loads, and the client call that loads it; empty for none
+	ClientName             string
+	ByID                   bool
+	Reads                  string // imports from @/lib/reads
+	Components             []componentImport
+	Prep                   []string // statements that read each section's props
+	Sections               []string // each section's JSX
 }
+
+type componentImport struct{ Name, File string }
 
 type navView struct{ Title, Href string }
 
-// pages renders each page around a slot for its layout, plus a not-found
-// file for pages that load by id, and the nav that links to the list
-// pages, then the forms that make a new record.
-func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Slot) {
+// pages renders each page, plus a not-found file for pages that load by id,
+// and the nav that links to the pages without params, then the forms that
+// make a new record.
+func pages(app *ir.App, backend, part *ir.Part) []target.File {
 	var files []target.File
-	var slots []target.Slot
 	var nav, forms []navView
 	for _, pg := range part.Pages {
-		slots = append(slots, pageSlot(app, part, pg))
 		if pg.Form != "" {
 			files = append(files, formFiles(app, backend, pg)...)
 			if !pg.ByID {
@@ -33,44 +40,92 @@ func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Slot) {
 			}
 			continue
 		}
-		comp := component(part, pg.Component)
-		v := pageView{
-			Route:         pg.Route,
-			Title:         jsString(title(pg)),
-			Client:        camel(pg.Resource),
-			Read:          "read" + comp.Name,
-			Component:     comp.Name,
-			ComponentFile: kebab(comp.Name),
-			Param:         comp.Param,
-			Empty:         jsString(pg.Empty),
-			NotFound:      jsString(pg.NotFound),
-			Marker:        pageMarker,
+		v := newPageView(app, part, pg)
+		dir := "src/app" + strings.TrimSuffix(pg.Route, "/") + "/"
+		files = append(files, render("page.tsx.tmpl", dir+"page.tsx", v))
+		switch {
+		case pg.ByID:
+			files = append(files, render("not-found.tsx.tmpl", dir+"not-found.tsx", v))
+		case pg.Route != "/" && !strings.Contains(pg.Route, "["):
+			nav = append(nav, navView{v.Title, jsString(pg.Route)})
 		}
-		dir := "src/app" + pg.Route + "/"
+	}
+	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...)))
+}
+
+func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
+	v := pageView{Route: pg.Route, Title: jsString(title(app, pg)), NotFound: jsString(pg.NotFound), Load: pg.Load, ByID: pg.ByID}
+	if pg.Load != "" {
+		v.ClientName = camel(pg.Resource)
+		v.Client = v.ClientName + ".list()"
 		if pg.ByID {
-			files = append(files,
-				render("record-page.tsx.tmpl", dir+"page.tsx", v),
-				render("not-found.tsx.tmpl", dir+"not-found.tsx", v))
+			v.Client = camel(pg.Resource) + ".get(id)"
+		}
+	}
+	reads, imported := map[string]bool{}, map[string]bool{}
+	for i, sec := range pg.Sections {
+		c := component(part, sec.Component)
+		if !imported[c.Name] {
+			v.Components = append(v.Components, componentImport{c.Name, kebab(c.Name)})
+			imported[c.Name] = true
+		}
+		if !sec.Arg {
+			v.Sections = append(v.Sections, "<"+c.Name+" />")
 			continue
 		}
-		files = append(files, render("list-page.tsx.tmpl", dir+"page.tsx", v))
-		nav = append(nav, navView{v.Title, jsString(pg.Route)})
+		reads["read"+c.Name] = true
+		props := fmt.Sprintf("props%d", i+1)
+		v.Prep = append(v.Prep, sectionPrep(pg, c, sec, props))
+		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props))
 	}
-	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...))), slots
+	v.Reads = strings.Join(sortedKeys(reads), ", ")
+	return v
+}
+
+// sectionPrep reads a section's props from what the page loaded.
+func sectionPrep(pg *ir.Page, c *ir.Component, sec *ir.Section, props string) string {
+	if sec.List {
+		return fmt.Sprintf("const %s = await Promise.all(%s.map(read%s));", props, pg.Load, c.Name)
+	}
+	return fmt.Sprintf("const %s = await read%s(%s);", props, c.Name, pg.Load)
+}
+
+// sectionJSX renders a section. A list that's empty shows the page's empty
+// text in its place.
+func sectionJSX(pg *ir.Page, c *ir.Component, sec *ir.Section, props string) string {
+	empty := `<p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{` + jsString(pg.Empty) + `}</p>`
+	switch {
+	case sec.List:
+		return fmt.Sprintf(`{%[2]s.length === 0 ? (
+                %[3]s
+            ) : (
+                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+                    {%[2]s.map((item) => (
+                        <%[1]s key={item.%[4]s.id} {...item} />
+                    ))}
+                </section>
+            )}`, c.Name, props, empty, c.Param)
+	case !pg.ByID:
+		return fmt.Sprintf(`{%[2]s.%[3]s.length === 0 ? %[4]s : <%[1]s {...%[2]s} />}`, c.Name, props, c.Param, empty)
+	}
+	return fmt.Sprintf("<%s {...%s} />", c.Name, props)
 }
 
 // pageTitle is what a page calls itself in its heading and the nav.
-func pageTitle(pg *ir.Page) string {
+func pageTitle(app *ir.App, pg *ir.Page) string {
 	if pg.Form != "" {
 		return formTitle(pg)
 	}
-	return title(pg)
+	return title(app, pg)
 }
 
-// title is a list page's last segment, like "Horses" for /horses, or the
-// entity's name for a page by id.
-func title(pg *ir.Page) string {
-	if pg.ByID {
+// title is a page's last segment, like "Horses" for /horses, the entity's
+// name for a page by id, or the app's name for /.
+func title(app *ir.App, pg *ir.Page) string {
+	switch {
+	case pg.Route == "/":
+		return app.Name
+	case pg.ByID:
 		return pg.Entity
 	}
 	seg := pg.Route[strings.LastIndex(pg.Route, "/")+1:]

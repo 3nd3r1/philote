@@ -65,7 +65,7 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	nodes := bodyNodes(app)
 	for _, r := range opts.Redo {
 		if _, ok := nodes[r]; !ok {
-			return nil, fmt.Errorf("--redo %s: there is no step, component, page or theme at that path; paths look like web/HorseCard, web/horses/[id] or web/theme", r)
+			return nil, fmt.Errorf("--redo %s: there is no step, component or theme at that path; paths look like web/HorseCard or web/theme", r)
 		}
 	}
 	pins, jobs := plan(outs, old, opts, nodes, d)
@@ -105,11 +105,7 @@ func bodyNodes(app *ir.App) map[string]node {
 		for _, c := range p.Components {
 			nodes[p.Name+"/"+c.Name] = node{"component", c.Name, c.Pos}
 		}
-		for _, pg := range p.Pages {
-			nodes[p.Name+pg.Route] = node{"page", pg.Route, pg.Pos}
-		}
-		// Component names start with a capital letter, and check keeps
-		// /theme from being a route, so this never clashes.
+		// Component names start with a capital letter, so this never clashes.
 		if p.Look != nil {
 			nodes[p.Name+"/theme"] = node{"theme", p.Name, p.Look.Pos}
 		}
@@ -126,7 +122,7 @@ func plan(outs []Output, old map[string]pin, opts Options, nodes map[string]node
 		for _, s := range o.Slots {
 			n, ok := nodes[s.Node]
 			if !ok {
-				panic("build: slot " + s.Node + " is not a step, component, page or theme in the IR")
+				panic("build: slot " + s.Node + " is not a step, component or theme in the IR")
 			}
 			k := key(opts.Model.Name(), s.Prompt)
 			p, ok := old[s.Node]

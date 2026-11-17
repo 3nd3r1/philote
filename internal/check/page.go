@@ -17,17 +17,11 @@ func (c *checker) page(part, backend *ir.Part, s *syntax.Page) (*ir.Page, string
 	case !isRoute(route):
 		c.d.Errorf(s.Route.Pos, `a route is lowercase segments like "/horses" or "/horses/[id]"`)
 		return nil, ""
-	case route == "/":
-		c.d.Errorf(s.Route.Pos, "/ is the base project's home page; pick another route")
-		return nil, ""
-	case route == "/theme":
-		c.d.Errorf(s.Route.Pos, "/theme names the app's theme in philote.lock and --redo; pick another route")
-		return nil, ""
 	case findPage(part, route) != nil:
 		c.d.Errorf(s.Route.Pos, "there is already a page at %s", route)
 		return nil, ""
 	}
-	pg := &ir.Page{Route: route, Pos: s.Route.Pos}
+	pg := &ir.Page{Route: route}
 	if s.Form != nil {
 		saved, ok := c.formPage(pg, backend, s)
 		if !ok {
@@ -40,7 +34,7 @@ func (c *checker) page(part, backend *ir.Part, s *syntax.Page) (*ir.Page, string
 		c.d.Errorf(s.Then.Pos, "only a form page has then")
 		return nil, ""
 	}
-	if !c.pageData(pg, backend, s) || !c.pageLayout(pg, part, s) || !c.pageCopy(pg, s) {
+	if !c.pageLoad(pg, backend, s) || !c.pageSections(pg, part, s) || !c.pageCopy(pg, s) {
 		return nil, ""
 	}
 	part.Pages = append(part.Pages, pg)
@@ -63,99 +57,169 @@ func isRoute(route string) bool {
 	return true
 }
 
-func (c *checker) pageData(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
-	if s.Data == nil {
-		c.d.Errorf(s.Word.Pos, "page %s needs data", pg.Route)
-		c.d.Hint("add `data: <resource>`, a resource of %s", backend.Name)
-		return false
+// pageLoad resolves what a page fetches: a resource's list, or one record
+// by the route's [id]. A page without load fetches nothing.
+func (c *checker) pageLoad(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
+	hasID := strings.Contains(pg.Route, "[id]")
+	if s.Load == nil {
+		if hasID {
+			c.d.Errorf(s.Route.Pos, "this route has [id], but the page loads nothing")
+			c.d.Hint("add `load: <name> from <resource> by id`")
+			return false
+		}
+		return true
 	}
-	res := findResource(backend, s.Data.Name)
+	from := s.Load.Name
+	if s.Load.From != nil {
+		from = *s.Load.From
+	}
+	res := findResource(backend, from.Name)
 	if res == nil {
-		c.d.Errorf(s.Data.Pos, "%s has no resource named %s", backend.Name, s.Data.Name)
-		c.d.HintNames(s.Data.Name, resourceNames(backend), "resources")
+		c.d.Errorf(from.Pos, "%s has no resource named %s", backend.Name, from.Name)
+		c.d.HintNames(from.Name, resourceNames(backend), "resources")
 		return false
 	}
-	pg.Resource, pg.Entity = res.Name, res.Entity
-	if s.By != nil && s.By.Name != "id" {
-		c.d.Errorf(s.By.Pos, "pages load by id only, for now")
+	pg.Load, pg.Resource, pg.Entity = s.Load.Name.Name, res.Name, res.Entity
+	if s.Load.By != nil && s.Load.By.Name != "id" {
+		c.d.Errorf(s.Load.By.Pos, "pages load by id only, for now")
 		return false
 	}
-	pg.ByID = s.By != nil
-	op, hasID := ir.List, strings.Contains(pg.Route, "[id]")
+	pg.ByID = s.Load.By != nil
+	op := ir.List
 	switch {
 	case pg.ByID && !hasID:
 		c.d.Errorf(s.Route.Pos, "a page that loads by id needs [id] in its route")
 		return false
 	case !pg.ByID && hasID:
-		c.d.Errorf(s.Data.Pos, "this page lists %s, but its route has [id]", res.Name)
-		c.d.Hint("load one record with `data: %s by id`", res.Name)
+		c.d.Errorf(from.Pos, "this page lists %s, but its route has [id]", res.Name)
+		c.d.Hint("load one record with `load: %s by id`", s.Load.Name.Name)
 		return false
 	case pg.ByID:
 		op = ir.Get
 	}
 	if !slices.Contains(res.Ops, op) {
-		c.d.Errorf(s.Data.Pos, "resource %s doesn't serve %s", res.Name, op)
+		c.d.Errorf(from.Pos, "resource %s doesn't serve %s", res.Name, op)
 		return false
 	}
 	return true
 }
 
-func (c *checker) pageLayout(pg *ir.Page, part *ir.Part, s *syntax.Page) bool {
-	if s.Layout == nil {
-		c.d.Errorf(s.Word.Pos, "page %s needs a layout", pg.Route)
-		c.d.Hint("add `layout: <Component>`")
+// pageSections resolves what a page shows, in order. A section's argument
+// is what the page loads, and its component must take that shape.
+func (c *checker) pageSections(pg *ir.Page, part *ir.Part, s *syntax.Page) bool {
+	if len(s.Shows) == 0 {
+		c.d.Errorf(s.Word.Pos, "page %s doesn't show anything", pg.Route)
+		c.d.Hint("add `shows: <Component>`")
 		return false
 	}
-	comp := findComponent(part, s.Layout.Name)
-	switch {
-	case comp == nil:
-		var names []string
-		for _, x := range part.Components {
-			names = append(names, x.Name)
-		}
-		c.d.Errorf(s.Layout.Pos, "unknown component '%s'", s.Layout.Name)
-		c.d.HintNames(s.Layout.Name, names, "components")
-	case !pg.ByID && !s.List:
-		c.d.Errorf(s.Layout.Pos, "this page lists records; use `layout: list of %s`", comp.Name)
-	case pg.ByID && s.List:
-		c.d.Errorf(s.Layout.Pos, "this page loads one record; use `layout: %s`", comp.Name)
-	case comp.Entity != pg.Entity:
-		c.d.Errorf(s.Layout.Pos, "%s shows a %s, but this page loads %s records", comp.Name, comp.Entity, pg.Entity)
-	default:
-		pg.Component = comp.Name
-		return true
-	}
-	return false
-}
-
-// pageCopy checks D-006: a list page says what shows when it's empty, a
-// page by id says what shows when the record doesn't exist.
-func (c *checker) pageCopy(pg *ir.Page, s *syntax.Page) bool {
 	ok := true
-	for _, str := range []*syntax.Str{s.Empty, s.NotFound} {
-		if str != nil && len(str.Value) > maxCopy {
-			c.d.Errorf(str.Pos, "UI text is capped at %d characters", maxCopy)
+	for _, sec := range s.Shows {
+		if x := c.section(pg, part, sec); x != nil {
+			pg.Sections = append(pg.Sections, x)
+		} else {
 			ok = false
 		}
 	}
+	if pg.Load != "" && !slices.ContainsFunc(pg.Sections, func(x *ir.Section) bool { return x.Arg }) {
+		c.d.Errorf(s.Load.Name.Pos, "the page loads %s but shows nothing with it", pg.Load)
+		c.d.Hint("pass it to a component, like `shows: <Component>(%s)`", pg.Load)
+		return false
+	}
+	return ok
+}
+
+func (c *checker) section(pg *ir.Page, part *ir.Part, s syntax.Section) *ir.Section {
+	comp := findComponent(part, s.Component.Name)
+	if comp == nil {
+		c.d.Errorf(s.Component.Pos, "unknown component '%s'", s.Component.Name)
+		c.d.HintNames(s.Component.Name, componentNames(part), "components")
+		return nil
+	}
+	sec := &ir.Section{Component: comp.Name, List: s.List, Arg: s.Arg != nil}
 	switch {
-	case !pg.ByID && s.Empty == nil:
-		c.d.Errorf(s.Word.Pos, "a list page must say what shows when it's empty")
+	case s.Arg == nil && comp.Param != "":
+		c.d.Errorf(s.Component.Pos, "%s takes %s; pass it what the page loads, like %s(%s)", comp.Name, comp.Param, comp.Name, or(pg.Load, "<load>"))
+	case s.Arg == nil && s.List:
+		c.d.Errorf(s.Component.Pos, "a list of %s needs a list to show, like list of %s(%s)", comp.Name, comp.Name, or(pg.Load, "<load>"))
+	case s.Arg == nil:
+		return sec
+	case s.Arg.Name != pg.Load:
+		c.d.Errorf(s.Arg.Pos, "the page loads nothing named %s", s.Arg.Name)
+		if pg.Load != "" {
+			c.d.Hint("it loads %s", pg.Load)
+		}
+	case comp.Param == "":
+		c.d.Errorf(s.Arg.Pos, "%s takes no record", comp.Name)
+	case comp.Entity != pg.Entity:
+		c.d.Errorf(s.Arg.Pos, "%s shows %s records, but %s holds %s records", comp.Name, comp.Entity, pg.Load, pg.Entity)
+	default:
+		return c.sectionShape(pg, comp, sec, s)
+	}
+	return nil
+}
+
+// sectionShape checks one record against a list: `list of C(xs)` shows one
+// C per record, and C(x) takes x as it is.
+func (c *checker) sectionShape(pg *ir.Page, comp *ir.Component, sec *ir.Section, s syntax.Section) *ir.Section {
+	switch {
+	case s.List && pg.ByID:
+		c.d.Errorf(s.Component.Pos, "%s is one record; show it with %s(%s)", pg.Load, comp.Name, pg.Load)
+	case s.List && comp.List:
+		c.d.Errorf(s.Component.Pos, "%s already takes a list; show it with %s(%s)", comp.Name, comp.Name, pg.Load)
+	case !s.List && pg.ByID && comp.List:
+		c.d.Errorf(s.Arg.Pos, "%s takes a list, but %s is one record", comp.Name, pg.Load)
+	case !s.List && !pg.ByID && !comp.List:
+		c.d.Errorf(s.Arg.Pos, "%s is a list and %s takes one record; use list of %s(%s)", pg.Load, comp.Name, comp.Name, pg.Load)
+	default:
+		return sec
+	}
+	return nil
+}
+
+func or(s, fallback string) string {
+	if s == "" {
+		return fallback
+	}
+	return s
+}
+
+func componentNames(part *ir.Part) []string {
+	var names []string
+	for _, x := range part.Components {
+		names = append(names, x.Name)
+	}
+	return names
+}
+
+// pageCopy checks D-006: a page that loads a list says what shows when
+// it's empty, a page by id says what shows when the record doesn't exist.
+func (c *checker) pageCopy(pg *ir.Page, s *syntax.Page) bool {
+	for _, str := range []*syntax.Str{s.Empty, s.NotFound} {
+		if str != nil && len(str.Value) > maxCopy {
+			c.d.Errorf(str.Pos, "UI text is capped at %d characters", maxCopy)
+			return false
+		}
+	}
+	list := pg.Load != "" && !pg.ByID
+	switch {
+	case list && s.Empty == nil:
+		c.d.Errorf(s.Word.Pos, "a page that loads a list must say what shows when it's empty")
 		c.d.Hint(`add empty: "No %s yet."`, pg.Resource)
 	case pg.ByID && s.NotFound == nil:
 		c.d.Errorf(s.Word.Pos, "a page by id must say what shows when the record doesn't exist")
 		c.d.Hint(`add not_found: "That %s doesn't exist."`, strings.ToLower(pg.Entity))
-	case pg.ByID && s.Empty != nil:
-		c.d.Errorf(s.Empty.Pos, "only a list page can be empty")
+	case !list && s.Empty != nil:
+		c.d.Errorf(s.Empty.Pos, "only a page that loads a list can be empty")
 	case !pg.ByID && s.NotFound != nil:
 		c.d.Errorf(s.NotFound.Pos, "only a page by id has not_found")
 	default:
-		if pg.ByID {
-			pg.NotFound = s.NotFound.Value
-		} else {
+		if s.Empty != nil {
 			pg.Empty = s.Empty.Value
 		}
-		return ok
+		if s.NotFound != nil {
+			pg.NotFound = s.NotFound.Value
+		}
+		return true
 	}
 	return false
 }

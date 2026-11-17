@@ -14,7 +14,7 @@ func (c *checker) formPage(pg *ir.Page, backend *ir.Part, s *syntax.Page) (strin
 	for _, k := range []struct {
 		set  bool
 		name string
-	}{{s.Data != nil, "data"}, {s.Layout != nil, "layout"}, {s.Empty != nil, "empty"}} {
+	}{{s.Load != nil, "load"}, {len(s.Shows) > 0, "shows"}, {s.Empty != nil, "empty"}} {
 		if k.set {
 			c.d.Errorf(s.Form.Pos, "a form page takes form and then, not %s", k.name)
 			return "", false

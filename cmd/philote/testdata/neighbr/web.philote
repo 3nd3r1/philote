@@ -1,21 +1,27 @@
 uses: api
 look: "a warm, playful dating app: coral and cream, soft rounded cards, friendly rounded type"
 
+page "/" {
+  load: horses
+  shows: Landing, list of HorseCard(horses)
+  empty: "No horses yet."
+}
+
 page "/horses" {
-  data: horses
-  layout: list of HorseCard
+  load: horses
+  shows: list of HorseCard(horses)
   empty: "No horses yet."
 }
 
 page "/horses/[id]" {
-  data: horses by id
-  layout: HorseView
+  load: horse from horses by id
+  shows: HorseView(horse)
   not_found: "That horse doesn't exist."
 }
 
 page "/matches" {
-  data: matches
-  layout: list of MatchCard
+  load: matches
+  shows: list of MatchCard(matches)
   empty: "No matches yet."
 }
 
@@ -33,6 +39,12 @@ page "/horses/[id]/edit" {
 page "/swipe" {
   form: swipe
   then: "/matches"
+}
+
+component Landing {
+  says: "Find your herd.", "Swipe on horses near you. Match when it's mutual."
+  links_to: "/swipe" as "Start swiping"
+  look: "a full-width hero: the headline huge, the line under it, one big button"
 }
 
 component HorseCard(horse: Horse) {

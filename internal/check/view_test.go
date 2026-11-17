@@ -16,15 +16,21 @@ const views = `app shop {
   frontend web: nextjs {
     uses: api
 
+    page "/" {
+      load: products
+      shows: Hero, ProductGrid(products)
+      empty: "Nothing for sale yet."
+    }
+
     page "/products" {
-      data: products
-      layout: list of ProductCard
+      load: products
+      shows: list of ProductCard(products)
       empty: "No products yet."
     }
 
     page "/products/[id]" {
-      data: products by id
-      layout: ProductView
+      load: product from products by id
+      shows: ProductView(product)
       not_found: "That product doesn't exist."
     }
 
@@ -39,6 +45,15 @@ const views = `app shop {
 
     component ReviewCard(review: Review) {
       shows: review.stars, review.product
+    }
+
+    component Hero {
+      says: "Good things.", "Made slowly."
+      links_to: "/products" as "Shop"
+    }
+
+    component ProductGrid(products: list of Product) {
+      shows: products.name, products.price
     }
   }
 }
@@ -69,8 +84,19 @@ func TestViewsResolve(t *testing.T) {
 		t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": views}))
 	}
 	web := app.Parts[1]
-	if len(web.Pages) != 2 || !web.Pages[1].ByID || web.Pages[0].Empty != "No products yet." {
-		t.Errorf("pages: %+v", web.Pages)
+	home, list, one := web.Pages[0], web.Pages[1], web.Pages[2]
+	if home.Load != "products" || len(home.Sections) != 2 || home.Sections[0].Arg || !home.Sections[1].Arg || home.Sections[1].List {
+		t.Errorf("home: %+v", home)
+	}
+	if list.Empty != "No products yet." || !list.Sections[0].List || !one.ByID || one.Load != "product" || one.Resource != "products" {
+		t.Errorf("pages: %+v, %+v", list, one)
+	}
+	hero, grid := web.Components[3], web.Components[4]
+	if hero.Param != "" || !slices.Equal(hero.Says, []string{"Good things.", "Made slowly."}) || hero.LinksTo != "/products" || hero.LinkLabel != "Shop" {
+		t.Errorf("Hero: %+v", hero)
+	}
+	if !grid.List || grid.Param != "products" || len(grid.Shows) != 2 {
+		t.Errorf("ProductGrid: %+v", grid)
 	}
 	card, view, review := web.Components[0], web.Components[1], web.Components[2]
 	if card.LinksTo != "/products/[id]" || !slices.Equal(card.LinkBy, []string{"id"}) {
@@ -88,21 +114,32 @@ func TestViewsResolve(t *testing.T) {
 
 func TestViewErrors(t *testing.T) {
 	runErrorCases(t, views, []errorCase{
-		{"page without data", "      data: products\n      layout: list", "      layout: list", `»page "/products" {`, "needs data"},
-		{"unknown resource", "data: products\n", "data: prodcts\n", "data: »prodcts", "did you mean 'products'"},
-		{"load by another field", "data: products by id", "data: products by slug", "by »slug", "by id only"},
-		{"list without empty", `      empty: "No products yet."` + "\n", "", `»page "/products" {`, "say what shows when it's empty"},
+		{"page shows nothing", "      shows: Hero, ProductGrid(products)\n", "", `»page "/" {`, "doesn't show anything"},
+		{"load shown by nothing", "shows: Hero, ProductGrid(products)", "shows: Hero", "load: »products", "shows nothing with it"},
+		{"unknown resource", "from products by id", "from prodcts by id", "from »prodcts", "did you mean 'products'"},
+		{"load by another field", "from products by id", "from products by slug", "by »slug", "by id only"},
+		{"list without empty", `      empty: "Nothing for sale yet."` + "\n", "", `»page "/" {`, "say what shows when it's empty"},
 		{"by id without not_found", `      not_found: "That product doesn't exist."` + "\n", "", `»page "/products/[id]"`, "when the record doesn't exist"},
 		{"by id without [id]", `page "/products/[id]"`, `page "/product"`, `page »"/product"`, "needs [id] in its route"},
-		{"list with [id]", `page "/products" {`, `page "/products/[id]/all" {`, "data: »products\n", "load one record with `data: products by id`"},
-		{"list layout without list of", "layout: list of ProductCard", "layout: ProductCard", "layout: »ProductCard", "use `layout: list of ProductCard`"},
-		{"wrong entity", "layout: ProductView", "layout: ReviewCard", "layout: »ReviewCard", "ReviewCard shows a Review"},
-		{"unknown component", "layout: ProductView", "layout: ProductViw", "layout: »ProductViw", "did you mean 'ProductView'"},
-		{"home page", `page "/products" {`, `page "/" {`, `page »"/" {`, "home page"},
-		{"theme route", `page "/products" {`, `page "/theme" {`, `page »"/theme" {`, "names the app's theme"},
+		{"list with [id]", `page "/products" {`, `page "/products/[id]/all" {`, "      load: »products\n      shows: list", "load one record with `load: products by id`"},
+		{"[id] without load", "      load: product from products by id\n", "", `page »"/products/[id]"`, "loads nothing"},
+		{"one record per list item", "shows: list of ProductCard(products)", "shows: ProductCard(products)", "ProductCard(»products)", "use list of ProductCard(products)"},
+		{"list of a list", "shows: Hero, ProductGrid(products)", "shows: Hero, list of ProductGrid(products)", "list of »ProductGrid", "already takes a list"},
+		{"list of one record", "shows: ProductView(product)", "shows: list of ProductView(product)", "list of »ProductView", "is one record"},
+		{"wrong entity", "shows: ProductView(product)", "shows: ReviewCard(product)", "ReviewCard(»product)", "ReviewCard shows Review records"},
+		{"unknown component", "shows: ProductView(product)", "shows: ProductViw(product)", "shows: »ProductViw", "did you mean 'ProductView'"},
+		{"missing argument", "shows: ProductView(product)", "shows: ProductView", "shows: »ProductView", "pass it what the page loads"},
+		{"unknown argument", "shows: ProductView(product)", "shows: ProductView(item)", "ProductView(»item)", "loads nothing named item"},
+		{"argument for no record", "shows: Hero, ProductGrid", "shows: Hero(products), ProductGrid", "Hero(»products)", "takes no record"},
 		{"bad route", `page "/products" {`, `page "/Products" {`, `page »"/Products" {`, "lowercase segments"},
+		{"recordless shows", "component Hero {\n", "component Hero {\n      shows: hero.name\n", "shows: »hero.name", "nothing to show"},
+		{"recordless says nothing", `      says: "Good things.", "Made slowly."` + "\n", "", "component »Hero", "says nothing"},
+		{"link without a label", `links_to: "/products" as "Shop"`, `links_to: "/products"`, `links_to: »"/products"` + "\n", "needs a button text"},
+		{"says too long", `"Made slowly."`, `"` + strings.Repeat("a", 201) + `"`, `"Good things.", »"aaa`, "capped at 200"},
+		{"says empty", `"Made slowly."`, `""`, `"Good things.", »""`, "this text is empty"},
+		{"list with a link", "      shows: products.name, products.price\n", "      shows: products.name, products.price\n      links_to: \"/products\"\n", "ProductGrid(»products: list", "can't have links_to or actions"},
 		{"lowercase component", "component ReviewCard(", "component reviewCard(", "component »reviewCard", "capital letter"},
-		{"two params", "ReviewCard(review: Review)", "ReviewCard(review: Review, other: Review)", "component »ReviewCard", "takes one record"},
+		{"two params", "ReviewCard(review: Review)", "ReviewCard(review: Review, other: Review)", "Review, »other: Review", "one record or one list"},
 		{"unknown member", "product.name, product.price", "product.nme, product.price", "product.»nme", "did you mean 'name'"},
 		{"wrong parameter", "shows: review.stars", "shows: rev.stars", "shows: »rev.stars", "isn't ReviewCard's parameter"},
 		{"deep path", "review.product\n", "review.product.name\n", "review.stars, »review.product.name", "one level below"},
@@ -141,8 +178,8 @@ func TestAppLook(t *testing.T) {
 func TestRelationLinks(t *testing.T) {
 	secondPage := `    component ProductCard(`
 	reviewPage := `    page "/reviews/[id]" {
-      data: reviews by id
-      layout: ReviewCard
+      load: review from reviews by id
+      shows: ReviewCard(review)
       not_found: "That review doesn't exist."
     }
 
@@ -152,7 +189,7 @@ func TestRelationLinks(t *testing.T) {
 		want, reviews  string // where review.product and product.reviews link
 	}{
 		{"one page", "", "", "/products/[id]", ""},
-		{"two pages", secondPage, "    page \"/items/[id]\" {\n      data: products by id\n      layout: ProductView\n      not_found: \"Gone.\"\n    }\n\n" + secondPage, "", ""},
+		{"two pages", secondPage, "    page \"/items/[id]\" {\n      load: product from products by id\n      shows: ProductView(product)\n      not_found: \"Gone.\"\n    }\n\n" + secondPage, "", ""},
 		{"linked component", "      shows: review.stars, review.product\n", "      shows: review.stars, review.product\n      links_to: \"/reviews/[review.id]\"\n", "", "/reviews/[id]"},
 	}
 	for _, tc := range cases {

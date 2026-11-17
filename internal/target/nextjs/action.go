@@ -23,10 +23,10 @@ type actionsView struct {
 	Actions                       []actionView
 }
 
-// actionFiles renders the buttons under a component's body, and the
+// actionFiles renders the buttons a component's body places, and the
 // server action behind its delete. The model never sees these, so changing
 // an action doesn't touch the component's pinned body (D-020).
-func actionFiles(part *ir.Part, c *ir.Component) []target.File {
+func actionFiles(app *ir.App, part *ir.Part, c *ir.Component) []target.File {
 	if len(c.Actions) == 0 {
 		return nil
 	}
@@ -35,7 +35,7 @@ func actionFiles(part *ir.Part, c *ir.Component) []target.File {
 		if a.Kind == ir.Open {
 			label := a.Label
 			if label == "" {
-				label = pageTitle(findPage(part, a.Route))
+				label = pageTitle(app, findPage(part, a.Route))
 			}
 			v.Open = true
 			v.Actions = append(v.Actions, actionView{Open: true, Label: jsString(label), Href: recordHref(a.Route)})

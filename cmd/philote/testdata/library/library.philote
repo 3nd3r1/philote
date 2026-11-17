@@ -7,20 +7,20 @@ app library {
     uses: api
 
     page "/authors" {
-      data: authors
-      layout: list of AuthorCard
+      load: authors
+      shows: list of AuthorCard(authors)
       empty: "No authors yet."
     }
 
     page "/authors/[id]" {
-      data: authors by id
-      layout: AuthorView
+      load: author from authors by id
+      shows: AuthorView(author)
       not_found: "That author isn't in the library."
     }
 
     page "/books" {
-      data: books
-      layout: list of BookCard
+      load: books
+      shows: BookShelf(books)
       empty: "No books yet."
     }
 
@@ -39,8 +39,8 @@ app library {
       shows: author.name, author.born, author.books as chips
     }
 
-    component BookCard(book: Book) {
-      shows: book.title, book.author, book.genre, book.published, book.in_print
+    component BookShelf(books: list of Book) {
+      shows: books.title, books.author, books.genre, books.published, books.in_print
     }
   }
 }

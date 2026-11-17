@@ -14,13 +14,8 @@ import (
 // tscError matches tsc's plain output: src/lib/api.ts(12,7): error TS2339: ...
 var tscError = regexp.MustCompile(`^(\S+)\((\d+),(\d+)\): error (.*)$`)
 
-// bodyReturn matches a return at the top level of a component body, which
-// the template indents by four spaces; cardRoot, one that returns a Card.
-var (
-	bodyReturn  = regexp.MustCompile(`(?m)^    return\b`)
-	cardRoot    = regexp.MustCompile(`^return\s*\(?\s*<Card[\s>]`)
-	contentCall = regexp.MustCompile(`\bcontent\(`)
-)
+// saysItem matches one item of a component's says array.
+var saysItem = regexp.MustCompile(`"(?:[^"\\]|\\.)*"`)
 
 // Verify checks the theme and the bodies' shape, installs dependencies if
 // needed, then typechecks and lints the project. Route types like LayoutProps come from next typegen, so it
@@ -35,9 +30,6 @@ func (Nextjs) Verify(dir string) (map[string][]string, error) {
 		problems["src/app/globals.css"] = p
 	}
 	if err := checkBodies(dir, problems); err != nil {
-		return nil, err
-	}
-	if err := checkLayouts(dir, problems); err != nil {
 		return nil, err
 	}
 	if _, err := os.Stat(filepath.Join(dir, "node_modules")); errors.Is(err, os.ErrNotExist) {
@@ -114,8 +106,8 @@ func command(dir, name string, args ...string) (string, error) {
 	return string(out), err
 }
 
-// checkBodies reports each component body whose root isn't a Card. The
-// template joins the actions bar to that card, outside the body (D-020).
+// checkBodies reports each component body that leaves out what the
+// template hands it: every line of says, the link and the actions.
 func checkBodies(dir string, problems map[string][]string) error {
 	paths, err := filepath.Glob(filepath.Join(dir, "src/components/common/*.tsx"))
 	if err != nil {
@@ -126,12 +118,8 @@ func checkBodies(dir string, problems map[string][]string) error {
 		if err != nil {
 			return err
 		}
-		_, body, ok := strings.Cut(string(src), "Body({")
+		head, body, ok := strings.Cut(string(src), "Body({")
 		if !ok {
-			continue
-		}
-		returns := bodyReturn.FindAllStringIndex(body, -1)
-		if len(returns) > 0 && cardRoot.MatchString(body[returns[len(returns)-1][0]+4:]) {
 			continue
 		}
 		rel, err := filepath.Rel(dir, path)
@@ -139,33 +127,30 @@ func checkBodies(dir string, problems map[string][]string) error {
 			return err
 		}
 		file := filepath.ToSlash(rel)
-		problems[file] = append(problems[file], "the body must end by returning one <Card> as its root, with nothing around it")
+		problems[file] = append(problems[file], bodyProblems(head, body)...)
+		if len(problems[file]) == 0 {
+			delete(problems, file)
+		}
 	}
 	return nil
 }
 
-// checkLayouts reports each page layout that doesn't render the page's
-// content exactly once: the template's data and forms live there.
-func checkLayouts(dir string, problems map[string][]string) error {
-	app := filepath.Join(dir, "src/app")
-	return filepath.WalkDir(app, func(path string, e os.DirEntry, err error) error {
-		if err != nil || e.IsDir() || e.Name() != "page.tsx" {
-			return err
+// bodyProblems checks one body against the wrapper above it.
+func bodyProblems(head, body string) []string {
+	var out []string
+	if _, says, ok := strings.Cut(head, "const says = ["); ok {
+		says, _, _ = strings.Cut(says, "] as const;")
+		for i := range saysItem.FindAllString(says, -1) {
+			if !strings.Contains(body, fmt.Sprintf("says[%d]", i)) {
+				out = append(out, fmt.Sprintf("the body must render says[%d]", i))
+			}
 		}
-		src, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		_, body, ok := strings.Cut(string(src), "function PageBody({")
-		if !ok || len(contentCall.FindAllString(body, -1)) == 1 {
-			return nil
-		}
-		rel, err := filepath.Rel(dir, path)
-		if err != nil {
-			return err
-		}
-		file := filepath.ToSlash(rel)
-		problems[file] = append(problems[file], "the layout must call content(className) exactly once")
-		return nil
-	})
+	}
+	if strings.Contains(head, " link={{") && !strings.Contains(body, "link.href") {
+		out = append(out, "the body must link to link.href")
+	}
+	if strings.Contains(head, " actions={") && strings.Count(body, "{actions}") != 1 {
+		out = append(out, "the body must render {actions} exactly once")
+	}
+	return out
 }

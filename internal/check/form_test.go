@@ -28,14 +28,14 @@ const forms = `app shop {
     uses: api
 
     page "/products" {
-      data: products
-      layout: list of ProductCard
+      load: products
+      shows: list of ProductCard(products)
       empty: "No products yet."
     }
 
     page "/products/[id]" {
-      data: products by id
-      layout: ProductView
+      load: product from products by id
+      shows: ProductView(product)
       not_found: "That product doesn't exist."
     }
 
@@ -121,7 +121,7 @@ func TestFormsResolve(t *testing.T) {
 
 func TestFormErrors(t *testing.T) {
 	runErrorCases(t, forms, []errorCase{
-		{"form with data", "      form: products.create\n", "      form: products.create\n      data: products\n", "form: »products.create", "not data"},
+		{"form with load", "      form: products.create\n", "      form: products.create\n      load: products\n", "form: »products.create", "not load"},
 		{"unknown resource", "form: products.create", "form: prodcts.create", "form: »prodcts", "did you mean 'products'"},
 		{"form on a read", "form: products.create", "form: products.list", "form: products.»list", "creates or updates"},
 		{"op not served", "form: reviews.create", "form: reviews.update by id", "form: reviews.»update", "doesn't serve update"},

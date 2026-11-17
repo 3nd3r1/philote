@@ -89,23 +89,49 @@ func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 		fmt.Fprintf(b, "    theme: from its look\n")
 	}
 	for _, pg := range p.Pages {
-		layout := pg.Component
-		switch {
-		case pg.Form != "":
-			layout = "form " + pg.Form + ", then " + pg.Then
-		case !pg.ByID:
-			layout = "list of " + layout
-		}
-		fmt.Fprintf(b, "    %s: %s\n", pg.Route, layout)
+		fmt.Fprintf(b, "    %s: %s\n", pg.Route, pageSummary(pg))
 	}
 	for _, c := range p.Components {
 		componentTree(b, c, depth)
 	}
 }
 
+// pageSummary is what a page loads and shows, or the form it submits.
+func pageSummary(pg *ir.Page) string {
+	if pg.Form != "" {
+		return "form " + pg.Form + ", then " + pg.Then
+	}
+	var shows []string
+	for _, s := range pg.Sections {
+		show := s.Component
+		if s.Arg {
+			show += "(" + pg.Load + ")"
+		}
+		if s.List {
+			show = "list of " + show
+		}
+		shows = append(shows, show)
+	}
+	out := strings.Join(shows, ", ")
+	switch {
+	case pg.ByID:
+		out = "load " + pg.Load + " from " + pg.Resource + " by id, " + out
+	case pg.Load != "":
+		out = "load " + pg.Load + " from " + pg.Resource + ", " + out
+	}
+	return out
+}
+
 // componentTree prints one component and, at depth 3, what it shows and links to.
 func componentTree(b *strings.Builder, c *ir.Component, depth int) {
-	fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
+	switch {
+	case c.Param == "":
+		fmt.Fprintf(b, "    %s\n", c.Name)
+	case c.List:
+		fmt.Fprintf(b, "    %s(%s: list of %s)\n", c.Name, c.Param, c.Entity)
+	default:
+		fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
+	}
 	if depth < 3 {
 		return
 	}
@@ -117,7 +143,12 @@ func componentTree(b *strings.Builder, c *ir.Component, depth int) {
 		}
 		shows = append(shows, show)
 	}
-	fmt.Fprintf(b, "      shows: %s\n", strings.Join(shows, ", "))
+	if len(shows) > 0 {
+		fmt.Fprintf(b, "      shows: %s\n", strings.Join(shows, ", "))
+	}
+	if len(c.Says) > 0 {
+		fmt.Fprintf(b, "      says: %s\n", strings.Join(c.Says, " / "))
+	}
 	if c.LinksTo != "" {
 		fmt.Fprintf(b, "      links to %s\n", c.LinksTo)
 	}

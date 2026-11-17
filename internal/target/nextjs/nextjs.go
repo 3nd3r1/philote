@@ -39,8 +39,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		return target.Output{}, err
 	}
 	css, themeSlots := globals(part)
-	pageFiles, pageSlots := pages(app, backend, part)
-	slots = slices.Concat(slots, themeSlots, pageSlots)
+	slots = append(slots, themeSlots...)
 	generated := slices.Concat(views, []target.File{
 		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
@@ -48,11 +47,16 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		}),
 		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
 		render("api.ts.tmpl", "src/lib/api.ts", api),
-	}, pageFiles)
-	files, err := baseFiles()
+	}, pages(app, backend, part))
+	baseList, err := baseFiles()
 	if err != nil {
 		return target.Output{}, err
 	}
+	// A spec's page at / replaces the base's home page, which opens the
+	// first page in the nav.
+	files := slices.DeleteFunc(baseList, func(f target.File) bool {
+		return slices.ContainsFunc(generated, func(g target.File) bool { return g.Path == f.Path })
+	})
 	files = append(files, generated...)
 	files = append(files,
 		render("package.json.tmpl", "package.json", struct{ Name string }{app.Name + "-" + part.Name}),

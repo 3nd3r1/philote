@@ -12,10 +12,9 @@ import (
 // field the props don't have.
 const (
 	brokenAuthorCard = "```tsx\nreturn <p>{author.nickname}</p>;\n```"
-	goodAuthorCard   = "```tsx\nreturn (\n    <Card>\n        <CardTitle>{author.name}</CardTitle>\n    </Card>\n);\n```"
+	goodAuthorCard   = "```tsx\nreturn (\n    <Card>\n        <Link href={link.href}>{author.name}</Link>\n        {actions}\n    </Card>\n);\n```"
 	goodAuthorView   = "```tsx\nreturn <Card>{author.books.map((book) => book.title).join(\", \")}</Card>;\n```"
-	goodLayout       = "```tsx\nreturn <div className=\"p-4\">{content(\"grid gap-4\")}</div>;\n```"
-	goodBookCard     = "```tsx\nreturn (\n    <Card>\n        <Badge>{book.author.name}</Badge>\n    </Card>\n);\n```"
+	goodBookShelf    = "```tsx\nreturn (\n    <div>\n        {books.map((book) => (\n            <Badge key={book.id}>{book.author.name}</Badge>\n        ))}\n    </div>\n);\n```"
 )
 
 // A component body goes through the same loop as a step's: tsc errors go
@@ -28,8 +27,7 @@ func TestComponentBodies(t *testing.T) {
 	r := useReplies(t, map[string][]string{
 		"AuthorCardBody": {brokenAuthorCard, goodAuthorCard},
 		"AuthorViewBody": {goodAuthorView},
-		"BookCardBody":   {goodBookCard},
-		"PageBody":       libraryLayouts(),
+		"BookShelfBody":  {goodBookShelf},
 	})
 	runOK(t, "build", "--out", out, spec)
 	if n := len(r.prompts["AuthorCardBody"]); n != 2 || !strings.Contains(r.prompts["AuthorCardBody"][1], "nickname") {
@@ -46,12 +44,12 @@ func TestComponentBodies(t *testing.T) {
 		t.Errorf("an unchanged spec called the model: %v", r.prompts)
 	}
 
-	r = useReplies(t, map[string][]string{"BookCardBody": {goodBookCard}})
-	runOK(t, "build", "--redo", "web/BookCard", "--out", out, spec)
-	if len(r.prompts) != 1 || len(r.prompts["BookCardBody"]) != 1 {
-		t.Fatalf("--redo web/BookCard: want one call for BookCard, got %v", r.prompts)
+	r = useReplies(t, map[string][]string{"BookShelfBody": {goodBookShelf}})
+	runOK(t, "build", "--redo", "web/BookShelf", "--out", out, spec)
+	if len(r.prompts) != 1 || len(r.prompts["BookShelfBody"]) != 1 {
+		t.Fatalf("--redo web/BookShelf: want one call for BookShelf, got %v", r.prompts)
 	}
-	if strings.Contains(r.prompts["BookCardBody"][0], "An earlier version") {
+	if strings.Contains(r.prompts["BookShelfBody"][0], "An earlier version") {
 		t.Errorf("--redo should start fresh, not from the old body")
 	}
 }
@@ -63,19 +61,14 @@ func TestRedoErrors(t *testing.T) {
 		code int
 		want string
 	}{
-		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component, page or theme at that path"},
-		{[]string{"build", "--frozen", "--redo", "web/BookCard", spec}, 2, "can't be used with --frozen"},
+		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component or theme at that path"},
+		{[]string{"build", "--frozen", "--redo", "web/BookShelf", spec}, 2, "can't be used with --frozen"},
 	} {
 		var stdout, stderr bytes.Buffer
 		if code := run(tc.args, &stdout, &stderr); code != tc.code || !strings.Contains(stderr.String(), tc.want) {
 			t.Errorf("philote %s: exit %d, want %d and %q in:\n%s", strings.Join(tc.args, " "), code, tc.code, tc.want, stderr.String())
 		}
 	}
-}
-
-// libraryLayouts is a recorded layout for each of the library's four pages.
-func libraryLayouts() []string {
-	return []string{goodLayout, goodLayout, goodLayout, goodLayout}
 }
 
 // copyLibrary copies the library example's spec, without its lock, into a

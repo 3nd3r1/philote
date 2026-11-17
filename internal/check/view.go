@@ -73,20 +73,30 @@ func (c *checker) component(part, backend *ir.Part, s *syntax.Component) *ir.Com
 	case findComponent(part, name) != nil:
 		c.d.Errorf(s.Name.Pos, "there is already a component named %s", name)
 		return nil
-	case len(s.Params) != 1:
-		c.d.Errorf(s.Name.Pos, "a component takes one record, like (horse: Horse)")
+	case len(s.Params) > 1:
+		c.d.Errorf(s.Params[1].Name.Pos, "a component takes one record or one list, like (horse: Horse)")
 		return nil
+	}
+	comp := &ir.Component{Name: name, Pos: s.Name.Pos}
+	if !c.componentWords(comp, s) {
+		return nil
+	}
+	if len(s.Params) == 0 {
+		if !c.recordless(comp, s) {
+			return nil
+		}
+		part.Components = append(part.Components, comp)
+		return comp
 	}
 	ent := c.lookupEntity(s.Params[0].Type)
 	if ent == nil {
 		return nil
 	}
-	comp := &ir.Component{Name: name, Pos: s.Name.Pos, Param: s.Params[0].Name.Name, Entity: ent.Name}
-	if s.Look != nil {
-		if len(s.Look.Value) > maxIntent {
-			c.d.Errorf(s.Look.Pos, "the look is %d characters; the cap is %d", len(s.Look.Value), maxIntent)
-		}
-		comp.Look = s.Look.Value
+	comp.Param, comp.Entity, comp.List = s.Params[0].Name.Name, ent.Name, s.Params[0].List
+	if comp.List && (s.LinksTo != nil || len(s.Actions) > 0) {
+		c.d.Errorf(s.Params[0].Name.Pos, "a component that takes a list can't have links_to or actions; they belong to one record")
+		c.d.Hint("show the list with `list of <Component>` on the page, and put them on that component")
+		return nil
 	}
 	if len(s.Shows) == 0 {
 		c.d.Errorf(s.Name.Pos, "%s doesn't show anything", name)
@@ -104,6 +114,57 @@ func (c *checker) component(part, backend *ir.Part, s *syntax.Component) *ir.Com
 	}
 	part.Components = append(part.Components, comp)
 	return comp
+}
+
+// componentWords checks the text a spec gives a component: its look, its
+// says lines and its link's label.
+func (c *checker) componentWords(comp *ir.Component, s *syntax.Component) bool {
+	if s.Look != nil {
+		if len(s.Look.Value) > maxIntent {
+			c.d.Errorf(s.Look.Pos, "the look is %d characters; the cap is %d", len(s.Look.Value), maxIntent)
+			return false
+		}
+		comp.Look = s.Look.Value
+	}
+	for _, str := range append(slices.Clone(s.Says), s.LinkLabel) {
+		switch {
+		case str == nil:
+		case str.Value == "":
+			c.d.Errorf(str.Pos, "this text is empty")
+			return false
+		case len(str.Value) > maxCopy:
+			c.d.Errorf(str.Pos, "UI text is capped at %d characters", maxCopy)
+			return false
+		}
+	}
+	for _, str := range s.Says {
+		comp.Says = append(comp.Says, str.Value)
+	}
+	if s.LinkLabel != nil {
+		comp.LinkLabel = s.LinkLabel.Value
+	}
+	return true
+}
+
+// recordless checks a component that takes no record: it can only say
+// things and link somewhere.
+func (c *checker) recordless(comp *ir.Component, s *syntax.Component) bool {
+	switch {
+	case len(s.Shows) > 0:
+		c.d.Errorf(s.Shows[0].Path[0].Pos, "%s takes no record, so it has nothing to show", comp.Name)
+		c.d.Hint("give it a parameter, like %s(horse: Horse)", comp.Name)
+	case len(s.Actions) > 0:
+		c.d.Errorf(s.Actions[0].Verb.Pos, "%s takes no record, so it has nothing to act on", comp.Name)
+	case len(s.Says) == 0:
+		c.d.Errorf(s.Name.Pos, "%s takes no record and says nothing", comp.Name)
+		c.d.Hint(`add says: "..." with its words`)
+	case s.LinksTo != nil && s.LinkLabel == nil:
+		c.d.Errorf(s.LinksTo.Pos, "a link on %s needs a button text", comp.Name)
+		c.d.Hint(`add it after the route: links_to: "%s" as "..."`, s.LinksTo.Value)
+	default:
+		return true
+	}
+	return false
 }
 
 // show resolves one path like horse.name or match.first.

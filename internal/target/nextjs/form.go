@@ -32,7 +32,6 @@ type optionView struct{ Name, Client, Label string }
 // formView is everything a form page's three templates print.
 type formView struct {
 	Route, Title, NotFound, Call, Then string
-	Marker                             string
 	ByID                               bool
 	Client                             string // loads the record an edit form starts from
 	PageClients, ActionClients         string // imports from @/lib/api
@@ -61,7 +60,7 @@ func formFiles(app *ir.App, backend *ir.Part, pg *ir.Page) []target.File {
 
 func newFormView(app *ir.App, backend *ir.Part, pg *ir.Page) formView {
 	ep := endpoint(backend, pg.Form)
-	v := formView{Route: pg.Route, Title: jsString(formTitle(pg)), NotFound: jsString(pg.NotFound), Marker: pageMarker, ByID: pg.ByID}
+	v := formView{Route: pg.Route, Title: jsString(formTitle(pg)), NotFound: jsString(pg.NotFound), ByID: pg.ByID}
 	pageClients, actionClients := map[string]bool{}, map[string]bool{}
 	readers, types, uses := map[string]bool{"failed": true}, map[string]bool{}, map[string]bool{}
 	if pg.Resource != "" {
