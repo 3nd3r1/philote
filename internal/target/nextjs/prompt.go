@@ -8,16 +8,18 @@ import (
 	"github.com/3nd3r1/philote/internal/ir"
 )
 
+// themeRules tells the model how to style with the app's theme without
+// knowing its values, so changing the look rewrites only the theme.
+const themeRules = `The app uses shadcn/ui in the base-vega style with Tailwind CSS v4. The app's theme sets its colors, fonts and corner radius, and can change, so never assume a particular color, font or radius: use the theme's classes. Corners follow the theme with rounded-md, rounded-lg, rounded-xl and up.
+Colors come only from the theme's variables: bg-background, text-foreground, bg-card, text-card-foreground, bg-muted, text-muted-foreground, bg-primary, text-primary-foreground, bg-secondary, text-secondary-foreground, bg-accent, border, ring. Headings can use font-heading.
+`
+
 // componentPrompt is everything the model is told about one component. It's
 // built only from that component and the pages that use it, so editing
 // another component or an unrelated entity doesn't change its key (D-019).
 func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 	var b strings.Builder
-	b.WriteString(`Write the body of one React server component in a Next.js app that philote generated.
-The app uses shadcn/ui in the base-vega style with Tailwind CSS v4. The app's theme sets its colors, fonts and corner radius, and can change, so never assume a particular color, font or radius: use the theme's classes. Corners follow the theme with rounded-md, rounded-lg, rounded-xl and up.
-Colors come only from the theme's variables: bg-background, text-foreground, bg-card, text-card-foreground, bg-muted, text-muted-foreground, bg-primary, text-primary-foreground, bg-secondary, text-secondary-foreground, bg-accent, border, ring. Headings can use font-heading.
-
-`)
+	b.WriteString("Write the body of one React server component in a Next.js app that philote generated.\n" + themeRules + "\n")
 	fmt.Fprintf(&b, "The component, %s, shows one %s. %s\n", c.Name, c.Entity, usage(part, c))
 	if c.LinksTo != "" {
 		b.WriteString("It's already wrapped in a link to the record's own page, so don't add links or anything else clickable.\n")

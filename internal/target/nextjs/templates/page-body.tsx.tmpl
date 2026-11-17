@@ -1,0 +1,22 @@
+{{define "page-imports"}}
+import * as Icons from "lucide-react";
+{{- end}}
+
+{{- define "page-ui-imports"}}
+import { cn } from "@/lib/utils";
+
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+{{- end}}
+
+{{- define "page-body"}}
+
+type PageBodyProps = {
+    title: string;
+    content: (className: string) => React.ReactNode;
+};
+
+function PageBody({ title, content }: PageBodyProps): React.ReactNode {
+{{.Marker}}
+}
+{{- end}}

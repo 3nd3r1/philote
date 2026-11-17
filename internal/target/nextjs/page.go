@@ -12,18 +12,20 @@ import (
 // are JavaScript string literals.
 type pageView struct {
 	Route, Title, Client, Read, Component, ComponentFile, Param string
-	Empty, NotFound                                             string
+	Empty, NotFound, Marker                                     string
 }
 
 type navView struct{ Title, Href string }
 
-// pages renders each page, plus a not-found file for pages that load by id,
-// and the nav that links to the list pages, then the forms that make a
-// new record.
-func pages(app *ir.App, backend, part *ir.Part) []target.File {
+// pages renders each page around a slot for its layout, plus a not-found
+// file for pages that load by id, and the nav that links to the list
+// pages, then the forms that make a new record.
+func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Slot) {
 	var files []target.File
+	var slots []target.Slot
 	var nav, forms []navView
 	for _, pg := range part.Pages {
+		slots = append(slots, pageSlot(app, part, pg))
 		if pg.Form != "" {
 			files = append(files, formFiles(app, backend, pg)...)
 			if !pg.ByID {
@@ -42,6 +44,7 @@ func pages(app *ir.App, backend, part *ir.Part) []target.File {
 			Param:         comp.Param,
 			Empty:         jsString(pg.Empty),
 			NotFound:      jsString(pg.NotFound),
+			Marker:        pageMarker,
 		}
 		dir := "src/app" + pg.Route + "/"
 		if pg.ByID {
@@ -53,7 +56,7 @@ func pages(app *ir.App, backend, part *ir.Part) []target.File {
 		files = append(files, render("list-page.tsx.tmpl", dir+"page.tsx", v))
 		nav = append(nav, navView{v.Title, jsString(pg.Route)})
 	}
-	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...)))
+	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...))), slots
 }
 
 // pageTitle is what a page calls itself in its heading and the nav.

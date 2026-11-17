@@ -26,7 +26,7 @@ type Nextjs struct{}
 
 func (Nextjs) Name() string      { return "nextjs" }
 func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
-func (Nextjs) Version() string   { return "0.3.0" }
+func (Nextjs) Version() string   { return "0.4.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	backend := usedBackend(app, part)
@@ -39,7 +39,8 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		return target.Output{}, err
 	}
 	css, themeSlots := globals(part)
-	slots = append(slots, themeSlots...)
+	pageFiles, pageSlots := pages(app, backend, part)
+	slots = slices.Concat(slots, themeSlots, pageSlots)
 	generated := slices.Concat(views, []target.File{
 		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
@@ -47,7 +48,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		}),
 		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
 		render("api.ts.tmpl", "src/lib/api.ts", api),
-	}, pages(app, backend, part))
+	}, pageFiles)
 	files, err := baseFiles()
 	if err != nil {
 		return target.Output{}, err

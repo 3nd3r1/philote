@@ -20,7 +20,7 @@ const lockHeader = `# Step and component bodies written by a model and pinned by
 
 // pin is one model-written body in philote.lock.
 type pin struct {
-	Kind  string // step, component or theme
+	Kind  string // step, component, page or theme
 	Node  string // like api/record_swipe
 	Key   string
 	Model string
@@ -65,7 +65,7 @@ func parseLock(file, text string, d *diag.List) map[string]pin {
 		case cur != nil && (line == "|" || strings.HasPrefix(line, "| ")):
 			body = append(body, strings.TrimPrefix(strings.TrimPrefix(line, "|"), " "))
 		case line == "" || strings.HasPrefix(line, "#"):
-		case (word == "step" || word == "component" || word == "theme") && rest != "":
+		case (word == "step" || word == "component" || word == "page" || word == "theme") && rest != "":
 			done()
 			cur = &pin{Kind: word, Node: rest}
 		case cur != nil && word == "key" && rest != "":

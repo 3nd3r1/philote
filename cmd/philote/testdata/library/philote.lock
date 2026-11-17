@@ -107,3 +107,94 @@ model claude-opus-5-5
 |     </CardContent>
 |   </Card>
 | );
+
+page web/authors
+key 97ceb6d133823f6fb191ad11deed923d5f75201d48119fe1e97d4a8b78eb3071
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:gap-8 lg:py-10">
+|     <header className="flex flex-col gap-2">
+|       <div className="flex items-center gap-3">
+|         <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+|           <Icons.Users className="size-5" />
+|         </span>
+|         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+|           {title}
+|         </h1>
+|       </div>
+|       <p className="text-sm text-muted-foreground sm:text-base">
+|         Browse every author in the library.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     <section>
+|       {content("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 [&>*]:h-full")}
+|     </section>
+|   </div>
+| );
+
+page web/authors/[id]
+key 6cd8080c37bef8f908e175a0a0ba831ac9b1fd9ee147d6e7992efe63bc48e30b
+model claude-opus-5-5
+| return (
+|     <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-10 lg:gap-6">
+|         <div className="flex items-center gap-2">
+|             <Icons.UserRound className="size-4 text-muted-foreground" />
+|             <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+|                 {title}
+|             </span>
+|         </div>
+|         <Separator orientation="horizontal" />
+|         {content("w-full")}
+|     </div>
+| );
+
+page web/books
+key 807a41191844fc5d684e79f802df86ed9d34749429c187efa0838304e72db7ef
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
+|     <header className="flex flex-col gap-2">
+|       <div className="flex items-center gap-3">
+|         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+|           <Icons.BookOpen className="size-5" />
+|         </div>
+|         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+|           {title}
+|         </h1>
+|       </div>
+|       <p className="text-sm text-muted-foreground sm:text-base">
+|         Browse every book in the library.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     {content(
+|       "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 [&>*]:h-full"
+|     )}
+|   </div>
+| );
+
+page web/books/new
+key 286d176c30c1b74dbbcef00dbf781fce9b873faa1910b91b325072dc8b2cd170
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 md:py-12">
+|     <header className="flex flex-col gap-3">
+|       <div className="flex items-center gap-3">
+|         <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+|           <Icons.BookPlus className="size-5" />
+|         </div>
+|         <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+|           {title}
+|         </h1>
+|       </div>
+|       <p className="text-sm text-muted-foreground">
+|         Add a new book to the library.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     {content(
+|       "flex w-full flex-col gap-6 rounded-xl border bg-card p-4 text-card-foreground sm:p-6"
+|     )}
+|   </div>
+| );

@@ -1,11 +1,11 @@
 ---
 id: TASK-3
 title: Apps philote builds look great by default
-status: Done
+status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-16T12:19:00Z'
-updated_date: '2026-11-17T08:41:00Z'
+updated_date: '2026-11-17T10:20:00Z'
 labels: []
 milestone: m-5
 dependencies: []
@@ -20,7 +20,7 @@ Every frontend philote builds looks like the plain dark default of the Next.js b
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [x] #1 neighbr, board and library each look like a polished app in screenshots on a laptop and a phone-size window
+- [ ] #1 neighbr, board and library each look like a polished app in screenshots on a laptop and a phone-size window
 - [x] #2 Nothing in the compiler or base is specific to one spec
 - [x] #3 Rebuilding with --frozen gives byte-identical output
 <!-- AC:END -->
@@ -53,6 +53,10 @@ Left before Done: look at library; check light mode with Dark Reader off (the us
 2026-11-17: library checked: clean in dark and light, but card and view actions float under the card on every spec (plan item 3 not done), view bodies wrap their Card in their own page padding, and some bodies override CardHeader so CardAction sits mid-row. Fix: the component template frames body and actions as one card with an actions bar; the prompt asks for a bare Card root with no layout of its own and CardHeader kept as is; Verify sends back a body whose root is not a Card. Bodies regenerated.
 
 Verified 2026-11-17 in Chrome after the fix: library, neighbr and board on a laptop width and in a 390px frame (the window manager pins the window at full width, so phone width was checked in a 390px iframe). Every record with actions is one card with an actions bar at its bottom; CardAction sits top right. Library light mode looked clean before Dark Reader kicked in; later light screenshots are Dark Reader's recoloring. neighbr's HorseCard look line now asks for the name's initial on a primary tint where a photo would go, instead of an empty hero; rebuilding asked the model for HorseCard only. Two --frozen builds of each example are byte-identical and match the goldens; make check passes.
+
+2026-11-17 reopened: the user looked at neighbr and called it horrible; AC #1 was checked too generously (tidy and consistent is not polished). Two causes. (1) Dark Reader recolors the app; generated apps ship their own dark mode, so they should carry a darkreader-lock meta. (2) The real one: templates own every page's structure (a title plus a 2-column grid in a 900px column, a plain navbar), and the model only fills card insides, so every app looks like the same scaffold. The direction call on page layout went to the user.
+
+decision-2 built: the model writes each page layout (PageBody with a content(className) render function), pinned as page web/<route>; Verify now also runs ESLint and checks the layout calls content once; navbar widened to max-w-5xl and the page prompt aligns pages with it. Checked neighbr, board and library in Chrome on laptop and phone width.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary

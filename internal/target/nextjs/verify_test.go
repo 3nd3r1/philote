@@ -44,3 +44,29 @@ func TestCheckBodies(t *testing.T) {
 		t.Errorf("want problems for exactly three files, got %v", problems)
 	}
 }
+
+func TestCheckLayouts(t *testing.T) {
+	layouts := map[string]string{
+		"horses":     "    return <div>{content(\"grid gap-4\")}</div>;",
+		"matches":    "    return <h1>{title}</h1>;",
+		"horses/new": "    return <div>{content(\"a\")}{content(\"b\")}</div>;",
+	}
+	dir := t.TempDir()
+	for route, body := range layouts {
+		page := filepath.Join(dir, "src/app", route, "page.tsx")
+		if err := os.MkdirAll(filepath.Dir(page), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		src := "function PageBody({ title, content }: PageBodyProps): React.ReactNode {\n" + body + "\n}\n"
+		if err := os.WriteFile(page, []byte(src), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	problems := map[string][]string{}
+	if err := checkLayouts(dir, problems); err != nil {
+		t.Fatal(err)
+	}
+	if len(problems) != 2 || problems["src/app/matches/page.tsx"] == nil || problems["src/app/horses/new/page.tsx"] == nil {
+		t.Errorf("want problems for the layouts that call content zero or two times, got %v", problems)
+	}
+}

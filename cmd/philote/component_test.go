@@ -14,6 +14,7 @@ const (
 	brokenAuthorCard = "```tsx\nreturn <p>{author.nickname}</p>;\n```"
 	goodAuthorCard   = "```tsx\nreturn (\n    <Card>\n        <CardTitle>{author.name}</CardTitle>\n    </Card>\n);\n```"
 	goodAuthorView   = "```tsx\nreturn <Card>{author.books.map((book) => book.title).join(\", \")}</Card>;\n```"
+	goodLayout       = "```tsx\nreturn <div className=\"p-4\">{content(\"grid gap-4\")}</div>;\n```"
 	goodBookCard     = "```tsx\nreturn (\n    <Card>\n        <Badge>{book.author.name}</Badge>\n    </Card>\n);\n```"
 )
 
@@ -28,6 +29,7 @@ func TestComponentBodies(t *testing.T) {
 		"AuthorCardBody": {brokenAuthorCard, goodAuthorCard},
 		"AuthorViewBody": {goodAuthorView},
 		"BookCardBody":   {goodBookCard},
+		"PageBody":       libraryLayouts(),
 	})
 	runOK(t, "build", "--out", out, spec)
 	if n := len(r.prompts["AuthorCardBody"]); n != 2 || !strings.Contains(r.prompts["AuthorCardBody"][1], "nickname") {
@@ -61,7 +63,7 @@ func TestRedoErrors(t *testing.T) {
 		code int
 		want string
 	}{
-		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component or theme at that path"},
+		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component, page or theme at that path"},
 		{[]string{"build", "--frozen", "--redo", "web/BookCard", spec}, 2, "can't be used with --frozen"},
 	} {
 		var stdout, stderr bytes.Buffer
@@ -69,6 +71,11 @@ func TestRedoErrors(t *testing.T) {
 			t.Errorf("philote %s: exit %d, want %d and %q in:\n%s", strings.Join(tc.args, " "), code, tc.code, tc.want, stderr.String())
 		}
 	}
+}
+
+// libraryLayouts is a recorded layout for each of the library's four pages.
+func libraryLayouts() []string {
+	return []string{goodLayout, goodLayout, goodLayout, goodLayout}
 }
 
 // copyLibrary copies the library example's spec, without its lock, into a

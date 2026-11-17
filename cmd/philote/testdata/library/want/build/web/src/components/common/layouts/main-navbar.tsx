@@ -11,7 +11,7 @@ import ModeToggle from "@/components/common/layouts/mode-toggle";
 const MainNavbar = () => {
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
-            <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-x-4 px-4 py-2">
+            <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 px-4 py-2 sm:px-6">
                 <Link
                     href="/"
                     className="font-heading text-lg font-semibold tracking-tight"

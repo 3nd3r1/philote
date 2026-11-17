@@ -20,11 +20,14 @@ func (c *checker) page(part, backend *ir.Part, s *syntax.Page) (*ir.Page, string
 	case route == "/":
 		c.d.Errorf(s.Route.Pos, "/ is the base project's home page; pick another route")
 		return nil, ""
+	case route == "/theme":
+		c.d.Errorf(s.Route.Pos, "/theme names the app's theme in philote.lock and --redo; pick another route")
+		return nil, ""
 	case findPage(part, route) != nil:
 		c.d.Errorf(s.Route.Pos, "there is already a page at %s", route)
 		return nil, ""
 	}
-	pg := &ir.Page{Route: route}
+	pg := &ir.Page{Route: route, Pos: s.Route.Pos}
 	if s.Form != nil {
 		saved, ok := c.formPage(pg, backend, s)
 		if !ok {

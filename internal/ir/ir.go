@@ -90,6 +90,7 @@ type Look struct {
 // shows them with a component, or a form that submits to an endpoint.
 type Page struct {
 	Route     string // params as [id]
+	Pos       diag.Pos
 	Resource  string // in the backend the frontend uses; empty for a form on a custom endpoint
 	Entity    string
 	ByID      bool // loads the record named by the route's [id]; otherwise lists them all

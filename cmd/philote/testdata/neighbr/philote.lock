@@ -186,6 +186,142 @@ model claude-opus-5-5
 |     </Card>
 | );
 
+page web/horses
+key df3d7e36f013d45ace006c4e546c396c963151d9c0bc2b2ecd2b6dce7f008122
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:py-12">
+|     <header className="flex flex-col gap-3">
+|       <div className="flex items-center gap-3">
+|         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+|           <Icons.Heart className="size-5" />
+|         </span>
+|         <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+|           {title}
+|         </h1>
+|       </div>
+|       <p className="max-w-2xl text-base text-muted-foreground">
+|         Browse every horse and find one that catches your eye.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     {content(
+|       "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6 [&>*]:h-full"
+|     )}
+|   </div>
+| );
+
+page web/horses/[id]
+key 81134e6e06c0cf8ca7ec01edd5ed8d35cba7ff18421e93edbeaff74dbd2b3016
+model claude-opus-5-5
+| return (
+|     <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6 sm:px-6 sm:py-10 lg:gap-6">
+|         <div className="flex items-center gap-2">
+|             <Badge variant="secondary" className="gap-1 rounded-xl">
+|                 <Icons.Heart className="size-3.5 text-primary" />
+|                 <span className="font-heading text-xs tracking-wide uppercase">{title}</span>
+|             </Badge>
+|             <Separator className="flex-1" />
+|         </div>
+|         {content("w-full rounded-2xl bg-card text-card-foreground border shadow-sm")}
+|     </div>
+| );
+
+page web/horses/[id]/edit
+key 053984e77269ec471f512551af4465fe83199956fff95964660e4d9eb6e80764
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+|     <header className="flex flex-col gap-3">
+|       <Badge variant="secondary" className="w-fit gap-1.5 rounded-xl">
+|         <Icons.Heart className="size-4" />
+|         Horse
+|       </Badge>
+|       <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+|         {title}
+|       </h1>
+|       <p className="text-base text-muted-foreground">
+|         Update this horse&apos;s details and save your changes.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     {content(
+|       "flex w-full flex-col gap-5 rounded-xl border bg-card p-5 text-card-foreground shadow-sm sm:p-8"
+|     )}
+|   </div>
+| );
+
+page web/horses/new
+key bfb1f03db42e4c2df5cdfb569bf3b5426815b0188481ddb52840d7187d7f3694
+model claude-opus-5-5
+| return (
+|     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+|         <header className="flex flex-col items-center gap-3 text-center">
+|             <div className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+|                 <Icons.Heart className="size-6" />
+|             </div>
+|             <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+|                 {title}
+|             </h1>
+|             <p className="max-w-md text-sm text-muted-foreground sm:text-base">
+|                 Fill in the details below to add a new horse.
+|             </p>
+|         </header>
+|         <Separator orientation="horizontal" />
+|         <section className="rounded-2xl border bg-card p-6 text-card-foreground shadow-sm sm:p-8">
+|             {content("flex w-full flex-col gap-5")}
+|         </section>
+|     </div>
+| );
+
+page web/matches
+key 0be6982ea2eb9152ee90abc3ef3ee00138bcfaf6047e7e0afff094fa993721b5
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
+|     <header className="flex flex-col gap-3">
+|       <div className="flex items-center gap-3">
+|         <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+|           <Icons.Heart className="size-5" />
+|         </span>
+|         <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+|           {title}
+|         </h1>
+|       </div>
+|       <p className="text-sm text-muted-foreground sm:text-base">
+|         {"Everyone you've matched with, all in one place."}
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     {content(
+|       "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 lg:gap-6 [&>*]:h-full"
+|     )}
+|   </div>
+| );
+
+page web/swipe
+key af98eca0cfc1af55f8643a08ef8b29bc5434f89cd57f6b21655857317a920295
+model claude-opus-5-5
+| return (
+|   <div className="mx-auto flex w-full max-w-md flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+|     <header className="flex flex-col items-center gap-3 text-center">
+|       <div className="flex size-12 items-center justify-center rounded-full bg-primary text-primary-foreground">
+|         <Icons.Heart className="size-6" />
+|       </div>
+|       <h1 className="font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+|         {title}
+|       </h1>
+|       <p className="text-sm text-muted-foreground">
+|         Say hello to the people near you.
+|       </p>
+|     </header>
+|     <Separator orientation="horizontal" />
+|     <div className="rounded-2xl border bg-card p-5 text-card-foreground shadow-sm sm:p-6">
+|       {content("flex w-full flex-col gap-4")}
+|     </div>
+|   </div>
+| );
+
 theme web/theme
 key 1320efa749dc40a0d37bdf2bb23436c1441fc653cba3cb811e8450e89f664ac0
 model claude-opus-5-5

@@ -83,7 +83,7 @@ frontend web: nextjs {
 }
 ```
 
-The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites the theme and the page layouts, never the components. Without a look the app gets a plain default theme and no model call.
 
 ```
 page "/tasks" {
@@ -113,6 +113,7 @@ component TaskCard(task: Task) {
 
 - `shows` lists every field the component reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
 - The model writes the component's body from its `shows` and `look`. Links and actions are rendered around the body by templates.
+- The model also writes each page's layout: its width, header and how the cards are arranged. Loading, empty and not-found states and forms stay templates. A layout is pinned under the page's route, like `web/tasks/[id]`, so `/theme` can't be a route.
 - A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
 - Form fields are the endpoint's input, in order. Pages without `[id]` go in the nav.
 
@@ -124,7 +125,7 @@ philote tree app.philote             # what the spec becomes
 philote expand app.philote api/tasks  # one level down
 philote build app.philote            # build/api and build/web; new bodies call the claude CLI
 philote build --frozen app.philote   # never calls a model
-philote build --redo web/TaskCard app.philote   # or web/theme
+philote build --redo web/TaskCard app.philote   # or web/tasks/[id], or web/theme
 ```
 
 Model-written bodies are pinned in `philote.lock` next to the spec. Commit it. A body is written again only when its prompt changes, and then it starts from the old body.

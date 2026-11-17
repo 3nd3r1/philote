@@ -99,6 +99,7 @@ func TestViewErrors(t *testing.T) {
 		{"wrong entity", "layout: ProductView", "layout: ReviewCard", "layout: »ReviewCard", "ReviewCard shows a Review"},
 		{"unknown component", "layout: ProductView", "layout: ProductViw", "layout: »ProductViw", "did you mean 'ProductView'"},
 		{"home page", `page "/products" {`, `page "/" {`, `page »"/" {`, "home page"},
+		{"theme route", `page "/products" {`, `page "/theme" {`, `page »"/theme" {`, "names the app's theme"},
 		{"bad route", `page "/products" {`, `page "/Products" {`, `page »"/Products" {`, "lowercase segments"},
 		{"lowercase component", "component ReviewCard(", "component reviewCard(", "component »reviewCard", "capital letter"},
 		{"two params", "ReviewCard(review: Review)", "ReviewCard(review: Review, other: Review)", "component »ReviewCard", "takes one record"},
