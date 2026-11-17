@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars -- every nav gets the same imports */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 
 import * as Icons from "lucide-react";
 
@@ -18,19 +19,28 @@ import ModeToggle from "@/components/common/layouts/mode-toggle";
 
 type NavItem = { href: string; label: string };
 
-// The wrapper sticks the nav to its place and finds the active item: the
-// longest href the path is or starts with, where / matches only itself.
+// The wrapper sticks the nav to its place. The prerendered shell shows no
+// item as active; ActiveNav reads the URL, so it streams in after it.
 export default function MainNavbar() {
+    const home = { href: "/", label: siteConfig.name };
+    return (
+        <div className="sticky bottom-0 z-40 w-full">
+            <Suspense fallback={<NavBody items={nav} home={home} toggle={<ModeToggle />} />}>
+                <ActiveNav home={home} />
+            </Suspense>
+        </div>
+    );
+}
+
+// ActiveNav marks the item for the current page: the longest href the path
+// is or starts with, where / matches only itself.
+function ActiveNav({ home }: { home: NavItem }) {
     const pathname = usePathname();
     const active = nav
         .map((item) => item.href)
         .filter((href) => href === pathname || (href !== "/" && pathname.startsWith(href + "/")))
         .sort((a, b) => b.length - a.length)[0];
-    return (
-        <div className="sticky bottom-0 z-40 w-full">
-            <NavBody items={nav} active={active} home={{ href: "/", label: siteConfig.name }} toggle={<ModeToggle />} />
-        </div>
-    );
+    return <NavBody items={nav} active={active} home={home} toggle={<ModeToggle />} />;
 }
 
 function NavBody({
@@ -48,7 +58,7 @@ function NavBody({
       "/swipe": Icons.Heart,
       "/horses": Icons.PawPrint,
       "/matches": Icons.MessageCircleHeart,
-      "/horses/new": Icons.CirclePlus,
+      "/me": Icons.UserRound,
     };
 
     return (
@@ -58,7 +68,7 @@ function NavBody({
             href={home.href}
             className={cn(
               buttonVariants({ variant: "ghost", size: "sm" }),
-              "hidden shrink-0 rounded-xl font-heading text-base font-bold text-primary md:inline-flex"
+              "hidden shrink-0 rounded-xl font-heading text-base font-bold text-foreground md:inline-flex"
             )}
           >
             <Icons.Heart className="size-5 fill-current" />
@@ -81,7 +91,7 @@ function NavBody({
                         : "text-muted-foreground hover:bg-accent hover:text-foreground"
                     )}
                   >
-                    <Icon className={cn("size-5 shrink-0", isActive && "fill-current/20")} />
+                    <Icon className="size-5 shrink-0" />
                     <span className="max-w-full truncate">{item.label}</span>
                   </Link>
                 </li>

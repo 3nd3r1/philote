@@ -20,6 +20,19 @@ var nameLine = regexp.MustCompile(`(?m)^\s*"name": .*\n`)
 // user cache, which needs the network the first time.
 func linkNodeModules(t *testing.T, pkgFile, dir string) {
 	t.Helper()
+	deps := testDeps(t, pkgFile)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(filepath.Join(deps, "node_modules"), filepath.Join(dir, "node_modules")); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// testDeps returns the cached install for a package.json, installing it the
+// first time.
+func testDeps(t *testing.T, pkgFile string) string {
+	t.Helper()
 	if _, err := exec.LookPath("npm"); err != nil {
 		t.Skip("needs npm")
 	}
@@ -36,12 +49,7 @@ func linkNodeModules(t *testing.T, pkgFile, dir string) {
 	if _, err := os.Stat(filepath.Join(deps, "node_modules")); err != nil {
 		installDeps(t, deps, pkg)
 	}
-	if err := os.MkdirAll(dir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Symlink(filepath.Join(deps, "node_modules"), filepath.Join(dir, "node_modules")); err != nil {
-		t.Fatal(err)
-	}
+	return deps
 }
 
 // installDeps installs into a temp dir and renames it into place, so an
