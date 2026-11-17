@@ -1,11 +1,11 @@
 ---
 id: TASK-6
 title: Design the frontend primitives
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-17T10:33:00Z'
-updated_date: '2026-11-17T10:37:00Z'
+updated_date: '2026-11-17T10:39:00Z'
 labels: []
 milestone: m-6
 dependencies: []
@@ -20,9 +20,9 @@ The frontend language has three fixed page kinds (list, record, form) and a fixe
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A decision describes the primitives and shows neighbr's full spec rewritten in them, including a landing page, a bottom nav and a swipe deck
-- [ ] #2 The decision says how today's list, record and form pages are expressed in the primitives
-- [ ] #3 The user accepted the decision
+- [x] #1 A decision describes the primitives and shows neighbr's full spec rewritten in them, including a landing page, a bottom nav and a swipe deck
+- [x] #2 The decision says how today's list, record and form pages are expressed in the primitives
+- [x] #3 The user accepted the decision
 <!-- AC:END -->
 
 ## Implementation Notes
@@ -30,3 +30,9 @@ The frontend language has three fixed page kinds (list, record, form) and a fixe
 <!-- SECTION:NOTES:BEGIN -->
 decision-4 (proposed) written: five primitives (page load/shows, list params and uses, calls, says, nav) plus viewer, neighbr rewritten in them, mapping from list/record/form. Waiting on the user.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+decision-4 accepted by the user on 2026-11-17: pages load data and place components; components take lists, compose with uses, act with calls, get their words from says; the nav is in the spec; viewer picks who you are without login. decision-2 (model-written page layouts) is superseded. Built in four slices, each its own task.
+<!-- SECTION:FINAL_SUMMARY:END -->

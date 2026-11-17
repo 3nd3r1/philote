@@ -2,13 +2,15 @@
 id: decision-4
 title: 'Frontend primitives: pages place components, components can act'
 date: '2026-11-17T10:36:00Z'
-status: proposed
+status: accepted
 ---
 ## Context
 
 The frontend has three fixed page kinds (list, record, form), a fixed nav, and a template that owns every page's structure. The model only fills holes, so every app is the same admin panel, and a swipe deck or a landing page can't be said at all (decision-3). Determinism doesn't need any of that: it comes from the lock. The template only has to own what must be exact: data loading, the typed client, routes, actions and forms.
 
-## Decision (proposed)
+## Decision
+
+The user accepted this on 2026-11-17.
 
 Five primitives replace the page kinds.
 

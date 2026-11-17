@@ -2,7 +2,7 @@
 id: decision-2
 title: The model writes each page layout, pinned like a component body
 date: '2026-11-17T09:55:00Z'
-status: accepted
+status: superseded
 ---
 ## Context
 
