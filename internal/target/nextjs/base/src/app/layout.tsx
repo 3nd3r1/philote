@@ -177,6 +177,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             suppressHydrationWarning
         >
             <head>
+                {/* The app has its own dark mode, so Dark Reader stays off it. */}
+                <meta name="darkreader-lock" />
                 <script
                     type="application/ld+json"
                     dangerouslySetInnerHTML={{
