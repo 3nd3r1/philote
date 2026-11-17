@@ -37,7 +37,7 @@ function BookCardBody({ book }: BookCardProps): React.ReactNode {
           <CardDescription className="text-muted-foreground">
             <Link
               href={book.author.href}
-              className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline underline-offset-4"
+              className="inline-flex items-center gap-1.5 underline-offset-4 hover:text-foreground hover:underline"
             >
               <Icons.User className="size-4" />
               {book.author.name}
@@ -55,11 +55,7 @@ function BookCardBody({ book }: BookCardProps): React.ReactNode {
               <time dateTime={book.published}>{formatDate(book.published)}</time>
             </span>
             <span className="inline-flex items-center gap-1.5">
-              {book.in_print ? (
-                <Icons.BookCheck className="size-4" />
-              ) : (
-                <Icons.BookX className="size-4" />
-              )}
+              <Icons.BookOpen className="size-4" />
               <span>
                 In print: <span className="text-foreground">{formatBool(book.in_print)}</span>
               </span>

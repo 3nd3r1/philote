@@ -40,7 +40,7 @@ function ProjectCardBody({ project }: ProjectCardProps): React.ReactNode {
             {project.summary}
           </CardDescription>
           <CardAction>
-            <Icons.FolderKanban className="size-4 text-muted-foreground" />
+            <Icons.FolderKanban aria-hidden="true" className="size-4 text-muted-foreground" />
           </CardAction>
         </CardHeader>
       </Card>

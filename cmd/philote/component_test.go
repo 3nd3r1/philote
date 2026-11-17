@@ -13,8 +13,8 @@ import (
 const (
 	brokenAuthorCard = "```tsx\nreturn <p>{author.nickname}</p>;\n```"
 	goodAuthorCard   = "```tsx\nreturn (\n    <Card>\n        <CardTitle>{author.name}</CardTitle>\n    </Card>\n);\n```"
-	goodAuthorView   = "```tsx\nreturn <p>{author.books.map((book) => book.title).join(\", \")}</p>;\n```"
-	goodBookCard     = "```tsx\nreturn <Badge>{book.author.name}</Badge>;\n```"
+	goodAuthorView   = "```tsx\nreturn <Card>{author.books.map((book) => book.title).join(\", \")}</Card>;\n```"
+	goodBookCard     = "```tsx\nreturn (\n    <Card>\n        <Badge>{book.author.name}</Badge>\n    </Card>\n);\n```"
 )
 
 // A component body goes through the same loop as a step's: tsc errors go

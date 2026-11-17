@@ -38,7 +38,7 @@ page "/swipe" {
 component HorseCard(horse: Horse) {
   shows: horse.name, horse.breed, horse.age
   links_to: "/horses/[horse.id]"
-  look: "a dating-app profile card: a tall photo-less hero with the name big and the age beside it, the breed as a badge"
+  look: "a dating-app profile card: where a photo would go, the first letter of the name large on a soft tint of the primary color; under it the name big with the age beside it, the breed as a badge"
 }
 
 component HorseView(horse: Horse) {

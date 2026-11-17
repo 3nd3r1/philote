@@ -1,11 +1,11 @@
 ---
 id: TASK-3
 title: Apps philote builds look great by default
-status: In Progress
+status: Done
 assignee:
   - '@claude'
 created_date: '2026-11-16T12:19:00Z'
-updated_date: '2026-11-16T12:49:00Z'
+updated_date: '2026-11-17T08:41:00Z'
 labels: []
 milestone: m-5
 dependencies: []
@@ -20,9 +20,9 @@ Every frontend philote builds looks like the plain dark default of the Next.js b
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 neighbr, board and library each look like a polished app in screenshots on a laptop and a phone-size window
-- [ ] #2 Nothing in the compiler or base is specific to one spec
-- [ ] #3 Rebuilding with --frozen gives byte-identical output
+- [x] #1 neighbr, board and library each look like a polished app in screenshots on a laptop and a phone-size window
+- [x] #2 Nothing in the compiler or base is specific to one spec
+- [x] #3 Rebuilding with --frozen gives byte-identical output
 <!-- AC:END -->
 
 ## Implementation Plan
@@ -49,4 +49,14 @@ decision-1 (accepted by the user): an app picks its look with a frontend look li
 - neighbr has a look line (coral and cream, Nunito + Fraunces). Bodies regenerated for neighbr, board and library; goldens updated; make check passes; next build passes.
 Checked in Chrome: neighbr dark, matches light, phone width 390px; board default theme dark.
 Left before Done: look at library; check light mode with Dark Reader off (the user's Chrome runs Dark Reader, which recolors light pages and causes the hydration warnings); neighbr's HorseCard hero is empty by design of its look line, judge whether the spec's look should change.
+
+2026-11-17: library checked: clean in dark and light, but card and view actions float under the card on every spec (plan item 3 not done), view bodies wrap their Card in their own page padding, and some bodies override CardHeader so CardAction sits mid-row. Fix: the component template frames body and actions as one card with an actions bar; the prompt asks for a bare Card root with no layout of its own and CardHeader kept as is; Verify sends back a body whose root is not a Card. Bodies regenerated.
+
+Verified 2026-11-17 in Chrome after the fix: library, neighbr and board on a laptop width and in a 390px frame (the window manager pins the window at full width, so phone width was checked in a 390px iframe). Every record with actions is one card with an actions bar at its bottom; CardAction sits top right. Library light mode looked clean before Dark Reader kicked in; later light screenshots are Dark Reader's recoloring. neighbr's HorseCard look line now asks for the name's initial on a primary tint where a photo would go, instead of an empty hero; rebuilding asked the model for HorseCard only. Two --frozen builds of each example are byte-identical and match the goldens; make check passes.
 <!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Apps philote builds now look like polished apps by default, for any spec. An app picks its look with a frontend look line, which the model writes into a pinned, Go-checked theme (decision-1); with no look line the app gets a neutral default theme. The base moved to shadcn base-vega, follows the system light/dark setting with a toggle, and / redirects to the first page. Component actions now sit in a bar joined to the body's card instead of floating under it. The prompt asks for a bare Card root with no layout of its own, and Verify sends back any body that doesn't return one. Checked on library, neighbr and board at laptop and phone widths; --frozen builds are byte-identical. Follow-ups: none needed for m-5. Light mode under the user's Dark Reader will always look recolored, and that isn't an app bug.
+<!-- SECTION:FINAL_SUMMARY:END -->

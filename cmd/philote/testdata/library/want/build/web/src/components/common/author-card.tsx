@@ -23,49 +23,38 @@ import { Separator } from "@/components/ui/separator";
 
 import AuthorCardActions from "@/components/common/author-card-actions";
 
-// The actions sit under the body, outside its link: the model never sees
-// them, so changing one doesn't touch the pinned body (D-020).
+// The actions sit in a bar under the body, outside its link: the model never
+// sees them, so changing one doesn't touch the pinned body (D-020). The frame
+// takes over the body card's border so the two read as one card.
 export default function AuthorCard(props: AuthorCardProps) {
     return (
-        <div className="space-y-3">
-            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block transition-transform hover:-translate-y-0.5">
+        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 *:data-[slot=card]:flex-1 *:data-[slot=card]:rounded-none *:data-[slot=card]:shadow-none *:data-[slot=card]:ring-0 [&>a>[data-slot=card]]:h-full [&>a>[data-slot=card]]:rounded-none [&>a>[data-slot=card]]:shadow-none [&>a>[data-slot=card]]:ring-0">
+            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block flex-1">
                 <AuthorCardBody {...props} />
             </Link>
-            <AuthorCardActions id={props.author.id} />
+            <div className="flex justify-end border-t border-foreground/10 px-4 py-3">
+                <AuthorCardActions id={props.author.id} />
+            </div>
         </div>
     );
 }
 
 function AuthorCardBody({ author }: AuthorCardProps): React.ReactNode {
-    const initials = author.name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("");
-
     return (
       <Card className="h-full rounded-xl transition-colors hover:bg-accent">
-        <CardHeader className="flex flex-row items-center gap-4">
-          <div
-            aria-hidden="true"
-            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-heading text-base font-semibold text-secondary-foreground"
-          >
-            {initials || <Icons.User className="size-5" />}
-          </div>
-          <div className="flex min-w-0 flex-col gap-1">
-            <CardTitle className="truncate font-heading text-lg leading-tight">
-              {author.name}
-            </CardTitle>
-            <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
-              <Icons.Cake className="size-4 shrink-0" />
-              <span>
-                Born <time dateTime={author.born}>{formatDate(author.born)}</time>
-              </span>
-            </CardDescription>
-          </div>
-          <CardAction className="self-center text-muted-foreground">
-            <Icons.ChevronRight className="size-4" />
+        <CardHeader>
+          <CardTitle className="flex min-w-0 items-center gap-2 font-heading text-lg leading-tight">
+            <Icons.User aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+            <span className="truncate">{author.name}</span>
+          </CardTitle>
+          <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
+            <Icons.Cake aria-hidden="true" className="size-4 shrink-0" />
+            <span>
+              Born <time dateTime={author.born}>{formatDate(author.born)}</time>
+            </span>
+          </CardDescription>
+          <CardAction className="text-muted-foreground">
+            <Icons.ChevronRight aria-hidden="true" className="size-4" />
           </CardAction>
         </CardHeader>
       </Card>

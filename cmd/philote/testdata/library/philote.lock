@@ -2,94 +2,72 @@
 # Commit this file and review its diff like code. Don't edit it by hand.
 
 component web/AuthorCard
-key 92c6c56f3e69e866ba7eb2f8a80461a1fb809deee9e7a9a10f415e71f71bff60
+key 4f2c846f0cbd76803fd04d1814a4416f171c0d222c52d2e78be64bc162e56d88
 model claude-opus-5-5
-| const initials = author.name
-|   .split(/\s+/)
-|   .filter(Boolean)
-|   .slice(0, 2)
-|   .map((part) => part[0]?.toUpperCase() ?? "")
-|   .join("");
-|
 | return (
 |   <Card className="h-full rounded-xl transition-colors hover:bg-accent">
-|     <CardHeader className="flex flex-row items-center gap-4">
-|       <div
-|         aria-hidden="true"
-|         className="flex size-12 shrink-0 items-center justify-center rounded-full bg-secondary font-heading text-base font-semibold text-secondary-foreground"
-|       >
-|         {initials || <Icons.User className="size-5" />}
-|       </div>
-|       <div className="flex min-w-0 flex-col gap-1">
-|         <CardTitle className="truncate font-heading text-lg leading-tight">
-|           {author.name}
-|         </CardTitle>
-|         <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
-|           <Icons.Cake className="size-4 shrink-0" />
-|           <span>
-|             Born <time dateTime={author.born}>{formatDate(author.born)}</time>
-|           </span>
-|         </CardDescription>
-|       </div>
-|       <CardAction className="self-center text-muted-foreground">
-|         <Icons.ChevronRight className="size-4" />
+|     <CardHeader>
+|       <CardTitle className="flex min-w-0 items-center gap-2 font-heading text-lg leading-tight">
+|         <Icons.User aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+|         <span className="truncate">{author.name}</span>
+|       </CardTitle>
+|       <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
+|         <Icons.Cake aria-hidden="true" className="size-4 shrink-0" />
+|         <span>
+|           Born <time dateTime={author.born}>{formatDate(author.born)}</time>
+|         </span>
+|       </CardDescription>
+|       <CardAction className="text-muted-foreground">
+|         <Icons.ChevronRight aria-hidden="true" className="size-4" />
 |       </CardAction>
 |     </CardHeader>
 |   </Card>
 | );
 
 component web/AuthorView
-key 1547e831209b225dccd60814a9a11fd53eceeec2667c37f10e23468b7c59c776
+key 90e9e7b75ef70d9ced178ac9743a1fac31647e6c1e155ea9a15616d4d850179c
 model claude-opus-5-5
 | const books = author.books;
 |
 | return (
-|   <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-|     <Card className="rounded-xl">
-|       <CardHeader>
-|         <CardTitle className="font-heading text-3xl tracking-tight">
-|           {author.name}
-|         </CardTitle>
-|         <CardDescription className="flex items-center gap-2 text-muted-foreground">
-|           <Icons.Cake className="size-4" />
-|           <span>Born {formatDate(author.born)}</span>
-|         </CardDescription>
-|         <CardAction>
-|           <Badge variant="secondary" className="gap-1">
-|             <Icons.BookOpen className="size-3.5" />
-|             {books.length} {books.length === 1 ? "book" : "books"}
-|           </Badge>
-|         </CardAction>
-|       </CardHeader>
-|       <Separator />
-|       <CardContent className="flex flex-col gap-4">
-|         <h2 className="font-heading text-lg font-semibold text-card-foreground">
-|           Books
-|         </h2>
-|         {books.length === 0 ? (
-|           <p className="text-sm text-muted-foreground">No books.</p>
-|         ) : (
-|           <ul className="grid gap-2 sm:grid-cols-2">
-|             {books.map((book) => (
-|               <li
-|                 key={book.id}
-|                 className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
-|               >
-|                 <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
-|                 <span className="text-sm font-medium text-foreground">
-|                   {book.title}
-|                 </span>
-|               </li>
-|             ))}
-|           </ul>
-|         )}
-|       </CardContent>
-|     </Card>
-|   </div>
+|   <Card className="rounded-xl">
+|     <CardHeader>
+|       <CardTitle className="font-heading text-3xl tracking-tight">
+|         {author.name}
+|       </CardTitle>
+|       <CardDescription className="flex items-center gap-2 text-muted-foreground">
+|         <Icons.Cake className="size-4" />
+|         <span>Born {formatDate(author.born)}</span>
+|       </CardDescription>
+|     </CardHeader>
+|     <Separator />
+|     <CardContent className="flex flex-col gap-4">
+|       <h2 className="font-heading text-lg font-semibold text-card-foreground">
+|         Books
+|       </h2>
+|       {books.length === 0 ? (
+|         <p className="text-sm text-muted-foreground">No books.</p>
+|       ) : (
+|         <ul className="grid gap-2 sm:grid-cols-2">
+|           {books.map((book) => (
+|             <li
+|               key={book.id}
+|               className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
+|             >
+|               <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
+|               <span className="text-sm font-medium text-foreground">
+|                 {book.title}
+|               </span>
+|             </li>
+|           ))}
+|         </ul>
+|       )}
+|     </CardContent>
+|   </Card>
 | );
 
 component web/BookCard
-key a927c6417ccf1a9b7cc46ca3c78f2e34aad7b5afb0d38ac7e54ebf25800ffdbd
+key 8b300f30616061e5842a7a47cf6db9624606f3acdd151c1936a605ac929dcf42
 model claude-opus-5-5
 | const genreLabel = book.genre.charAt(0).toUpperCase() + book.genre.slice(1);
 |
@@ -102,7 +80,7 @@ model claude-opus-5-5
 |       <CardDescription className="text-muted-foreground">
 |         <Link
 |           href={book.author.href}
-|           className="inline-flex items-center gap-1.5 hover:text-foreground hover:underline underline-offset-4"
+|           className="inline-flex items-center gap-1.5 underline-offset-4 hover:text-foreground hover:underline"
 |         >
 |           <Icons.User className="size-4" />
 |           {book.author.name}
@@ -120,11 +98,7 @@ model claude-opus-5-5
 |           <time dateTime={book.published}>{formatDate(book.published)}</time>
 |         </span>
 |         <span className="inline-flex items-center gap-1.5">
-|           {book.in_print ? (
-|             <Icons.BookCheck className="size-4" />
-|           ) : (
-|             <Icons.BookX className="size-4" />
-|           )}
+|           <Icons.BookOpen className="size-4" />
 |           <span>
 |             In print: <span className="text-foreground">{formatBool(book.in_print)}</span>
 |           </span>

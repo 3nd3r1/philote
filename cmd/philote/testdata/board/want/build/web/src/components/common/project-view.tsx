@@ -23,13 +23,16 @@ import { Separator } from "@/components/ui/separator";
 
 import ProjectViewActions from "@/components/common/project-view-actions";
 
-// The actions sit under the body, outside its link: the model never sees
-// them, so changing one doesn't touch the pinned body (D-020).
+// The actions sit in a bar under the body, outside its link: the model never
+// sees them, so changing one doesn't touch the pinned body (D-020). The frame
+// takes over the body card's border so the two read as one card.
 export default function ProjectView(props: ProjectViewProps) {
     return (
-        <div className="space-y-3">
+        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 *:data-[slot=card]:flex-1 *:data-[slot=card]:rounded-none *:data-[slot=card]:shadow-none *:data-[slot=card]:ring-0 [&>a>[data-slot=card]]:h-full [&>a>[data-slot=card]]:rounded-none [&>a>[data-slot=card]]:shadow-none [&>a>[data-slot=card]]:ring-0">
             <ProjectViewBody {...props} />
-            <ProjectViewActions id={props.project.id} />
+            <div className="flex justify-end border-t border-foreground/10 px-4 py-3">
+                <ProjectViewActions id={props.project.id} />
+            </div>
         </div>
     );
 }
@@ -38,49 +41,47 @@ function ProjectViewBody({ project }: ProjectViewProps): React.ReactNode {
     const { name, summary, tasks } = project;
 
     return (
-      <div className="mx-auto w-full max-w-[900px] px-4 py-10">
-        <Card className="rounded-xl">
-          <CardHeader className="gap-2">
-            <CardTitle className="font-heading text-3xl font-semibold tracking-tight text-card-foreground">
-              {name}
-            </CardTitle>
-            <CardDescription className="text-base leading-relaxed text-muted-foreground">
-              {summary}
-            </CardDescription>
-          </CardHeader>
-          <Separator orientation="horizontal" />
-          <CardContent className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <Icons.ListTodo className="size-4 text-muted-foreground" />
-              <h2 className="font-heading text-lg font-medium text-card-foreground">
-                Tasks
-              </h2>
-              <Badge variant="secondary">{tasks.length}</Badge>
-            </div>
-            {tasks.length > 0 ? (
-              <ul className="flex flex-col divide-y rounded-lg border">
-                {tasks.map((item) => (
-                  <li key={item.id}>
-                    <Link
-                      href={item.href}
-                      className="group flex items-center justify-between gap-3 px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      <span className="flex min-w-0 items-center gap-3">
-                        <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
-                        <span className="truncate">{item.title}</span>
-                      </span>
-                      <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="rounded-lg bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
-                No tasks yet.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="rounded-xl">
+        <CardHeader className="gap-2">
+          <CardTitle className="font-heading text-3xl font-semibold tracking-tight text-card-foreground">
+            {name}
+          </CardTitle>
+          <CardDescription className="text-base leading-relaxed text-muted-foreground">
+            {summary}
+          </CardDescription>
+        </CardHeader>
+        <Separator orientation="horizontal" />
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <Icons.ListTodo className="size-4 text-muted-foreground" />
+            <h2 className="font-heading text-lg font-medium text-card-foreground">
+              Tasks
+            </h2>
+            <Badge variant="secondary">{tasks.length}</Badge>
+          </div>
+          {tasks.length > 0 ? (
+            <ul className="flex flex-col divide-y rounded-lg border">
+              {tasks.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    href={item.href}
+                    className="group flex items-center justify-between gap-3 px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <span className="flex min-w-0 items-center gap-3">
+                      <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate">{item.title}</span>
+                    </span>
+                    <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="rounded-lg bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
+              No tasks yet.
+            </p>
+          )}
+        </CardContent>
+      </Card>
     );
 }

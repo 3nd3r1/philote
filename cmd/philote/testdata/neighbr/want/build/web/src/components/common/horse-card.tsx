@@ -38,28 +38,37 @@ function HorseCardBody({ horse }: HorseCardProps): React.ReactNode {
         other: "Other",
     };
 
+    const initial = horse.name.trim().charAt(0).toUpperCase();
+
     return (
-        <Card className="h-full overflow-hidden rounded-xl p-0 gap-0">
-            <div className="relative flex h-full min-h-64 flex-col justify-between gap-6 bg-muted p-5 sm:min-h-80">
-                <div className="flex items-start justify-between gap-3">
+        <Card className="h-full overflow-hidden">
+            <CardContent>
+                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-primary/10">
+                    <span
+                        className="font-heading text-8xl font-bold text-primary select-none sm:text-9xl"
+                        aria-hidden="true"
+                    >
+                        {initial}
+                    </span>
+                </div>
+            </CardContent>
+            <CardHeader className="gap-2">
+                <CardTitle className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className="min-w-0 font-heading text-2xl font-bold tracking-tight break-words text-card-foreground sm:text-3xl">
+                        {horse.name}
+                    </span>
+                    <span className="font-heading text-xl font-medium text-muted-foreground tabular-nums sm:text-2xl">
+                        {horse.age}
+                        <span className="sr-only">{horse.age === 1 ? " year old" : " years old"}</span>
+                    </span>
+                </CardTitle>
+                <div>
                     <Badge variant="secondary" className="gap-1">
                         <Icons.Sparkles className="size-3" aria-hidden="true" />
                         {breedLabels[horse.breed]}
                     </Badge>
-                    <Icons.Heart className="size-5 text-muted-foreground" aria-hidden="true" />
                 </div>
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <h3 className="min-w-0 font-heading text-3xl font-bold tracking-tight break-words text-foreground sm:text-4xl">
-                        {horse.name}
-                    </h3>
-                    <span
-                        className="font-heading text-2xl font-medium text-muted-foreground sm:text-3xl"
-                        aria-label={`${horse.age} ${horse.age === 1 ? "year" : "years"} old`}
-                    >
-                        {horse.age}
-                    </span>
-                </div>
-            </div>
+            </CardHeader>
         </Card>
     );
 }

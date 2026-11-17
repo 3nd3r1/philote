@@ -23,13 +23,16 @@ import { Separator } from "@/components/ui/separator";
 
 import TaskViewActions from "@/components/common/task-view-actions";
 
-// The actions sit under the body, outside its link: the model never sees
-// them, so changing one doesn't touch the pinned body (D-020).
+// The actions sit in a bar under the body, outside its link: the model never
+// sees them, so changing one doesn't touch the pinned body (D-020). The frame
+// takes over the body card's border so the two read as one card.
 export default function TaskView(props: TaskViewProps) {
     return (
-        <div className="space-y-3">
+        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 *:data-[slot=card]:flex-1 *:data-[slot=card]:rounded-none *:data-[slot=card]:shadow-none *:data-[slot=card]:ring-0 [&>a>[data-slot=card]]:h-full [&>a>[data-slot=card]]:rounded-none [&>a>[data-slot=card]]:shadow-none [&>a>[data-slot=card]]:ring-0">
             <TaskViewBody {...props} />
-            <TaskViewActions id={props.task.id} />
+            <div className="flex justify-end border-t border-foreground/10 px-4 py-3">
+                <TaskViewActions id={props.task.id} />
+            </div>
         </div>
     );
 }
@@ -48,61 +51,59 @@ function TaskViewBody({ task }: TaskViewProps): React.ReactNode {
     const StatusIcon = status.Icon;
 
     return (
-      <div className="mx-auto w-full max-w-[900px] px-4 py-8">
-        <Card className="rounded-xl">
-          <CardHeader>
-            <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground">
-              {task.title}
-            </CardTitle>
-            <CardAction>
-              <Badge variant={status.variant} className="gap-1">
-                <StatusIcon className="size-3.5" />
-                {status.label}
-              </Badge>
-            </CardAction>
-          </CardHeader>
-          <Separator />
-          <CardContent>
-            <dl className="grid gap-4 sm:grid-cols-3">
-              {task.due ? (
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Icons.CalendarDays className="size-4" />
-                    Due
-                  </dt>
-                  <dd className="text-sm font-medium text-card-foreground">
-                    {formatDate(task.due)}
-                  </dd>
-                </div>
-              ) : null}
+      <Card className="rounded-xl">
+        <CardHeader>
+          <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground">
+            {task.title}
+          </CardTitle>
+          <CardAction>
+            <Badge variant={status.variant} className="gap-1">
+              <StatusIcon className="size-3.5" />
+              {status.label}
+            </Badge>
+          </CardAction>
+        </CardHeader>
+        <Separator />
+        <CardContent>
+          <dl className="grid gap-4 sm:grid-cols-3">
+            {task.due ? (
               <div className="flex flex-col gap-1">
                 <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Icons.Folder className="size-4" />
-                  Project
+                  <Icons.CalendarDays className="size-4" />
+                  Due
                 </dt>
-                <dd className="text-sm font-medium">
-                  <Link
-                    href={task.project.href}
-                    className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    {task.project.name}
-                  </Link>
+                <dd className="text-sm font-medium text-card-foreground">
+                  {formatDate(task.due)}
                 </dd>
               </div>
-              {task.finished_at ? (
-                <div className="flex flex-col gap-1">
-                  <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <Icons.CheckCheck className="size-4" />
-                    Finished
-                  </dt>
-                  <dd className="text-sm font-medium text-card-foreground">
-                    {formatDateTime(task.finished_at)}
-                  </dd>
-                </div>
-              ) : null}
-            </dl>
-          </CardContent>
-        </Card>
-      </div>
+            ) : null}
+            <div className="flex flex-col gap-1">
+              <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                <Icons.Folder className="size-4" />
+                Project
+              </dt>
+              <dd className="text-sm font-medium">
+                <Link
+                  href={task.project.href}
+                  className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {task.project.name}
+                </Link>
+              </dd>
+            </div>
+            {task.finished_at ? (
+              <div className="flex flex-col gap-1">
+                <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Icons.CheckCheck className="size-4" />
+                  Finished
+                </dt>
+                <dd className="text-sm font-medium text-card-foreground">
+                  {formatDateTime(task.finished_at)}
+                </dd>
+              </div>
+            ) : null}
+          </dl>
+        </CardContent>
+      </Card>
     );
 }

@@ -49,6 +49,8 @@ Rules:
 - It renders on the server: no hooks, no state, no event handlers, no "use client".
 - Show only what the props hold. Don't invent data, placeholder text or images.
 - Show each value once. Don't repeat a field in a second place or a second format.
+- Return one Card as the root, with nothing around it and no margin, width or padding on it: the page places it, and may join a bar of actions to its bottom.
+- Keep the card parts' own layout. CardAction already sits at the top right of its CardHeader.
 - Style with Tailwind classes and the theme's variables. No inline styles, no hard-coded colors.
 - Reply with the statements in one ` + "```tsx" + ` block and nothing else.
 `)
