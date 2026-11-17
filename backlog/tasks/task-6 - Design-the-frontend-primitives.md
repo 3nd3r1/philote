@@ -1,10 +1,11 @@
 ---
 id: TASK-6
 title: Design the frontend primitives
-status: To Do
+status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-17T10:33:00Z'
+updated_date: '2026-11-17T10:37:00Z'
 labels: []
 milestone: m-6
 dependencies: []
@@ -23,3 +24,9 @@ The frontend language has three fixed page kinds (list, record, form) and a fixe
 - [ ] #2 The decision says how today's list, record and form pages are expressed in the primitives
 - [ ] #3 The user accepted the decision
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+decision-4 (proposed) written: five primitives (page load/shows, list params and uses, calls, says, nav) plus viewer, neighbr rewritten in them, mapping from list/record/form. Waiting on the user.
+<!-- SECTION:NOTES:END -->
