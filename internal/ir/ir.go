@@ -79,6 +79,15 @@ type Part struct {
 	Components []*Component // frontend only
 	Look       *Look        // frontend only: how the app looks, for the model that writes its theme
 	Nav        *Nav         // frontend only: the nav the model draws; nil for the template's top bar
+	Viewer     *Viewer      // frontend only: the record a visitor acts as; nil for none
+}
+
+// Viewer is the record a visitor picks to act as, kept in a cookie.
+type Viewer struct {
+	Entity   string
+	Resource string // the backend resource that gets it by id
+	Picker   string // the route of the page that picks it
+	Pos      diag.Pos
 }
 
 // Nav is a frontend's nav line: where it sits, and its pages in order.
@@ -119,7 +128,8 @@ type Page struct {
 type Section struct {
 	Component string
 	List      bool // the page's list, each record as one Component in a grid
-	Arg       bool // the component gets what the page loads
+	Arg       bool // the component gets what the page loads, or the viewer
+	Viewer    bool // the argument is the viewer, so the page needs one picked
 }
 
 // Component shows nothing, one record or a list. What it shows is also what
@@ -137,6 +147,7 @@ type Component struct {
 	LinkBy    []string // the param's field for each of that route's params, in order
 	LinkLabel string   // the link's button text; empty makes the whole component the link
 	Actions   []*Action
+	Picks     string // the route to go to after tapping a record makes it the viewer; empty for none
 }
 
 // ActionKind is what an action under a component does.

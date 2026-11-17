@@ -102,8 +102,41 @@ model claude-opus-5-5
 |     </Card>
 | );
 
+component web/HorsePicker
+key ce1ea5fabd5b6938fa28d689bb7512e0f560b1de5ce3dd1fb9a406aacbc54078
+model claude-opus-5-5
+| return (
+|   <section className="w-full bg-background text-foreground">
+|     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+|       <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+|         {says[0]}
+|       </h1>
+|       <div className="mt-6 grid grid-cols-2 gap-4 sm:mt-8 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5">
+|         {horses.map((item) => (
+|           <Pick key={item.id} id={item.id} className="group flex w-full flex-col items-center gap-3 rounded-xl border border-transparent p-3 text-center transition-colors hover:border-border hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4">
+|             <span
+|               aria-hidden="true"
+|               className="flex size-20 items-center justify-center rounded-full bg-primary/10 font-heading text-3xl font-semibold uppercase text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-105 sm:size-24 sm:text-4xl"
+|             >
+|               {item.name.charAt(0)}
+|             </span>
+|             <span className="flex w-full min-w-0 flex-col items-center gap-1.5">
+|               <span className="w-full truncate text-sm font-medium text-foreground sm:text-base">
+|                 {item.name}
+|               </span>
+|               <Badge variant="secondary" className="capitalize">
+|                 {item.breed}
+|               </Badge>
+|             </span>
+|           </Pick>
+|         ))}
+|       </div>
+|     </div>
+|   </section>
+| );
+
 component web/HorseView
-key c1fe9e8675f9b8de7815057184a1a90f9994ad7106a62c69279829c21eb8709d
+key 8b0d454bca70f112cdf1f7fe7b895b0e050e6ca40a8b2b88159fc48542196e49
 model claude-opus-5-5
 | const breedLabels: Record<HorseViewProps["horse"]["breed"], string> = {
 |     arabian: "Arabian",
@@ -160,6 +193,27 @@ model claude-opus-5-5
 |             </Card>
 |         </div>
 |     </section>
+| );
+
+component web/JoinHerd
+key 3b3227a2d105ec013a7273632b2e4ccc995339824dde0d6b64cfbeed2d70d878
+model claude-opus-5-5
+| return (
+|   <section className="w-full">
+|     <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-3 px-4 py-8 text-center sm:flex-row sm:gap-4 sm:px-6 sm:py-10">
+|       <p className="text-sm text-muted-foreground">{says[0]}</p>
+|       <Link
+|         href={link.href}
+|         className={cn(
+|           "inline-flex h-8 items-center justify-center gap-1.5 rounded-md border bg-background px-3 text-sm font-medium text-foreground transition-colors",
+|           "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|         )}
+|       >
+|         {link.label}
+|         <Icons.ArrowRight className="size-4" />
+|       </Link>
+|     </div>
+|   </section>
 | );
 
 component web/Landing
@@ -221,13 +275,13 @@ model claude-opus-5-5
 | );
 
 nav web/nav
-key f5be0385ec0386f15d8f6daf6e6842e600fcd11130910cdcf81549e491dc28f4
+key 6a22d5378645a9fde9d89e2ba4075310681abb720b121ffd68489d1497dd4f69
 model claude-opus-5-5
 | const iconFor: Record<string, React.ComponentType<{ className?: string }>> = {
 |   "/swipe": Icons.Heart,
 |   "/horses": Icons.PawPrint,
 |   "/matches": Icons.MessageCircleHeart,
-|   "/horses/new": Icons.CirclePlus,
+|   "/me": Icons.UserRound,
 | };
 |
 | return (
@@ -237,7 +291,7 @@ model claude-opus-5-5
 |         href={home.href}
 |         className={cn(
 |           buttonVariants({ variant: "ghost", size: "sm" }),
-|           "hidden shrink-0 rounded-xl font-heading text-base font-bold text-primary md:inline-flex"
+|           "hidden shrink-0 rounded-xl font-heading text-base font-bold text-foreground md:inline-flex"
 |         )}
 |       >
 |         <Icons.Heart className="size-5 fill-current" />
@@ -260,7 +314,7 @@ model claude-opus-5-5
 |                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
 |                 )}
 |               >
-|                 <Icon className={cn("size-5 shrink-0", isActive && "fill-current/20")} />
+|                 <Icon className="size-5 shrink-0" />
 |                 <span className="max-w-full truncate">{item.label}</span>
 |               </Link>
 |             </li>

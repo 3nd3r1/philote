@@ -47,6 +47,23 @@ check(page.includes("Edited by a form."), "/horses/[id] shows the edit");
 res = await post("/swipe", { horse, target: horse, liked: "on" });
 check(res.status === 200 && (await res.text()).includes("Same horse."), "/swipe shows a step's declared error");
 
+// Picking posts one of the picker's forms: the one around this horse.
+const picker = await (await fetch(`${web}/pick`)).text();
+const form =
+    picker
+        .split("<form")
+        .slice(1)
+        .map((f) => f.split("</form>")[0])
+        .find((f) => f.includes("Sea Biscuit")) ?? "";
+const pick = new FormData();
+for (const [, tag] of form.matchAll(/(<input[^>]*name="\$ACTION[^>]*>)/g)) {
+    const value = tag.match(/value="([^"]*)"/);
+    pick.append(decode(tag.match(/name="([^"]*)"/)[1]), value ? decode(value[1]) : "");
+}
+res = await fetch(`${web}/pick`, { method: "POST", body: pick, redirect: "manual" });
+const cookie = res.headers.get("set-cookie") ?? "";
+check(res.status === 303 && res.headers.get("location") === "/swipe" && cookie.includes(`philote-viewer=${horse}`), `/pick makes the horse the viewer and goes to /swipe (${res.status})`);
+
 if (fails > 0) {
     console.log(`forms: ${fails} failed`);
     process.exit(1);

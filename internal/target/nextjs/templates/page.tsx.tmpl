@@ -3,22 +3,28 @@ import type { Metadata } from "next";
 {{- if .ByID}}
 import { notFound } from "next/navigation";
 {{- end}}
-{{- if .Client}}
+{{- if .Async}}
 import { connection } from "next/server";
 import { Suspense } from "react";
-
+{{end}}
+{{- if .Client}}
 import * as api from "@/lib/api";
 {{- if not .ByID}}
 import { must } from "@/lib/backend";
 {{- end}}
+{{- end}}
+{{- if .Reads}}
 import { {{.Reads}} } from "@/lib/reads";
+{{- end}}
+{{- if .Viewer}}
+import { needViewer } from "@/lib/viewer";
 {{- end}}
 {{range .Components}}
 import {{.Name}} from "@/components/common/{{.File}}";
 {{- end}}
 
 export const metadata: Metadata = { title: {{.Title}} };
-{{if .Client}}
+{{if .Async}}
 export default function Page({{if .ByID}}{ params }: PageProps<"{{.Route}}">{{end}}) {
     return (
         <main className="flex flex-1 flex-col">
@@ -33,6 +39,11 @@ export default function Page({{if .ByID}}{ params }: PageProps<"{{.Route}}">{{en
 // renders not-found.tsx with noindex, but the response status stays 200{{end}}.
 async function Sections({{if .ByID}}{ params }: Pick<PageProps<"{{.Route}}">, "params">{{end}}) {
     await connection();
+{{- if .Viewer}}
+    // proxy.ts already sent a visitor without a viewer to pick one; this
+    // catches one whose viewer is gone.
+    const viewer = await needViewer();
+{{- end}}
 {{- if .ByID}}
     const { id } = await params;
     const result = await {{.Client}};
@@ -40,7 +51,7 @@ async function Sections({{if .ByID}}{ params }: Pick<PageProps<"{{.Route}}">, "p
         notFound();
     }
     const loaded = result.value;
-{{- else}}
+{{- else if .Client}}
     const loaded = await must({{.Client}});
 {{- end}}
 {{- range .Prep}}

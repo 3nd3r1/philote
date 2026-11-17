@@ -158,6 +158,9 @@ func bodyProblems(head, body string) []string {
 	if strings.Contains(head, " actions={") && strings.Count(body, "{actions}") != 1 {
 		out = append(out, "the body must render {actions} exactly once")
 	}
+	if strings.Contains(head, "import Pick from") && !strings.Contains(body, "<Pick ") {
+		out = append(out, "the body must wrap each record in <Pick id={...}>")
+	}
 	if strings.Contains(head, "<NavBody ") {
 		out = append(out, navProblems(body)...)
 	}

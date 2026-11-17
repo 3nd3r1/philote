@@ -6,5 +6,5 @@ export const nav: { href: string; label: string }[] = [
     { href: "/swipe", label: "Swipe" },
     { href: "/horses", label: "Horses" },
     { href: "/matches", label: "Matches" },
-    { href: "/horses/new", label: "Add horse" },
+    { href: "/me", label: "Me" },
 ];

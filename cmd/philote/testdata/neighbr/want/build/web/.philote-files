@@ -25,9 +25,11 @@ src/app/horses/page.tsx
 src/app/layout.tsx
 src/app/manifest.ts
 src/app/matches/page.tsx
+src/app/me/page.tsx
 src/app/not-found.tsx
 src/app/opengraph-image.tsx
 src/app/page.tsx
+src/app/pick/page.tsx
 src/app/robots.ts
 src/app/sitemap.ts
 src/app/swipe/actions.ts
@@ -36,8 +38,11 @@ src/app/swipe/page.tsx
 src/app/twitter-image.tsx
 src/components/common/form-field.tsx
 src/components/common/horse-card.tsx
+src/components/common/horse-picker-pick.tsx
+src/components/common/horse-picker.tsx
 src/components/common/horse-view-actions.tsx
 src/components/common/horse-view.tsx
+src/components/common/join-herd.tsx
 src/components/common/landing.tsx
 src/components/common/layouts/main-navbar.tsx
 src/components/common/layouts/mode-toggle.tsx
@@ -53,6 +58,7 @@ src/components/ui/native-select.tsx
 src/components/ui/separator.tsx
 src/components/ui/sonner.tsx
 src/components/ui/textarea.tsx
+src/lib/actions/horse-picker-pick.ts
 src/lib/actions/horse-view.ts
 src/lib/api.ts
 src/lib/backend.ts
@@ -64,5 +70,7 @@ src/lib/reads.ts
 src/lib/theme.ts
 src/lib/types.ts
 src/lib/utils.ts
+src/lib/viewer.ts
+src/proxy.ts
 src/validators/config.ts
 tsconfig.json

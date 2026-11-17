@@ -28,6 +28,10 @@ import { Separator } from "@/components/ui/separator";
 
 import {{.Name}}Actions from "@/components/common/{{.Actions}}";
 {{- end}}
+{{- if .Pick}}
+
+import Pick from "@/components/common/{{.Pick}}";
+{{- end}}
 
 {{- if or .Props .Extras}}
 

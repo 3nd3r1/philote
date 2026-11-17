@@ -50,6 +50,9 @@ Already imported. Use only these:
 	if c.LinksTo != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" }) {
 		b.WriteString("- Link from next/link.\n")
 	}
+	if c.Picks != "" {
+		b.WriteString("- Pick({ id, className, children }): the button that picks one record.\n")
+	}
 	b.WriteString(`
 Rules:
 - Write only the statements inside the function, ending with a return of JSX. No imports, no other functions.
@@ -85,6 +88,9 @@ func placed(b *strings.Builder, c *ir.Component) {
 	}
 	if len(c.Actions) > 0 {
 		b.WriteString("\nactions holds the record's buttons. Render {actions} exactly once, where buttons belong, like the bottom of the card.\n")
+	}
+	if c.Picks != "" {
+		fmt.Fprintf(b, "\nTapping a %[1]s makes it the visitor's own %[1]s. Wrap what shows each record in <Pick id={item.id} className=\"...\">...</Pick>, exactly one Pick per record: it renders a <button> with your className around its children, so style it as the tappable thing.\n", c.Entity)
 	}
 	if len(c.Says) > 0 {
 		b.WriteString("\nsays holds the spec's words, in order. Render each one exactly once, as {says[0]} and so on, never retyped:\n")

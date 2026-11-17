@@ -10,6 +10,7 @@ import (
 func TestCheckBodies(t *testing.T) {
 	const says = "const says = [\"Find your herd.\", \"Say \\\"hi\\\"]\"] as const;\n"
 	const linked = "export default function X(props: XProps) {\n    return <XBody {...props} link={{ href: \"/a\" }} actions={<XActions id={props.x.id} />} />;\n}\n"
+	const picker = "import Pick from \"@/components/common/x-pick\";\n"
 	files := map[string]struct {
 		head, body string
 		want       []string
@@ -20,6 +21,8 @@ func TestCheckBodies(t *testing.T) {
 		"unlinked.tsx": {linked, "return <div>{actions}{actions}</div>;", []string{
 			"the body must link to link.href", "the body must render {actions} exactly once",
 		}},
+		"picker.tsx":   {picker, "return <ul>{x.map((item) => <Pick key={item.id} id={item.id}>{item.name}</Pick>)}</ul>;", nil},
+		"unpicked.tsx": {picker, "return <ul>{x.map((item) => <li key={item.id}>{item.name}</li>)}</ul>;", []string{"the body must wrap each record in <Pick id={...}>"}},
 	}
 	dir := t.TempDir()
 	common := filepath.Join(dir, "src/components/common")

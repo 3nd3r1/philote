@@ -69,6 +69,11 @@ func (c *checker) pageLoad(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
 		}
 		return true
 	}
+	if s.Load.Name.Name == "viewer" {
+		c.d.Errorf(s.Load.Name.Pos, "viewer is the app's viewer; name what the page loads something else")
+		c.d.Hint("show the viewer with `shows: <Component>(viewer)`")
+		return false
+	}
 	from := s.Load.Name
 	if s.Load.From != nil {
 		from = *s.Load.From
@@ -120,7 +125,7 @@ func (c *checker) pageSections(pg *ir.Page, part *ir.Part, s *syntax.Page) bool 
 			ok = false
 		}
 	}
-	if pg.Load != "" && !slices.ContainsFunc(pg.Sections, func(x *ir.Section) bool { return x.Arg }) {
+	if pg.Load != "" && !slices.ContainsFunc(pg.Sections, func(x *ir.Section) bool { return x.Arg && !x.Viewer }) {
 		c.d.Errorf(s.Load.Name.Pos, "the page loads %s but shows nothing with it", pg.Load)
 		c.d.Hint("pass it to a component, like `shows: <Component>(%s)`", pg.Load)
 		return false
@@ -143,6 +148,8 @@ func (c *checker) section(pg *ir.Page, part *ir.Part, s syntax.Section) *ir.Sect
 		c.d.Errorf(s.Component.Pos, "a list of %s needs a list to show, like list of %s(%s)", comp.Name, comp.Name, or(pg.Load, "<load>"))
 	case s.Arg == nil:
 		return sec
+	case s.Arg.Name == "viewer":
+		return c.viewerSection(part, comp, sec, s)
 	case s.Arg.Name != pg.Load:
 		c.d.Errorf(s.Arg.Pos, "the page loads nothing named %s", s.Arg.Name)
 		if pg.Load != "" {

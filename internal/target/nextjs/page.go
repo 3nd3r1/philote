@@ -3,6 +3,7 @@ package nextjs
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/3nd3r1/philote/internal/ir"
@@ -15,6 +16,8 @@ type pageView struct {
 	Route, Title, NotFound string
 	Client                 string // the client call that loads the page's data; empty for none
 	ByID                   bool
+	Viewer                 bool   // the page shows the viewer
+	Async                  bool   // the page loads data or the viewer, so its sections stream in
 	Reads                  string // imports from @/lib/reads
 	Components             []componentImport
 	Prep                   []string // statements that read each section's props
@@ -78,11 +81,20 @@ func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
 		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props))
 	}
 	v.Reads = strings.Join(sortedKeys(reads), ", ")
+	v.Viewer = showsViewer(pg)
+	v.Async = v.Client != "" || v.Viewer
 	return v
+}
+
+func showsViewer(pg *ir.Page) bool {
+	return slices.ContainsFunc(pg.Sections, func(s *ir.Section) bool { return s.Viewer })
 }
 
 // sectionPrep reads a section's props from what the page loaded.
 func sectionPrep(c *ir.Component, sec *ir.Section, props string) string {
+	if sec.Viewer {
+		return fmt.Sprintf("const %s = await read%s(viewer);", props, c.Name)
+	}
 	if sec.List {
 		return fmt.Sprintf("const %s = await Promise.all(loaded.map(read%s));", props, c.Name)
 	}
@@ -94,6 +106,7 @@ func sectionPrep(c *ir.Component, sec *ir.Section, props string) string {
 func sectionJSX(pg *ir.Page, c *ir.Component, sec *ir.Section, props string) string {
 	empty := `<p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{` + jsString(pg.Empty) + `}</p>`
 	switch {
+	case sec.Viewer:
 	case sec.List:
 		return fmt.Sprintf(`{%[2]s.length === 0 ? (
                 %[3]s

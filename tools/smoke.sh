@@ -90,6 +90,10 @@ page "/horses/$biscuit" "/horses/$biscuit/edit"
 page /horses/nope "That horse doesn"
 page /matches "Mister Ed"
 page /matches "Shadowfax"
+# A page that shows the viewer sends a visitor who hasn't picked one to the picker.
+got=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' localhost:3998/me)
+if [ "$got" = "307 http://localhost:3998/pick" ]; then echo "ok   page /me without a viewer goes to /pick"; else echo "FAIL page /me without a viewer: $got"; fails=$((fails + 1)); fi
+if curl -s -b "philote-viewer=$biscuit" localhost:3998/me | grep -q "sea-biscuit"; then echo "ok   page /me shows the viewer"; else echo "FAIL page /me doesn't show the viewer"; fails=$((fails + 1)); fi
 [ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
 node "$root/tools/smoke-forms.mjs" http://localhost:3998 "$biscuit"
 echo "smoke: all requests behaved"

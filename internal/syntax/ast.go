@@ -130,6 +130,13 @@ type Look struct {
 	Value *Str
 }
 
+// Viewer is `viewer: <Entity>` in a frontend: the record a visitor picks
+// to act as, kept in a cookie until auth replaces the picker.
+type Viewer struct {
+	Word   Ident
+	Entity Ident
+}
+
 // Nav is `nav: <place>, "<route>" [as "<label>"], ...` in a frontend:
 // where the app's nav sits, and the pages it links to, in order.
 type Nav struct {
@@ -189,6 +196,8 @@ type Component struct {
 	LinkLabel *Str
 	Look      *Str
 	Actions   []Action
+	Picks     *Ident // `picks: viewer then "<route>"`: tapping a record makes it the viewer
+	PicksThen *Str
 }
 
 // Action is something a component's record can have done to it: `open
@@ -218,5 +227,6 @@ func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
 func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
 func (l *Look) Start() diag.Pos      { return l.Word.Pos }
 func (n *Nav) Start() diag.Pos       { return n.Word.Pos }
+func (v *Viewer) Start() diag.Pos    { return v.Word.Pos }
 func (p *Page) Start() diag.Pos      { return p.Word.Pos }
 func (c *Component) Start() diag.Pos { return c.Name.Pos }

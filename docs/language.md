@@ -80,6 +80,7 @@ frontend web: nextjs {
   uses: api
   look: "calm and focused; deep green, rounded cards"   // optional, up to 200 chars
   nav: bottom, "/tasks" as "Tasks", "/projects"           // optional
+  viewer: Member                                          // optional
   ...
 }
 ```
@@ -87,6 +88,25 @@ frontend web: nextjs {
 The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
 
 The nav sits at the `top`, `bottom` or `side` and links to pages without `[id]`, in order. An item's text is its `as` label, up to 24 characters, or the page's title. The template keeps the nav in its place and finds the active item; the model draws the nav from the look, pinned as `web/nav`. Changing an item rewrites only the nav. Without a nav line the app gets a plain top bar with every page that has no `[id]`, other than `/`, then the forms, and no model call.
+
+The viewer is the record a visitor acts as, until there's auth: they pick one, and the app remembers it in a cookie. `C(viewer)` shows it on a page. A component that takes a `list of` the viewer's entity picks it with `picks: viewer then "<route>"`: tapping a record makes it the viewer and opens the route. Exactly one page shows such a component, and a page that shows the viewer sends a visitor who hasn't picked one there first. The backend needs a resource that gets the viewer's entity by id.
+
+```
+page "/pick" {
+  load: members
+  shows: MemberPicker(members)
+  empty: "No members yet."
+}
+
+page "/me" {
+  shows: MemberView(viewer)
+}
+
+component MemberPicker(members: list of Member) {
+  shows: members.name
+  picks: viewer then "/tasks"
+}
+```
 
 A page loads data and shows components, in order. Each component is a full-width section.
 

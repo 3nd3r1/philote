@@ -22,6 +22,7 @@ type componentView struct {
 	Says         string // the says array's items, as JavaScript strings
 	BodyArgs     string // the body's parameter list
 	Actions      string // the actions file the body places, empty for none
+	Pick         string // the pick button the body wraps each record in, empty for none
 	ImportLink   bool   // the body renders a Link
 }
 
@@ -53,6 +54,7 @@ func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error
 		path := "src/components/common/" + kebab(c.Name) + ".tsx"
 		files = append(files, render("component.tsx.tmpl", path, newComponentView(c)))
 		files = append(files, actionFiles(app, part, c)...)
+		files = append(files, pickFiles(c)...)
 		slots = append(slots, target.Slot{
 			Node:   part.Name + "/" + c.Name,
 			File:   path,
@@ -104,6 +106,9 @@ func newComponentView(c *ir.Component) componentView {
 		extras = append(extras, fmt.Sprintf(" actions={<%sActions id={props.%s.id} />}", c.Name, c.Param))
 	}
 	v.Extras = strings.Join(extras, "")
+	if c.Picks != "" {
+		v.Pick = kebab(c.Name) + "-pick"
+	}
 	if len(c.Says) > 0 {
 		v.Says = strings.Join(jsStrings(c.Says), ", ")
 	}

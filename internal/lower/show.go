@@ -88,6 +88,13 @@ func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 	if p.Look != nil {
 		fmt.Fprintf(b, "    theme: from its look\n")
 	}
+	if v := p.Viewer; v != nil {
+		fmt.Fprintf(b, "    viewer: %s from %s", v.Entity, v.Resource)
+		if v.Picker != "" {
+			fmt.Fprintf(b, ", picked on %s", v.Picker)
+		}
+		b.WriteString("\n")
+	}
 	if p.Nav != nil {
 		items := []string{p.Nav.Place}
 		for _, it := range p.Nav.Items {
@@ -111,7 +118,10 @@ func pageSummary(pg *ir.Page) string {
 	var shows []string
 	for _, s := range pg.Sections {
 		show := s.Component
-		if s.Arg {
+		switch {
+		case s.Viewer:
+			show += "(viewer)"
+		case s.Arg:
 			show += "(" + pg.Load + ")"
 		}
 		if s.List {
@@ -166,6 +176,9 @@ func componentTree(b *strings.Builder, c *ir.Component, depth int) {
 	}
 	for _, a := range c.Actions {
 		fmt.Fprintf(b, "      %s\n", action(a))
+	}
+	if c.Picks != "" {
+		fmt.Fprintf(b, "      picks the viewer, then %s\n", c.Picks)
 	}
 }
 

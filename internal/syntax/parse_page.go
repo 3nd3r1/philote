@@ -81,7 +81,7 @@ func (p *parser) component() Item {
 	if p.peek().kind == tLParen {
 		c.Params = p.componentParams()
 	}
-	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions"}, func(key Ident) {
+	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions", "picks"}, func(key Ident) {
 		switch key.Name {
 		case "shows":
 			c.Shows = append(c.Shows, p.show())
@@ -104,6 +104,11 @@ func (p *parser) component() Item {
 			}
 		case "look":
 			c.Look = p.str("how it should look, in one sentence")
+		case "picks":
+			picks := p.ident("what tapping a record picks: viewer")
+			c.Picks = &picks
+			p.word("then")
+			c.PicksThen = p.str(`the route to go to after picking, like "/discover"`)
 		case "actions":
 			c.Actions = append(c.Actions, p.action())
 			for p.peek().kind == tComma {

@@ -7,6 +7,24 @@ import { horses } from "@/lib/api";
 import { must } from "@/lib/backend";
 import type { Horse, Match } from "@/lib/types";
 
+export type HorsePickerProps = {
+    horses: Array<Pick<Horse, "id" | "name" | "breed">>;
+};
+
+export async function readHorsePicker(horses: Horse[]): Promise<HorsePickerProps> {
+    return {
+        horses: await Promise.all(
+            horses.map(async (record) => {
+                return {
+                    id: record.id,
+                    name: record.name,
+                    breed: record.breed,
+                };
+            }),
+        ),
+    };
+}
+
 export type HorseCardProps = {
     horse: Pick<Horse, "id" | "name" | "breed" | "age">;
 };

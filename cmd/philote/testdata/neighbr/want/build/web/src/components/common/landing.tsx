@@ -22,7 +22,7 @@ import { Separator } from "@/components/ui/separator";
 
 // The wrapper hands the body its props, and the link and actions it places.
 export default function Landing() {
-    return <LandingBody link={{ href: "/swipe", label: "Start swiping" }} />;
+    return <LandingBody link={{ href: "/pick", label: "Start swiping" }} />;
 }
 
 // The spec's words for Landing, in order. The body shows every one.

@@ -42,7 +42,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	pageFiles, navItems := pages(app, backend, part)
 	navFiles, navSlots := nav(app, part, navItems)
 	slots = slices.Concat(slots, themeSlots, navSlots)
-	generated := slices.Concat(views, navFiles, []target.File{
+	generated := slices.Concat(views, navFiles, viewerFiles(part), []target.File{
 		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
 			jsString(app.Name), jsString("The " + app.Name + " app, built by philote."),

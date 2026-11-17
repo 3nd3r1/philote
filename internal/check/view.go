@@ -41,6 +41,7 @@ func (c *checker) views(f *frontendSrc, backend *ir.Part) {
 			relationLinks(f.part, comp)
 		}
 		c.actions(f.part, backend, comp, srcs[comp].Actions)
+		c.picks(f.part, comp, srcs[comp])
 	}
 }
 

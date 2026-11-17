@@ -145,7 +145,7 @@ func (p *parser) skipStatement() {
 	}
 }
 
-const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, uses, look, nav, page, component, or a relation like `Order has many lines: OrderLine`"
+const statementHint = "statements are app, backend, frontend, enum, entity, resource, endpoint, step, uses, look, nav, viewer, page, component, or a relation like `Order has many lines: OrderLine`"
 
 func (p *parser) item() Item {
 	t := p.peek()
@@ -173,6 +173,8 @@ func (p *parser) item() Item {
 		return p.look()
 	case "nav":
 		return p.nav()
+	case "viewer":
+		return p.viewer()
 	case "page":
 		return p.page()
 	case "component":
@@ -211,40 +213,6 @@ func (p *parser) part() Item {
 	}
 	p.endStatement()
 	return pt
-}
-
-func (p *parser) uses() Item {
-	u := &Uses{Word: p.ident("uses")}
-	p.expect(tColon, "':' and a backend part, like `uses: api`")
-	u.Part = p.ident("a backend part name")
-	p.endStatement()
-	return u
-}
-
-func (p *parser) look() Item {
-	l := &Look{Word: p.ident("look")}
-	p.expect(tColon, "':' and how the app should look, in one sentence")
-	l.Value = p.str("how the app should look, in one sentence")
-	p.endStatement()
-	return l
-}
-
-func (p *parser) nav() Item {
-	n := &Nav{Word: p.ident("nav")}
-	p.expect(tColon, "':', where the nav sits and its pages, like `nav: bottom, \"/horses\" as \"Horses\"`")
-	n.Place = p.ident("where the nav sits: top, bottom or side")
-	for p.peek().kind == tComma {
-		p.next()
-		p.skipNewlines()
-		it := NavItem{Route: p.str(`a page's route, like "/horses"`)}
-		if p.isWord("as") {
-			p.next()
-			it.Label = p.str("the item's text, in quotes")
-		}
-		n.Items = append(n.Items, it)
-	}
-	p.endStatement()
-	return n
 }
 
 func (p *parser) enum() Item {
