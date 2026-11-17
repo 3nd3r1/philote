@@ -21,15 +21,12 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+// The wrapper hands the body its props, and the link and actions it places.
 export default function HorseCard(props: HorseCardProps) {
-    return (
-        <Link href={`/horses/${encodeURIComponent(props.horse.id)}`} className="block transition-transform hover:-translate-y-0.5">
-            <HorseCardBody {...props} />
-        </Link>
-    );
+    return <HorseCardBody {...props} link={{ href: `/horses/${encodeURIComponent(props.horse.id)}` }} />;
 }
 
-function HorseCardBody({ horse }: HorseCardProps): React.ReactNode {
+function HorseCardBody({ horse, link }: HorseCardProps & { link: { href: string } }): React.ReactNode {
     const breedLabels: Record<HorseCardProps["horse"]["breed"], string> = {
         arabian: "Arabian",
         mustang: "Mustang",
@@ -41,7 +38,7 @@ function HorseCardBody({ horse }: HorseCardProps): React.ReactNode {
     const initial = horse.name.trim().charAt(0).toUpperCase();
 
     return (
-        <Card className="h-full overflow-hidden">
+        <Card className="relative h-full overflow-hidden transition-shadow hover:ring-2 hover:ring-ring/40">
             <CardContent>
                 <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-primary/10">
                     <span
@@ -54,12 +51,14 @@ function HorseCardBody({ horse }: HorseCardProps): React.ReactNode {
             </CardContent>
             <CardHeader className="gap-2">
                 <CardTitle className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
-                    <span className="min-w-0 font-heading text-2xl font-bold tracking-tight break-words text-card-foreground sm:text-3xl">
+                    <Link
+                        href={link.href}
+                        className="min-w-0 font-heading text-2xl font-bold tracking-tight break-words text-card-foreground outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring sm:text-3xl"
+                    >
                         {horse.name}
-                    </span>
+                    </Link>
                     <span className="font-heading text-xl font-medium text-muted-foreground tabular-nums sm:text-2xl">
                         {horse.age}
-                        <span className="sr-only">{horse.age === 1 ? " year old" : " years old"}</span>
                     </span>
                 </CardTitle>
                 <div>

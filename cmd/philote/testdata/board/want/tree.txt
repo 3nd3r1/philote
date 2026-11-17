@@ -17,11 +17,11 @@ board
       POST /complete
       steps: finish_task
   web (frontend, nextjs) uses api
-    /projects: list of ProjectCard
-    /projects/[id]: ProjectView
+    /projects: load projects from projects, list of ProjectCard(projects)
+    /projects/[id]: load project from projects by id, ProjectView(project)
     /projects/new: form projects.create, then /projects/[id]
     /tasks/new: form tasks.create, then /projects
-    /tasks/[id]: TaskView
+    /tasks/[id]: load task from tasks by id, TaskView(task)
     /complete: form complete, then /tasks/[id]
     ProjectCard(project: Project)
       shows: project.name, project.summary

@@ -3,11 +3,11 @@ import type { Metadata } from "next";
 {{- if .ByID}}
 import { notFound } from "next/navigation";
 {{- end}}
-{{- if .Load}}
+{{- if .Client}}
 import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { {{.ClientName}} } from "@/lib/api";
+import * as api from "@/lib/api";
 {{- if not .ByID}}
 import { must } from "@/lib/backend";
 {{- end}}
@@ -18,7 +18,7 @@ import {{.Name}} from "@/components/common/{{.File}}";
 {{- end}}
 
 export const metadata: Metadata = { title: {{.Title}} };
-{{if .Load}}
+{{if .Client}}
 export default function Page({{if .ByID}}{ params }: PageProps<"{{.Route}}">{{end}}) {
     return (
         <main className="flex flex-1 flex-col">
@@ -39,9 +39,9 @@ async function Sections({{if .ByID}}{ params }: Pick<PageProps<"{{.Route}}">, "p
     if (!result.ok) {
         notFound();
     }
-    const {{.Load}} = result.value;
+    const loaded = result.value;
 {{- else}}
-    const {{.Load}} = await must({{.Client}});
+    const loaded = await must({{.Client}});
 {{- end}}
 {{- range .Prep}}
     {{.}}

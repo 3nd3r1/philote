@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+// The wrapper hands the body its props.
 export default function MatchCard(props: MatchCardProps) {
     return <MatchCardBody {...props} />;
 }
@@ -37,8 +38,7 @@ function MatchCardBody({ match }: MatchCardProps): React.ReactNode {
                         {match.first.name}
                     </Link>
                     <span
-                        role="img"
-                        aria-label="matched with"
+                        aria-hidden="true"
                         className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
                     >
                         <Icons.Heart className="size-5 fill-current" aria-hidden="true" />

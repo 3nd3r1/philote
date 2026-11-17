@@ -11,12 +11,14 @@ src/app/horses/new/form.tsx
 src/app/horses/new/page.tsx
 src/app/horses/page.tsx
 src/app/matches/page.tsx
+src/app/page.tsx
 src/app/swipe/actions.ts
 src/app/swipe/form.tsx
 src/app/swipe/page.tsx
 src/components/common/horse-card.tsx
 src/components/common/horse-view-actions.tsx
 src/components/common/horse-view.tsx
+src/components/common/landing.tsx
 src/components/common/match-card.tsx
 src/lib/actions/horse-view.ts
 src/lib/api.ts

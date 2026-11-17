@@ -21,20 +21,22 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+// The wrapper hands the body its props, and the link and actions it places.
 export default function ProjectCard(props: ProjectCardProps) {
-    return (
-        <Link href={`/projects/${encodeURIComponent(props.project.id)}`} className="block transition-transform hover:-translate-y-0.5">
-            <ProjectCardBody {...props} />
-        </Link>
-    );
+    return <ProjectCardBody {...props} link={{ href: `/projects/${encodeURIComponent(props.project.id)}` }} />;
 }
 
-function ProjectCardBody({ project }: ProjectCardProps): React.ReactNode {
+function ProjectCardBody({ project, link }: ProjectCardProps & { link: { href: string } }): React.ReactNode {
     return (
-      <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+      <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
         <CardHeader>
           <CardTitle className="font-heading text-lg leading-snug text-card-foreground">
-            {project.name}
+            <Link
+              href={link.href}
+              className="rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {project.name}
+            </Link>
           </CardTitle>
           <CardDescription className="line-clamp-3 text-muted-foreground">
             {project.summary}

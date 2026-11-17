@@ -14,9 +14,9 @@ library
       PATCH /books/[id]
       DELETE /books/[id]
   web (frontend, nextjs) uses api
-    /authors: list of AuthorCard
-    /authors/[id]: AuthorView
-    /books: list of BookCard
+    /authors: load authors from authors, list of AuthorCard(authors)
+    /authors/[id]: load author from authors by id, AuthorView(author)
+    /books: load books from books, BookShelf(books)
     /books/new: form books.create, then /books
     AuthorCard(author: Author)
       shows: author.name, author.born
@@ -24,9 +24,9 @@ library
       deletes via authors.delete
     AuthorView(author: Author)
       shows: author.name, author.born, author.books as chips
-    BookCard(book: Book)
-      shows: book.title, book.author, book.genre, book.published, book.in_print
-      book.author links to /authors/[id]
+    BookShelf(books: list of Book)
+      shows: books.title, books.author, books.genre, books.published, books.in_print
+      books.author links to /authors/[id]
   data (2 entities)
     Author
     Book

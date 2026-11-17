@@ -21,12 +21,16 @@ neighbr
       steps: record_swipe, match_if_mutual
   web (frontend, nextjs) uses api
     theme: from its look
-    /horses: list of HorseCard
-    /horses/[id]: HorseView
-    /matches: list of MatchCard
+    /: load horses from horses, Landing, list of HorseCard(horses)
+    /horses: load horses from horses, list of HorseCard(horses)
+    /horses/[id]: load horse from horses by id, HorseView(horse)
+    /matches: load matches from matches, list of MatchCard(matches)
     /horses/new: form horses.create, then /horses/[id]
     /horses/[id]/edit: form horses.update, then /horses/[id]
     /swipe: form swipe, then /matches
+    Landing
+      says: Find your herd. / Swipe on horses near you. Match when it's mutual.
+      links to /swipe
     HorseCard(horse: Horse)
       shows: horse.name, horse.breed, horse.age
       links to /horses/[id]

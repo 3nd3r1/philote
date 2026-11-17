@@ -22,21 +22,12 @@ import { Separator } from "@/components/ui/separator";
 
 import HorseViewActions from "@/components/common/horse-view-actions";
 
-// The actions sit in a bar under the body, outside its link: the model never
-// sees them, so changing one doesn't touch the pinned body (D-020). The frame
-// takes over the body card's border so the two read as one card.
+// The wrapper hands the body its props, and the link and actions it places.
 export default function HorseView(props: HorseViewProps) {
-    return (
-        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 *:data-[slot=card]:flex-1 *:data-[slot=card]:rounded-none *:data-[slot=card]:shadow-none *:data-[slot=card]:ring-0 [&>a>[data-slot=card]]:h-full [&>a>[data-slot=card]]:rounded-none [&>a>[data-slot=card]]:shadow-none [&>a>[data-slot=card]]:ring-0">
-            <HorseViewBody {...props} />
-            <div className="flex justify-end border-t border-foreground/10 px-4 py-3">
-                <HorseViewActions id={props.horse.id} />
-            </div>
-        </div>
-    );
+    return <HorseViewBody {...props} actions={<HorseViewActions id={props.horse.id} />} />;
 }
 
-function HorseViewBody({ horse }: HorseViewProps): React.ReactNode {
+function HorseViewBody({ horse, actions }: HorseViewProps & { actions: React.ReactNode }): React.ReactNode {
     const breedLabels: Record<HorseViewProps["horse"]["breed"], string> = {
         arabian: "Arabian",
         mustang: "Mustang",
@@ -48,39 +39,49 @@ function HorseViewBody({ horse }: HorseViewProps): React.ReactNode {
     const breedLabel = breedLabels[horse.breed];
 
     return (
-        <Card className="overflow-hidden rounded-xl">
-            <CardHeader className="gap-3 pt-6">
-                <div className="flex flex-col gap-1">
-                    <CardTitle className="font-heading text-4xl font-bold tracking-tight break-words sm:text-5xl">
-                        {horse.name}
-                        <span className="text-muted-foreground font-normal">, {horse.age}</span>
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground text-base break-all">
-                        @{horse.handle}
-                    </CardDescription>
-                </div>
-                <CardAction>
-                    <Icons.Heart className="text-primary size-6" aria-hidden="true" />
-                </CardAction>
-                <div className="flex flex-wrap items-center gap-2">
-                    <Badge variant="default" className="gap-1">
-                        <Icons.Sparkles className="size-3.5" aria-hidden="true" />
-                        {breedLabel}
-                    </Badge>
-                </div>
-            </CardHeader>
+        <section className="bg-background text-foreground w-full">
+            <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+                <Card className="overflow-hidden rounded-xl">
+                    <CardHeader className="gap-3 pt-6">
+                        <div className="flex min-w-0 flex-col gap-1">
+                            <CardTitle className="font-heading text-4xl font-bold tracking-tight break-words sm:text-5xl">
+                                {horse.name}
+                                <span className="text-muted-foreground font-normal">, {horse.age}</span>
+                            </CardTitle>
+                            <CardDescription className="text-muted-foreground text-base break-all">
+                                @{horse.handle}
+                            </CardDescription>
+                        </div>
+                        <CardAction>
+                            <Icons.Heart className="text-primary size-6" aria-hidden="true" />
+                        </CardAction>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="default" className="gap-1">
+                                <Icons.Sparkles className="size-3.5" aria-hidden="true" />
+                                {breedLabel}
+                            </Badge>
+                        </div>
+                    </CardHeader>
 
-            <Separator />
+                    <Separator />
 
-            <CardContent className="flex flex-col gap-3 py-6">
-                <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
-                    <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
-                    About
-                </h2>
-                <p className="text-card-foreground leading-relaxed whitespace-pre-line break-words">
-                    {horse.bio}
-                </p>
-            </CardContent>
-        </Card>
+                    <CardContent className="flex flex-col gap-3 py-6">
+                        <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
+                            <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
+                            Bio
+                        </h2>
+                        <p className="text-card-foreground leading-relaxed whitespace-pre-line break-words">
+                            {horse.bio}
+                        </p>
+                    </CardContent>
+
+                    <Separator />
+
+                    <CardFooter className="flex flex-wrap items-center justify-end gap-2 py-4">
+                        {actions}
+                    </CardFooter>
+                </Card>
+            </div>
+        </section>
     );
 }

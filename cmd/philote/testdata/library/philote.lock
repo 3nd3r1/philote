@@ -2,14 +2,19 @@
 # Commit this file and review its diff like code. Don't edit it by hand.
 
 component web/AuthorCard
-key 4f2c846f0cbd76803fd04d1814a4416f171c0d222c52d2e78be64bc162e56d88
+key 1eda170b06e4edeef4e6d75125d7423d426e1cc451ceb4b3e5e9868c5aaf1e03
 model claude-opus-5-5
 | return (
-|   <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+|   <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
 |     <CardHeader>
 |       <CardTitle className="flex min-w-0 items-center gap-2 font-heading text-lg leading-tight">
 |         <Icons.User aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-|         <span className="truncate">{author.name}</span>
+|         <Link
+|           href={link.href}
+|           className="truncate rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
+|         >
+|           {author.name}
+|         </Link>
 |       </CardTitle>
 |       <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
 |         <Icons.Cake aria-hidden="true" className="size-4 shrink-0" />
@@ -21,89 +26,117 @@ model claude-opus-5-5
 |         <Icons.ChevronRight aria-hidden="true" className="size-4" />
 |       </CardAction>
 |     </CardHeader>
+|     <CardFooter className="relative z-10 mt-auto flex flex-wrap items-center gap-2">
+|       {actions}
+|     </CardFooter>
 |   </Card>
 | );
 
 component web/AuthorView
-key 90e9e7b75ef70d9ced178ac9743a1fac31647e6c1e155ea9a15616d4d850179c
+key 19868157123ce91a29d151862a7d444f8a357cf730b702946465da8782d15541
 model claude-opus-5-5
 | const books = author.books;
 |
 | return (
-|   <Card className="rounded-xl">
-|     <CardHeader>
-|       <CardTitle className="font-heading text-3xl tracking-tight">
-|         {author.name}
-|       </CardTitle>
-|       <CardDescription className="flex items-center gap-2 text-muted-foreground">
-|         <Icons.Cake className="size-4" />
-|         <span>Born {formatDate(author.born)}</span>
-|       </CardDescription>
-|     </CardHeader>
-|     <Separator />
-|     <CardContent className="flex flex-col gap-4">
-|       <h2 className="font-heading text-lg font-semibold text-card-foreground">
-|         Books
-|       </h2>
-|       {books.length === 0 ? (
-|         <p className="text-sm text-muted-foreground">No books.</p>
-|       ) : (
-|         <ul className="grid gap-2 sm:grid-cols-2">
-|           {books.map((book) => (
-|             <li
-|               key={book.id}
-|               className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
-|             >
-|               <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
-|               <span className="text-sm font-medium text-foreground">
-|                 {book.title}
-|               </span>
-|             </li>
-|           ))}
-|         </ul>
-|       )}
-|     </CardContent>
-|   </Card>
+|   <section className="w-full bg-background text-foreground">
+|     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+|       <Card className="rounded-xl">
+|         <CardHeader className="gap-2">
+|           <CardTitle className="font-heading text-2xl tracking-tight sm:text-3xl">
+|             {author.name}
+|           </CardTitle>
+|           <CardDescription className="flex items-center gap-2 text-muted-foreground">
+|             <Icons.Cake className="size-4 shrink-0" />
+|             <span>Born {formatDate(author.born)}</span>
+|           </CardDescription>
+|         </CardHeader>
+|         <Separator />
+|         <CardContent className="flex flex-col gap-4">
+|           <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-card-foreground">
+|             Books
+|             <Badge variant="secondary">{books.length}</Badge>
+|           </h2>
+|           {books.length > 0 && (
+|             <ul className="grid gap-2 sm:grid-cols-2">
+|               {books.map((book) => (
+|                 <li
+|                   key={book.id}
+|                   className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
+|                 >
+|                   <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
+|                   <span className="text-sm font-medium text-foreground">
+|                     {book.title}
+|                   </span>
+|                 </li>
+|               ))}
+|             </ul>
+|           )}
+|         </CardContent>
+|       </Card>
+|     </div>
+|   </section>
 | );
 
-component web/BookCard
-key 8b300f30616061e5842a7a47cf6db9624606f3acdd151c1936a605ac929dcf42
+component web/BookShelf
+key 3736ea797b723506325d95efb5e16d2f00e337e053b0ec2d90e149199dbd480c
 model claude-opus-5-5
-| const genreLabel = book.genre.charAt(0).toUpperCase() + book.genre.slice(1);
-|
 | return (
-|   <Card className="h-full rounded-xl bg-card text-card-foreground">
-|     <CardHeader>
-|       <CardTitle className="font-heading text-lg leading-snug">
-|         {book.title}
-|       </CardTitle>
-|       <CardDescription className="text-muted-foreground">
-|         <Link
-|           href={book.author.href}
-|           className="inline-flex items-center gap-1.5 underline-offset-4 hover:text-foreground hover:underline"
-|         >
-|           <Icons.User className="size-4" />
-|           {book.author.name}
-|         </Link>
-|       </CardDescription>
-|       <CardAction>
-|         <Badge variant="secondary">{genreLabel}</Badge>
-|       </CardAction>
-|     </CardHeader>
-|     <CardContent className="mt-auto">
-|       <Separator className="mb-4" />
-|       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-|         <span className="inline-flex items-center gap-1.5">
-|           <Icons.Calendar className="size-4" />
-|           <time dateTime={book.published}>{formatDate(book.published)}</time>
-|         </span>
-|         <span className="inline-flex items-center gap-1.5">
-|           <Icons.BookOpen className="size-4" />
-|           <span>
-|             In print: <span className="text-foreground">{formatBool(book.in_print)}</span>
-|           </span>
-|         </span>
-|       </div>
-|     </CardContent>
-|   </Card>
+|   <section className="w-full bg-background text-foreground">
+|     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+|       <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+|         {books.map((book) => (
+|           <li key={book.id} className="flex">
+|             <Card className="flex w-full flex-col rounded-xl bg-card text-card-foreground">
+|               <CardHeader>
+|                 <CardTitle className="font-heading text-lg leading-snug text-balance">
+|                   {book.title}
+|                 </CardTitle>
+|                 <CardDescription>
+|                   <Link
+|                     href={book.author.href}
+|                     className="inline-flex items-center gap-1.5 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|                   >
+|                     <Icons.User className="size-4 shrink-0" />
+|                     <span className="truncate">{book.author.name}</span>
+|                   </Link>
+|                 </CardDescription>
+|                 <CardAction>
+|                   <Badge variant="secondary" className="capitalize">
+|                     {book.genre}
+|                   </Badge>
+|                 </CardAction>
+|               </CardHeader>
+|               <CardContent className="mt-auto">
+|                 <Separator className="mb-4" />
+|                 <dl className="grid grid-cols-2 gap-4 text-sm">
+|                   <div className="flex flex-col gap-1">
+|                     <dt className="flex items-center gap-1.5 text-muted-foreground">
+|                       <Icons.Calendar className="size-4 shrink-0" />
+|                       Published
+|                     </dt>
+|                     <dd className="font-medium">
+|                       <time dateTime={book.published}>
+|                         {formatDate(book.published)}
+|                       </time>
+|                     </dd>
+|                   </div>
+|                   <div className="flex flex-col gap-1">
+|                     <dt className="flex items-center gap-1.5 text-muted-foreground">
+|                       {book.in_print ? (
+|                         <Icons.BookCheck className="size-4 shrink-0" />
+|                       ) : (
+|                         <Icons.BookX className="size-4 shrink-0" />
+|                       )}
+|                       In print
+|                     </dt>
+|                     <dd className="font-medium">{formatBool(book.in_print)}</dd>
+|                   </div>
+|                 </dl>
+|               </CardContent>
+|             </Card>
+|           </li>
+|         ))}
+|       </ul>
+|     </div>
+|   </section>
 | );

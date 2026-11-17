@@ -13,8 +13,7 @@ import (
 // NotFound are JavaScript string literals.
 type pageView struct {
 	Route, Title, NotFound string
-	Load, Client           string // what the page loads, and the client call that loads it; empty for none
-	ClientName             string
+	Client                 string // the client call that loads the page's data; empty for none
 	ByID                   bool
 	Reads                  string // imports from @/lib/reads
 	Components             []componentImport
@@ -54,12 +53,14 @@ func pages(app *ir.App, backend, part *ir.Part) []target.File {
 }
 
 func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
-	v := pageView{Route: pg.Route, Title: jsString(title(app, pg)), NotFound: jsString(pg.NotFound), Load: pg.Load, ByID: pg.ByID}
+	v := pageView{Route: pg.Route, Title: jsString(title(app, pg)), NotFound: jsString(pg.NotFound), ByID: pg.ByID}
 	if pg.Load != "" {
-		v.ClientName = camel(pg.Resource)
-		v.Client = v.ClientName + ".list()"
+		// The page holds what it loads in a local named loaded and reaches
+		// the client through the api namespace, so no spec name, like a load
+		// named horses next to the horses client, can shadow generated code.
+		v.Client = "api." + camel(pg.Resource) + ".list()"
 		if pg.ByID {
-			v.Client = camel(pg.Resource) + ".get(id)"
+			v.Client = "api." + camel(pg.Resource) + ".get(id)"
 		}
 	}
 	reads, imported := map[string]bool{}, map[string]bool{}
@@ -75,7 +76,7 @@ func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
 		}
 		reads["read"+c.Name] = true
 		props := fmt.Sprintf("props%d", i+1)
-		v.Prep = append(v.Prep, sectionPrep(pg, c, sec, props))
+		v.Prep = append(v.Prep, sectionPrep(c, sec, props))
 		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props))
 	}
 	v.Reads = strings.Join(sortedKeys(reads), ", ")
@@ -83,11 +84,11 @@ func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
 }
 
 // sectionPrep reads a section's props from what the page loaded.
-func sectionPrep(pg *ir.Page, c *ir.Component, sec *ir.Section, props string) string {
+func sectionPrep(c *ir.Component, sec *ir.Section, props string) string {
 	if sec.List {
-		return fmt.Sprintf("const %s = await Promise.all(%s.map(read%s));", props, pg.Load, c.Name)
+		return fmt.Sprintf("const %s = await Promise.all(loaded.map(read%s));", props, c.Name)
 	}
-	return fmt.Sprintf("const %s = await read%s(%s);", props, c.Name, pg.Load)
+	return fmt.Sprintf("const %s = await read%s(loaded);", props, c.Name)
 }
 
 // sectionJSX renders a section. A list that's empty shows the page's empty

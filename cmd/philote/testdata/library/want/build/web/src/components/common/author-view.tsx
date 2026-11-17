@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+// The wrapper hands the body its props.
 export default function AuthorView(props: AuthorViewProps) {
     return <AuthorViewBody {...props} />;
 }
@@ -28,39 +29,42 @@ function AuthorViewBody({ author }: AuthorViewProps): React.ReactNode {
     const books = author.books;
 
     return (
-      <Card className="rounded-xl">
-        <CardHeader>
-          <CardTitle className="font-heading text-3xl tracking-tight">
-            {author.name}
-          </CardTitle>
-          <CardDescription className="flex items-center gap-2 text-muted-foreground">
-            <Icons.Cake className="size-4" />
-            <span>Born {formatDate(author.born)}</span>
-          </CardDescription>
-        </CardHeader>
-        <Separator />
-        <CardContent className="flex flex-col gap-4">
-          <h2 className="font-heading text-lg font-semibold text-card-foreground">
-            Books
-          </h2>
-          {books.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No books.</p>
-          ) : (
-            <ul className="grid gap-2 sm:grid-cols-2">
-              {books.map((book) => (
-                <li
-                  key={book.id}
-                  className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
-                >
-                  <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">
-                    {book.title}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+      <section className="w-full bg-background text-foreground">
+        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+          <Card className="rounded-xl">
+            <CardHeader className="gap-2">
+              <CardTitle className="font-heading text-2xl tracking-tight sm:text-3xl">
+                {author.name}
+              </CardTitle>
+              <CardDescription className="flex items-center gap-2 text-muted-foreground">
+                <Icons.Cake className="size-4 shrink-0" />
+                <span>Born {formatDate(author.born)}</span>
+              </CardDescription>
+            </CardHeader>
+            <Separator />
+            <CardContent className="flex flex-col gap-4">
+              <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-card-foreground">
+                Books
+                <Badge variant="secondary">{books.length}</Badge>
+              </h2>
+              {books.length > 0 && (
+                <ul className="grid gap-2 sm:grid-cols-2">
+                  {books.map((book) => (
+                    <li
+                      key={book.id}
+                      className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
+                    >
+                      <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">
+                        {book.title}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     );
 }

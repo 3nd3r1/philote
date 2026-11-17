@@ -23,29 +23,23 @@ import { Separator } from "@/components/ui/separator";
 
 import AuthorCardActions from "@/components/common/author-card-actions";
 
-// The actions sit in a bar under the body, outside its link: the model never
-// sees them, so changing one doesn't touch the pinned body (D-020). The frame
-// takes over the body card's border so the two read as one card.
+// The wrapper hands the body its props, and the link and actions it places.
 export default function AuthorCard(props: AuthorCardProps) {
-    return (
-        <div className="flex h-full flex-col overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 *:data-[slot=card]:flex-1 *:data-[slot=card]:rounded-none *:data-[slot=card]:shadow-none *:data-[slot=card]:ring-0 [&>a>[data-slot=card]]:h-full [&>a>[data-slot=card]]:rounded-none [&>a>[data-slot=card]]:shadow-none [&>a>[data-slot=card]]:ring-0">
-            <Link href={`/authors/${encodeURIComponent(props.author.id)}`} className="block flex-1">
-                <AuthorCardBody {...props} />
-            </Link>
-            <div className="flex justify-end border-t border-foreground/10 px-4 py-3">
-                <AuthorCardActions id={props.author.id} />
-            </div>
-        </div>
-    );
+    return <AuthorCardBody {...props} link={{ href: `/authors/${encodeURIComponent(props.author.id)}` }} actions={<AuthorCardActions id={props.author.id} />} />;
 }
 
-function AuthorCardBody({ author }: AuthorCardProps): React.ReactNode {
+function AuthorCardBody({ author, link, actions }: AuthorCardProps & { link: { href: string }; actions: React.ReactNode }): React.ReactNode {
     return (
-      <Card className="h-full rounded-xl transition-colors hover:bg-accent">
+      <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
         <CardHeader>
           <CardTitle className="flex min-w-0 items-center gap-2 font-heading text-lg leading-tight">
             <Icons.User aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
-            <span className="truncate">{author.name}</span>
+            <Link
+              href={link.href}
+              className="truncate rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {author.name}
+            </Link>
           </CardTitle>
           <CardDescription className="flex items-center gap-1.5 text-muted-foreground">
             <Icons.Cake aria-hidden="true" className="size-4 shrink-0" />
@@ -57,6 +51,9 @@ function AuthorCardBody({ author }: AuthorCardProps): React.ReactNode {
             <Icons.ChevronRight aria-hidden="true" className="size-4" />
           </CardAction>
         </CardHeader>
+        <CardFooter className="relative z-10 mt-auto flex flex-wrap items-center gap-2">
+          {actions}
+        </CardFooter>
       </Card>
     );
 }

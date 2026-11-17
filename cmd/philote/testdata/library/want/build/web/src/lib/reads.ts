@@ -41,24 +41,28 @@ export async function readAuthorView(author: Author): Promise<AuthorViewProps> {
     };
 }
 
-export type BookCardProps = {
-    book: Pick<Book, "id" | "title" | "genre" | "published" | "in_print"> & {
+export type BookShelfProps = {
+    books: Array<Pick<Book, "id" | "title" | "genre" | "published" | "in_print"> & {
         author: Pick<Author, "id" | "name"> & { href: string };
-    };
+    }>;
 };
 
-export async function readBookCard(book: Book): Promise<BookCardProps> {
-    const [author] = await Promise.all([
-        must(authors.get(book.author_id)),
-    ]);
+export async function readBookShelf(books: Book[]): Promise<BookShelfProps> {
     return {
-        book: {
-            id: book.id,
-            title: book.title,
-            genre: book.genre,
-            published: book.published,
-            in_print: book.in_print,
-            author: { id: author.id, name: author.name, href: `/authors/${encodeURIComponent(author.id)}` },
-        },
+        books: await Promise.all(
+            books.map(async (record) => {
+                const [author] = await Promise.all([
+                    must(authors.get(record.author_id)),
+                ]);
+                return {
+                    id: record.id,
+                    title: record.title,
+                    genre: record.genre,
+                    published: record.published,
+                    in_print: record.in_print,
+                    author: { id: author.id, name: author.name, href: `/authors/${encodeURIComponent(author.id)}` },
+                };
+            }),
+        ),
     };
 }
