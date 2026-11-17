@@ -11,6 +11,7 @@ src/components/common/author-card-actions.tsx
 src/components/common/author-card.tsx
 src/components/common/author-view.tsx
 src/components/common/book-shelf.tsx
+src/components/common/layouts/main-navbar.tsx
 src/lib/actions/author-card.ts
 src/lib/api.ts
 src/lib/config.ts

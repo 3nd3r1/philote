@@ -79,11 +79,14 @@ A step's parameters come from the endpoint's input, or from earlier steps' resul
 frontend web: nextjs {
   uses: api
   look: "calm and focused; deep green, rounded cards"   // optional, up to 200 chars
+  nav: bottom, "/tasks" as "Tasks", "/projects"           // optional
   ...
 }
 ```
 
 The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+
+The nav sits at the `top`, `bottom` or `side` and links to pages without `[id]`, in order. An item's text is its `as` label, up to 24 characters, or the page's title. The template keeps the nav in its place and finds the active item; the model draws the nav from the look, pinned as `web/nav`. Changing an item rewrites only the nav. Without a nav line the app gets a plain top bar with every page that has no `[id]`, other than `/`, then the forms, and no model call.
 
 A page loads data and shows components, in order. Each component is a full-width section.
 
@@ -136,7 +139,7 @@ component TaskCard(task: Task) {
 - `links_to` makes a card a link to a record's page. With `as "<label>"` it's a button to any page instead. A component that takes a list can't have `links_to` or `actions`.
 - The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it.
 - A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
-- Form fields are the endpoint's input, in order. Pages without `[id]`, other than `/`, go in the nav.
+- Form fields are the endpoint's input, in order.
 
 ## Build
 
@@ -146,7 +149,7 @@ philote tree app.philote             # what the spec becomes
 philote expand app.philote api/tasks  # one level down
 philote build app.philote            # build/api and build/web; new bodies call the claude CLI
 philote build --frozen app.philote   # never calls a model
-philote build --redo web/TaskCard app.philote   # or web/theme
+philote build --redo web/TaskCard app.philote   # or web/theme, web/nav
 ```
 
 Model-written bodies are pinned in `philote.lock` next to the spec. Commit it. A body is written again only when its prompt changes, and then it starts from the old body.

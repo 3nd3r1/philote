@@ -220,6 +220,59 @@ model claude-opus-5-5
 |     </Card>
 | );
 
+nav web/nav
+key f5be0385ec0386f15d8f6daf6e6842e600fcd11130910cdcf81549e491dc28f4
+model claude-opus-5-5
+| const iconFor: Record<string, React.ComponentType<{ className?: string }>> = {
+|   "/swipe": Icons.Heart,
+|   "/horses": Icons.PawPrint,
+|   "/matches": Icons.MessageCircleHeart,
+|   "/horses/new": Icons.CirclePlus,
+| };
+|
+| return (
+|   <div className="w-full border-t bg-background text-foreground pb-[env(safe-area-inset-bottom)]">
+|     <div className="mx-auto flex w-full max-w-4xl items-center gap-1 px-2 py-2 sm:gap-2 sm:px-4">
+|       <Link
+|         href={home.href}
+|         className={cn(
+|           buttonVariants({ variant: "ghost", size: "sm" }),
+|           "hidden shrink-0 rounded-xl font-heading text-base font-bold text-primary md:inline-flex"
+|         )}
+|       >
+|         <Icons.Heart className="size-5 fill-current" />
+|         {home.label}
+|       </Link>
+|
+|       <ul className="flex min-w-0 flex-1 items-stretch justify-around gap-1">
+|         {items.map((item) => {
+|           const Icon = iconFor[item.href] ?? Icons.Circle;
+|           const isActive = item.href === active;
+|           return (
+|             <li key={item.href} className="flex min-w-0 flex-1">
+|               <Link
+|                 href={item.href}
+|                 aria-current={isActive ? "page" : undefined}
+|                 className={cn(
+|                   "flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-xs font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
+|                   isActive
+|                     ? "bg-primary text-primary-foreground shadow-sm"
+|                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
+|                 )}
+|               >
+|                 <Icon className={cn("size-5 shrink-0", isActive && "fill-current/20")} />
+|                 <span className="max-w-full truncate">{item.label}</span>
+|               </Link>
+|             </li>
+|           );
+|         })}
+|       </ul>
+|
+|       <div className="flex shrink-0 items-center">{toggle}</div>
+|     </div>
+|   </div>
+| );
+
 theme web/theme
 key 1320efa749dc40a0d37bdf2bb23436c1441fc653cba3cb811e8450e89f664ac0
 model claude-opus-5-5

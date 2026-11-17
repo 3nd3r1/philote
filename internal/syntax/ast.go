@@ -130,6 +130,21 @@ type Look struct {
 	Value *Str
 }
 
+// Nav is `nav: <place>, "<route>" [as "<label>"], ...` in a frontend:
+// where the app's nav sits, and the pages it links to, in order.
+type Nav struct {
+	Word  Ident
+	Place Ident
+	Items []NavItem
+}
+
+// NavItem is one page in the nav, with its text when the page's title
+// isn't it.
+type NavItem struct {
+	Route *Str
+	Label *Str
+}
+
 // Page is `page "<route>" { load: <name> [from <resource>] [by id]
 // shows: <section>, ...  empty: "..."  not_found: "..." }`, or a form:
 // `page "<route>" { form: <resource>.<op> [by id]  then: "<route>"
@@ -202,5 +217,6 @@ func (r *Relation) Start() diag.Pos  { return r.From.Pos }
 func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
 func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
 func (l *Look) Start() diag.Pos      { return l.Word.Pos }
+func (n *Nav) Start() diag.Pos       { return n.Word.Pos }
 func (p *Page) Start() diag.Pos      { return p.Word.Pos }
 func (c *Component) Start() diag.Pos { return c.Name.Pos }

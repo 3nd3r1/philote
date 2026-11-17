@@ -23,19 +23,17 @@ type pageView struct {
 
 type componentImport struct{ Name, File string }
 
-type navView struct{ Title, Href string }
-
-// pages renders each page, plus a not-found file for pages that load by id,
-// and the nav that links to the pages without params, then the forms that
-// make a new record.
-func pages(app *ir.App, backend, part *ir.Part) []target.File {
+// pages renders each page, plus a not-found file for pages that load by id.
+// It also returns the default nav's items: the pages without params, then
+// the forms that make a new record.
+func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []navItemView) {
 	var files []target.File
-	var nav, forms []navView
+	var nav, forms []navItemView
 	for _, pg := range part.Pages {
 		if pg.Form != "" {
 			files = append(files, formFiles(app, backend, pg)...)
 			if !pg.ByID {
-				forms = append(forms, navView{jsString(formTitle(pg)), jsString(pg.Route)})
+				forms = append(forms, navItemView{jsString(pg.Route), jsString(formTitle(pg))})
 			}
 			continue
 		}
@@ -46,10 +44,10 @@ func pages(app *ir.App, backend, part *ir.Part) []target.File {
 		case pg.ByID:
 			files = append(files, render("not-found.tsx.tmpl", dir+"not-found.tsx", v))
 		case pg.Route != "/" && !strings.Contains(pg.Route, "["):
-			nav = append(nav, navView{v.Title, jsString(pg.Route)})
+			nav = append(nav, navItemView{jsString(pg.Route), v.Title})
 		}
 	}
-	return append(files, render("nav.ts.tmpl", "src/lib/nav.ts", append(nav, forms...)))
+	return files, append(nav, forms...)
 }
 
 func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {

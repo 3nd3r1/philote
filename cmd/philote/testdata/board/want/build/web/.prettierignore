@@ -14,6 +14,7 @@ src/app/tasks/\[id\]/page.tsx
 src/app/tasks/new/actions.ts
 src/app/tasks/new/form.tsx
 src/app/tasks/new/page.tsx
+src/components/common/layouts/main-navbar.tsx
 src/components/common/project-card.tsx
 src/components/common/project-view-actions.tsx
 src/components/common/project-view.tsx

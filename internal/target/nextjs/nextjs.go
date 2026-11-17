@@ -26,7 +26,7 @@ type Nextjs struct{}
 
 func (Nextjs) Name() string      { return "nextjs" }
 func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
-func (Nextjs) Version() string   { return "0.4.0" }
+func (Nextjs) Version() string   { return "0.5.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	backend := usedBackend(app, part)
@@ -39,21 +39,23 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		return target.Output{}, err
 	}
 	css, themeSlots := globals(part)
-	slots = append(slots, themeSlots...)
-	generated := slices.Concat(views, []target.File{
+	pageFiles, navItems := pages(app, backend, part)
+	navFiles, navSlots := nav(app, part, navItems)
+	slots = slices.Concat(slots, themeSlots, navSlots)
+	generated := slices.Concat(views, navFiles, []target.File{
 		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{
 			jsString(app.Name), jsString("The " + app.Name + " app, built by philote."),
 		}),
 		render("types.ts.tmpl", "src/lib/types.ts", newTypesView(app)),
 		render("api.ts.tmpl", "src/lib/api.ts", api),
-	}, pages(app, backend, part))
+	}, pageFiles)
 	baseList, err := baseFiles()
 	if err != nil {
 		return target.Output{}, err
 	}
 	// A spec's page at / replaces the base's home page, which opens the
-	// first page in the nav.
+	// first page in the nav. The nav replaces the base's placeholder bar.
 	files := slices.DeleteFunc(baseList, func(f target.File) bool {
 		return slices.ContainsFunc(generated, func(g target.File) bool { return g.Path == f.Path })
 	})

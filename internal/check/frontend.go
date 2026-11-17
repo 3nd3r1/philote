@@ -12,6 +12,7 @@ type frontendSrc struct {
 	uses       syntax.Ident
 	pages      []*syntax.Page
 	components []*syntax.Component
+	nav        *syntax.Nav
 }
 
 func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
@@ -27,12 +28,18 @@ func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
 			uses = x
 		case *syntax.Look:
 			c.look(part, x)
+		case *syntax.Nav:
+			if src.nav != nil {
+				c.d.Errorf(x.Word.Pos, "%s already has a nav", part.Name)
+				continue
+			}
+			src.nav = x
 		case *syntax.Page:
 			src.pages = append(src.pages, x)
 		case *syntax.Component:
 			src.components = append(src.components, x)
 		default:
-			c.d.Errorf(it.Start(), "a frontend takes uses, look, page and component")
+			c.d.Errorf(it.Start(), "a frontend takes uses, look, nav, page and component")
 		}
 	}
 	if uses == nil {
@@ -62,6 +69,9 @@ func (c *checker) resolveFrontends() {
 		}
 		f.part.Uses = b.Name
 		c.views(f, b)
+		if f.nav != nil {
+			c.nav(f.part, f.nav)
+		}
 	}
 }
 

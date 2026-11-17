@@ -78,6 +78,20 @@ type Part struct {
 	Pages      []*Page      // frontend only
 	Components []*Component // frontend only
 	Look       *Look        // frontend only: how the app looks, for the model that writes its theme
+	Nav        *Nav         // frontend only: the nav the model draws; nil for the template's top bar
+}
+
+// Nav is a frontend's nav line: where it sits, and its pages in order.
+type Nav struct {
+	Place string // top, bottom or side
+	Items []*NavItem
+	Pos   diag.Pos
+}
+
+// NavItem is one page in the nav.
+type NavItem struct {
+	Route string
+	Label string // empty for the page's title
 }
 
 // Look is a frontend's look line.

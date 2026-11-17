@@ -21,6 +21,7 @@ neighbr
       steps: record_swipe, match_if_mutual
   web (frontend, nextjs) uses api
     theme: from its look
+    nav: bottom, /swipe, /horses, /matches, /horses/new
     /: load horses from horses, Landing, list of HorseCard(horses)
     /horses: load horses from horses, list of HorseCard(horses)
     /horses/[id]: load horse from horses by id, HorseView(horse)

@@ -61,7 +61,7 @@ func TestRedoErrors(t *testing.T) {
 		code int
 		want string
 	}{
-		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component or theme at that path"},
+		{[]string{"build", "--redo", "web/Nope", spec}, 1, "there is no step, component, theme or nav at that path"},
 		{[]string{"build", "--frozen", "--redo", "web/BookShelf", spec}, 2, "can't be used with --frozen"},
 	} {
 		var stdout, stderr bytes.Buffer

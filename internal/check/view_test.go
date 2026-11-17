@@ -158,6 +158,15 @@ func TestViewErrors(t *testing.T) {
 		{"app look empty", "    uses: api\n", "    uses: api\n    look: \"\"\n", `look: »""`, "the look is empty"},
 		{"two app looks", "    uses: api\n", "    uses: api\n    look: \"warm\"\n    look: \"cold\"\n", `»look: "cold"`, "already has a look"},
 		{"look in a backend", "    resource products: Product\n", "    look: \"warm\"\n    resource products: Product\n", `»look: "warm"`, "can't go inside a backend"},
+		{"nav place", "    uses: api\n", "    uses: api\n    nav: middle, \"/products\"\n", "nav: »middle", "top, bottom or side, not middle"},
+		{"nav without pages", "    uses: api\n", "    uses: api\n    nav: top\n", "»nav: top", "the nav has no pages"},
+		{"nav to a missing page", "    uses: api\n", "    uses: api\n    nav: top, \"/prodcts\"\n", `top, »"/prodcts"`, "did you mean '/products'"},
+		{"nav to a page by id", "    uses: api\n", "    uses: api\n    nav: top, \"/products/[id]\"\n", `top, »"/products/[id]"`, "needs an id"},
+		{"nav item twice", "    uses: api\n", "    uses: api\n    nav: top, \"/products\", \"/products\"\n", `"/products", »"/products"`, "already in the nav"},
+		{"nav label empty", "    uses: api\n", "    uses: api\n    nav: top, \"/products\" as \"\"\n", `as »""`, "use the page's title"},
+		{"nav label too long", "    uses: api\n", "    uses: api\n    nav: top, \"/products\" as \"" + strings.Repeat("a", 25) + "\"\n", `as »"aaa`, "capped at 24"},
+		{"two navs", "    uses: api\n", "    uses: api\n    nav: top, \"/\"\n    nav: side, \"/\"\n", "»nav: side", "already has a nav"},
+		{"nav in a backend", "    resource products: Product\n", "    nav: top, \"/\"\n    resource products: Product\n", "»nav: top", "can't go inside a backend"},
 	})
 }
 
@@ -170,6 +179,23 @@ func TestAppLook(t *testing.T) {
 	}
 	if l := app.Parts[1].Look; l == nil || l.Text != "warm and playful" || l.Pos.Line != 8 {
 		t.Errorf("look: %+v", l)
+	}
+}
+
+// A nav line reaches the IR in order, with a label only where the spec
+// gives one.
+func TestNav(t *testing.T) {
+	src := strings.Replace(views, "    uses: api\n", "    uses: api\n    nav: bottom, \"/\" as \"Home\",\n      \"/products\"\n", 1)
+	app, d := load(map[string]string{"app.philote": src})
+	if len(d.Items) > 0 {
+		t.Fatalf("unexpected diagnostics:\n%s", diag.Render(d.Items, map[string]string{"app.philote": src}))
+	}
+	nav := app.Parts[1].Nav
+	if nav == nil || nav.Place != "bottom" || len(nav.Items) != 2 || nav.Pos.Line != 8 {
+		t.Fatalf("nav: %+v", nav)
+	}
+	if a, b := nav.Items[0], nav.Items[1]; a.Route != "/" || a.Label != "Home" || b.Route != "/products" || b.Label != "" {
+		t.Errorf("items: %+v, %+v", a, b)
 	}
 }
 

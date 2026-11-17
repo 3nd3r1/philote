@@ -15,6 +15,7 @@ import {
 } from "next/font/google";
 
 import { siteConfig } from "@/lib/config";
+import { navPlace } from "@/lib/nav";
 import { getThemeColors } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -193,9 +194,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <div className="flex flex-1 flex-col">
-                        <MainNavbar />
-                        {children}
+                    {/* A side nav sits beside the page, a bottom nav after it,
+                        so its sticky wrapper keeps it on screen. */}
+                    <div
+                        className={cn(
+                            "flex flex-1",
+                            navPlace === "side" ? "flex-row" : "flex-col"
+                        )}
+                    >
+                        {navPlace !== "bottom" && <MainNavbar />}
+                        <div className="flex min-w-0 flex-1 flex-col">
+                            {children}
+                        </div>
+                        {navPlace === "bottom" && <MainNavbar />}
                     </div>
                     <Toaster />
                 </ThemeProvider>

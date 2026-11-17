@@ -106,12 +106,16 @@ func command(dir, name string, args ...string) (string, error) {
 	return string(out), err
 }
 
-// checkBodies reports each component body that leaves out what the
-// template hands it: every line of says, the link and the actions.
+// checkBodies reports each component body, and the nav's, that leaves out
+// what the template hands it: every line of says, the link and the actions,
+// or the nav's items, active item, home link and toggle.
 func checkBodies(dir string, problems map[string][]string) error {
 	paths, err := filepath.Glob(filepath.Join(dir, "src/components/common/*.tsx"))
 	if err != nil {
 		return err
+	}
+	if _, err := os.Stat(filepath.Join(dir, navFile)); err == nil {
+		paths = append(paths, filepath.Join(dir, navFile))
 	}
 	for _, path := range paths {
 		src, err := os.ReadFile(path)
@@ -122,6 +126,8 @@ func checkBodies(dir string, problems map[string][]string) error {
 		if !ok {
 			continue
 		}
+		// The body starts after its signature, which names every prop.
+		_, body, _ = strings.Cut(body, "React.ReactNode {")
 		rel, err := filepath.Rel(dir, path)
 		if err != nil {
 			return err
@@ -151,6 +157,22 @@ func bodyProblems(head, body string) []string {
 	}
 	if strings.Contains(head, " actions={") && strings.Count(body, "{actions}") != 1 {
 		out = append(out, "the body must render {actions} exactly once")
+	}
+	if strings.Contains(head, "<NavBody ") {
+		out = append(out, navProblems(body)...)
+	}
+	return out
+}
+
+func navProblems(body string) []string {
+	var out []string
+	for _, want := range []string{"items.map", "active", "home.href", "home.label"} {
+		if !strings.Contains(body, want) {
+			out = append(out, "the nav must use "+want)
+		}
+	}
+	if strings.Count(body, "{toggle}") != 1 {
+		out = append(out, "the nav must render {toggle} exactly once")
 	}
 	return out
 }

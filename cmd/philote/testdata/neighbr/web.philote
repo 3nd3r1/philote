@@ -1,5 +1,6 @@
 uses: api
 look: "a warm, playful dating app: coral and cream, soft rounded cards, friendly rounded type"
+nav: bottom, "/swipe", "/horses", "/matches", "/horses/new" as "Add horse"
 
 page "/" {
   load: horses

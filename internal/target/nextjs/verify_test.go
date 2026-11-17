@@ -42,3 +42,35 @@ func TestCheckBodies(t *testing.T) {
 		}
 	}
 }
+
+// The nav's body has to use everything its wrapper hands it.
+func TestCheckNav(t *testing.T) {
+	const head = "export default function MainNavbar() {\n    return <NavBody items={nav} active={active} home={home} toggle={<ModeToggle />} />;\n}\n"
+	cases := []struct {
+		body string
+		want []string
+	}{
+		{"return <nav><Link href={home.href}>{home.label}</Link>{items.map((i) => <Link key={i.href} href={i.href} aria-current={i.href === active ? \"page\" : undefined}>{i.label}</Link>)}{toggle}</nav>;", nil},
+		{"return <nav>{items.map((i) => i.label)}</nav>;", []string{
+			"the nav must use active", "the nav must use home.href", "the nav must use home.label", "the nav must render {toggle} exactly once",
+		}},
+	}
+	for _, tc := range cases {
+		dir := t.TempDir()
+		path := filepath.Join(dir, navFile)
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		src := head + "function NavBody({ items, active, home, toggle }: Props): React.ReactNode {\n    " + tc.body + "\n}\n"
+		if err := os.WriteFile(path, []byte(src), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		problems := map[string][]string{}
+		if err := checkBodies(dir, problems); err != nil {
+			t.Fatal(err)
+		}
+		if got := problems[navFile]; !slices.Equal(got, tc.want) {
+			t.Errorf("got %q, want %q", got, tc.want)
+		}
+	}
+}

@@ -88,6 +88,13 @@ func viewTree(b *strings.Builder, p *ir.Part, depth int) {
 	if p.Look != nil {
 		fmt.Fprintf(b, "    theme: from its look\n")
 	}
+	if p.Nav != nil {
+		items := []string{p.Nav.Place}
+		for _, it := range p.Nav.Items {
+			items = append(items, it.Route)
+		}
+		fmt.Fprintf(b, "    nav: %s\n", strings.Join(items, ", "))
+	}
 	for _, pg := range p.Pages {
 		fmt.Fprintf(b, "    %s: %s\n", pg.Route, pageSummary(pg))
 	}
