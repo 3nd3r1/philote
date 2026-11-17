@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-16T12:19:00Z'
-updated_date: '2026-11-17T10:20:00Z'
+updated_date: '2026-11-17T10:33:00Z'
 labels: []
 milestone: m-5
 dependencies: []
@@ -57,6 +57,8 @@ Verified 2026-11-17 in Chrome after the fix: library, neighbr and board on a lap
 2026-11-17 reopened: the user looked at neighbr and called it horrible; AC #1 was checked too generously (tidy and consistent is not polished). Two causes. (1) Dark Reader recolors the app; generated apps ship their own dark mode, so they should carry a darkreader-lock meta. (2) The real one: templates own every page's structure (a title plus a 2-column grid in a 900px column, a plain navbar), and the model only fills card insides, so every app looks like the same scaffold. The direction call on page layout went to the user.
 
 decision-2 built: the model writes each page layout (PageBody with a content(className) render function), pinned as page web/<route>; Verify now also runs ESLint and checks the layout calls content once; navbar widened to max-w-5xl and the page prompt aligns pages with it. Checked neighbr, board and library in Chrome on laptop and phone width.
+
+Superseded 2026-11-17 by m-6 Frontend primitives (decision-3): the fixed page kinds are the limit, not the theme or layouts. Built work stays (theme, actions bar, page layouts, ESLint in Verify, darkreader-lock) and feeds the primitives design.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
