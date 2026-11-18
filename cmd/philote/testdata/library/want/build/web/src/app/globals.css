@@ -37,6 +37,7 @@
 
 /* theme: start */
 :root {
+    --mode: system;
     --radius: 0.75rem;
     --font-sans: var(--font-geist);
     --font-heading: var(--font-geist);

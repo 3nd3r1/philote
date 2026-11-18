@@ -62,6 +62,7 @@ var colors = []struct{ name, use string }{
 // defaultTheme is the look of a frontend without a look line: calm, light
 // or dark with the system, and readable.
 const defaultTheme = `:root {
+    --mode: system;
     --radius: 0.75rem;
     --font-sans: var(--font-geist);
     --font-heading: var(--font-geist);
@@ -132,7 +133,8 @@ How the app should look: ` + look + `
 
 Reply with one ` + "```css" + ` block holding exactly two rules and nothing else: ` + "`:root`" + ` for light mode, then ` + "`.dark`" + ` for dark mode. One declaration per line, no comments.
 
-` + "`:root`" + ` sets these three, and every color:
+` + "`:root`" + ` sets these four, and every color:
+- --mode: the mode the app opens in, light or dark: the one the look describes, so a cream or pastel look is light and a black or neon look is dark. system, to follow the visitor's device, only when the look suggests neither. Visitors can still switch.
 - --radius: the corner radius, in rem from 0 to 2. 0 is square, 0.5rem is soft, 1rem and up is round and friendly.
 - --font-sans: the body font, as var(--font-<name>).
 - --font-heading: the font for headings, as var(--font-<name>).

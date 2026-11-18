@@ -21,6 +21,7 @@ func TestThemeProblems(t *testing.T) {
 		{"bad color", "--primary: oklch(0.45 0.16 265);", "--primary: #ff0000;", "--primary: use oklch(L C H)"},
 		{"lightness over 1", "--primary: oklch(0.45 0.16 265);", "--primary: oklch(45 0.16 265);", "--primary: use oklch(L C H)"},
 		{"unknown font", "--font-heading: var(--font-geist);", "--font-heading: var(--font-comic-sans);", "a font from the list"},
+		{"unknown mode", "--mode: system;", "--mode: sepia;", "use light, dark or system"},
 		{"radius too big", "--radius: 0.75rem;", "--radius: 4rem;", "from 0 to 2"},
 		{"alpha on a color", "--card: oklch(1 0 0);", "--card: oklch(1 0 0 / 50%);", "only border and input"},
 		{"unknown variable", "--radius: 0.75rem;", "--radius: 0.75rem;\n    --glow: oklch(1 0 0);", "--glow isn't a theme variable"},

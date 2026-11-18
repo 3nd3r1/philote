@@ -37,6 +37,7 @@
 
 /* theme: start */
 :root {
+    --mode: light;
     --radius: 1rem;
     --font-sans: var(--font-nunito);
     --font-heading: var(--font-fraunces);

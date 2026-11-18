@@ -54,7 +54,7 @@ func checkTheme(css string) []string {
 	if len(rules) != 2 || rules[0].selector != ":root" || rules[1].selector != ".dark" {
 		return []string{fmt.Sprintf("line %d: the theme is exactly two rules, :root and then .dark", start+2)}
 	}
-	extra := []string{"radius", "font-sans", "font-heading"}
+	extra := []string{"mode", "radius", "font-sans", "font-heading"}
 	problems = append(problems, checkRule(rules[0], extra)...)
 	return append(problems, checkRule(rules[1], nil)...)
 }
@@ -128,6 +128,10 @@ func checkRule(r themeRule, extra []string) []string {
 
 func checkValue(name, v string) string {
 	switch name {
+	case "mode":
+		if !slices.Contains([]string{"light", "dark", "system"}, v) {
+			return "use light, dark or system"
+		}
 	case "radius":
 		m := radius.FindStringSubmatch(v)
 		if m == nil || parseFloat(m[1]) > 2 {

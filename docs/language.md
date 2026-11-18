@@ -101,7 +101,7 @@ frontend web: nextjs {
 }
 ```
 
-The look sets the whole app's theme: colors for light and dark, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+The look sets the whole app's theme: colors for light and dark, which of the two the app opens in, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
 
 The nav sits at the `top`, `bottom` or `side` and links to pages without `[id]`, in order. An item's text is its `as` label, up to 24 characters, or the page's title. The template keeps the nav in its place and finds the active item; the model draws the nav from the look, pinned as `web/nav`. Changing an item rewrites only the nav. Without a nav line the app gets a plain top bar with every page that has no `[id]`, other than `/`, then the forms, and no model call.
 

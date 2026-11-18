@@ -507,9 +507,10 @@ model claude-opus-5-5
 | );
 
 theme web/theme
-key 1320efa749dc40a0d37bdf2bb23436c1441fc653cba3cb811e8450e89f664ac0
+key 4cb4e3d6151317b2f76b36326f566ea8f88c0623405a97f7703d669ae4d5a601
 model claude-opus-5-5
 | :root {
+|     --mode: light;
 |     --radius: 1rem;
 |     --font-sans: var(--font-nunito);
 |     --font-heading: var(--font-fraunces);

@@ -66,3 +66,10 @@ export function getThemeColors(mode: ThemeMode = "light") {
         background: hex("background"),
     };
 }
+
+// getDefaultMode is the mode the theme opens in: the one its look describes,
+// or the visitor's system when the look suggests neither.
+export function getDefaultMode(): ThemeMode | "system" {
+    const mode = getCssVar(readFileSync(GLOBALS_CSS, "utf8"), "mode");
+    return mode === "light" || mode === "dark" ? mode : "system";
+}
