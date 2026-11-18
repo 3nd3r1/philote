@@ -1,5 +1,7 @@
 package.json
 src/app.ts
+src/endpoints/candidates.ts
+src/endpoints/matches_of.ts
 src/endpoints/swipe.ts
 src/resources/horses.ts
 src/resources/matches.ts
@@ -9,7 +11,9 @@ src/runtime/step.ts
 src/runtime/store.ts
 src/runtime/validate.ts
 src/server.ts
+src/steps/find_matches.ts
 src/steps/match_if_mutual.ts
+src/steps/pick_candidates.ts
 src/steps/record_swipe.ts
 src/types.ts
 tsconfig.json

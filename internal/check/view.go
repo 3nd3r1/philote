@@ -18,6 +18,9 @@ func (c *checker) views(f *frontendSrc, backend *ir.Part) {
 	for _, s := range f.components {
 		if comp := c.component(f.part, backend, s); comp != nil {
 			srcs[comp] = s
+			if s.Calls != nil {
+				c.calls(f.part, backend, comp, s.Calls)
+			}
 		}
 	}
 	type then struct {

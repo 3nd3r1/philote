@@ -22,7 +22,7 @@ import { Separator } from "@/components/ui/separator";
 
 import HorseViewActions from "@/components/common/horse-view-actions";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function HorseView(props: HorseViewProps) {
     return <HorseViewBody {...props} actions={<HorseViewActions id={props.horse.id} />} />;
 }

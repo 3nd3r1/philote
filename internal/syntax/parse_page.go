@@ -35,26 +35,47 @@ func (p *parser) page() Item {
 	return pg
 }
 
-// load is `<name> [from <resource>] [by <field>]`.
+// load is `<name> [from <resource>] [by <field>]` or `<name> from
+// <endpoint>(<args>)`.
 func (p *parser) load() *PageLoad {
 	l := &PageLoad{Name: p.ident("a name for what the page loads, like horses")}
 	if p.isWord("from") {
 		p.next()
-		from := p.ident("a resource name")
+		from := p.ident("a resource or endpoint name")
 		l.From = &from
+		if p.peek().kind == tLParen {
+			l.Args, l.Call = p.args(), true
+			return l
+		}
 	}
 	l.By = p.by()
 	return l
 }
 
+// args is `(<input>[: <value>], ...)`, possibly empty.
+func (p *parser) args() []Arg {
+	p.expect(tLParen, "'('")
+	var out []Arg
+	for p.peek().kind != tRParen {
+		a := Arg{Name: p.ident("an input name")}
+		if p.peek().kind == tColon {
+			p.next()
+			v := p.ident("what fills it, like viewer")
+			a.Value = &v
+		}
+		out = append(out, a)
+		if p.peek().kind != tComma {
+			break
+		}
+		p.next()
+	}
+	p.expect(tRParen, "',' or ')'")
+	return out
+}
+
 // section is `[list of] <Component>[(<load>)]`.
 func (p *parser) section() Section {
-	var s Section
-	if p.isWord("list") {
-		p.next()
-		p.word("of")
-		s.List = true
-	}
+	s := Section{List: p.listOf()}
 	s.Component = p.ident("a component name")
 	if p.peek().kind == tLParen {
 		p.next()
@@ -81,7 +102,7 @@ func (p *parser) component() Item {
 	if p.peek().kind == tLParen {
 		c.Params = p.componentParams()
 	}
-	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions", "picks"}, func(key Ident) {
+	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions", "picks", "calls"}, func(key Ident) {
 		switch key.Name {
 		case "shows":
 			c.Shows = append(c.Shows, p.show())
@@ -109,6 +130,9 @@ func (p *parser) component() Item {
 			c.Picks = &picks
 			p.word("then")
 			c.PicksThen = p.str(`the route to go to after picking, like "/discover"`)
+		case "calls":
+			c.Calls = &Call{Endpoint: p.ident("an endpoint, like swipe")}
+			c.Calls.Args = p.args()
 		case "actions":
 			c.Actions = append(c.Actions, p.action())
 			for p.peek().kind == tComma {
@@ -129,11 +153,7 @@ func (p *parser) componentParams() []*Field {
 	for p.peek().kind != tRParen {
 		f := &Field{Name: p.ident("a parameter name")}
 		p.expect(tColon, "':' and a type after '"+f.Name.Name+"'")
-		if p.isWord("list") {
-			p.next()
-			p.word("of")
-			f.List = true
-		}
+		f.List = p.listOf()
 		f.Type = p.ident("an entity, like Horse")
 		out = append(out, f)
 		if p.peek().kind != tComma {

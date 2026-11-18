@@ -57,7 +57,7 @@ type Display struct {
 // step parameters use the same shape without from or modifiers.
 type Field struct {
 	Name   Ident
-	List   bool // a component parameter's `list of`
+	List   bool // `list of`, for a component parameter or a step's parameter or result
 	Type   Ident
 	Limits []Limit
 	From   *Ident
@@ -101,6 +101,7 @@ type Endpoint struct {
 	Path   *Str
 	Input  []*Field
 	Output *Ident
+	List   bool // output: list of <Entity>
 	Errors []Ident
 	Steps  []Ident
 }
@@ -169,12 +170,28 @@ type Page struct {
 	Then     *Str
 }
 
-// PageLoad is `<name> [from <resource>] [by <field>]`: what a page fetches.
-// Without from, the resource is the name.
+// PageLoad is `<name> [from <resource>] [by <field>]`, or `<name> from
+// <endpoint>(<input>: <value>, ...)`: what a page fetches. Without from, the
+// resource is the name.
 type PageLoad struct {
 	Name Ident
 	From *Ident
 	By   *Ident
+	Args []Arg // set for an endpoint, even when its parentheses are empty
+	Call bool  // from names an endpoint called with Args
+}
+
+// Arg is `<input>: <value>` or a bare `<input>`, binding one of an
+// endpoint's inputs in a load or a component's calls.
+type Arg struct {
+	Name  Ident
+	Value *Ident // nil when the input is left open
+}
+
+// Call is `<endpoint>(<arg>, ...)`: an endpoint a component calls.
+type Call struct {
+	Endpoint Ident
+	Args     []Arg
 }
 
 // Section is one thing a page shows: `[list of] <Component>[(<load>)]`.
@@ -186,7 +203,8 @@ type Section struct {
 
 // Component is `component <Name>[(<param>: [list of] <Entity>)] { shows:
 // <path> [as <format>], ...  says: "...", ...  links_to: "<route>" [as
-// "<label>"]  look: "..." }`. Its body is written by a model.
+// "<label>"]  calls: <endpoint>(<arg>, ...)  look: "..." }`. Its body is
+// written by a model.
 type Component struct {
 	Name      Ident
 	Params    []*Field
@@ -198,6 +216,7 @@ type Component struct {
 	Actions   []Action
 	Picks     *Ident // `picks: viewer then "<route>"`: tapping a record makes it the viewer
 	PicksThen *Str
+	Calls     *Call
 }
 
 // Action is something a component's record can have done to it: `open

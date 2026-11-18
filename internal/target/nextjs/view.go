@@ -2,6 +2,7 @@ package nextjs
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -105,7 +106,7 @@ func newAPIView(app *ir.App, backend *ir.Part) (apiView, error) {
 	for _, ep := range backend.Custom {
 		c := newCall(ep, camel(ep.Name))
 		if len(ep.Flow.Input) > 0 {
-			c.Params = "input: " + addInput(&v, pascal(ep.Name)+"Input", flowInput(ep.Flow.Input, used))
+			c.Params = strings.TrimPrefix(c.Params+", input: "+addInput(&v, pascal(ep.Name)+"Input", flowInput(ep.Flow.Input, used)), ", ")
 		}
 		v.Endpoints = append(v.Endpoints, c)
 		used[ep.Output] = true
@@ -133,12 +134,22 @@ func newCall(ep *ir.Endpoint, name string) callView {
 	if len(ep.Errors) > 0 {
 		c.Errors = strings.Join(quoted(ep.Errors), " | ")
 	}
-	if strings.Contains(ep.Route, "[id]") {
-		c.Params = "id: string"
-		c.Path = "`" + strings.Replace(ep.Route, "[id]", "${encodeURIComponent(id)}", 1) + "`"
+	// Each route param, like [id] or [horse], is an id the call takes first.
+	if params := routeParam.FindAllStringSubmatch(ep.Route, -1); len(params) > 0 {
+		var names []string
+		for _, m := range params {
+			names = append(names, camel(m[1])+": string")
+		}
+		c.Params = strings.Join(names, ", ")
+		c.Path = "`" + routeParam.ReplaceAllStringFunc(ep.Route, func(p string) string {
+			return "${encodeURIComponent(" + camel(p[1:len(p)-1]) + ")}"
+		}) + "`"
 	}
 	return c
 }
+
+// routeParam matches a route param like [id] or [horse].
+var routeParam = regexp.MustCompile(`\[(\w+)\]`)
 
 // addInput declares an input type once, since create and update share it.
 func addInput(v *apiView, name string, fields []fieldView) string {

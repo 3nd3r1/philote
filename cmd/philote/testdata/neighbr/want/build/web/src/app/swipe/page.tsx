@@ -3,33 +3,36 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 
-import { horses } from "@/lib/api";
+import * as api from "@/lib/api";
 import { must } from "@/lib/backend";
+import { readSwipeDeck } from "@/lib/reads";
+import { needViewer } from "@/lib/viewer";
 
-import { submit } from "./actions";
-import Form from "./form";
+import SwipeDeck from "@/components/common/swipe-deck";
 
 export const metadata: Metadata = { title: "Swipe" };
 
 export default function Page() {
     return (
-        <main className="flex-1 px-4 py-10">
-            <div className="mx-auto max-w-xl space-y-6">
-                <h1 className="font-heading text-3xl font-semibold tracking-tight">{"Swipe"}</h1>
-                <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
-                    <Loaded />
-                </Suspense>
-            </div>
+        <main className="flex flex-1 flex-col">
+            <Suspense fallback={<p className="px-4 py-16 text-center text-muted-foreground">Loading…</p>}>
+                <Sections />
+            </Suspense>
         </main>
     );
 }
 
-// Loaded fills the form once its record and choices are in.
-async function Loaded() {
+// Sections streams in after the page's shell.
+async function Sections() {
     await connection();
-    const options = {
-        horse: (await must(horses.list())).map((r) => ({ id: r.id, label: r.name })),
-        target: (await must(horses.list())).map((r) => ({ id: r.id, label: r.name })),
-    };
-    return <Form action={submit} initial={{}} options={options} />;
+    // proxy.ts already sent a visitor without a viewer to pick one; this
+    // catches one whose viewer is gone.
+    const viewer = await needViewer();
+    const loaded = await must(api.candidates(viewer.id));
+    const props1 = await readSwipeDeck(loaded);
+    return (
+        <>
+            {props1.deck.length === 0 ? <p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{"You've seen every horse. Check back later."}</p> : <SwipeDeck {...props1} />}
+        </>
+    );
 }

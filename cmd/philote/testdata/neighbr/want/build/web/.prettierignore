@@ -14,8 +14,6 @@ src/app/matches/page.tsx
 src/app/me/page.tsx
 src/app/page.tsx
 src/app/pick/page.tsx
-src/app/swipe/actions.ts
-src/app/swipe/form.tsx
 src/app/swipe/page.tsx
 src/components/common/horse-card.tsx
 src/components/common/horse-picker-pick.tsx
@@ -26,8 +24,10 @@ src/components/common/join-herd.tsx
 src/components/common/landing.tsx
 src/components/common/layouts/main-navbar.tsx
 src/components/common/match-card.tsx
+src/components/common/swipe-deck.tsx
 src/lib/actions/horse-picker-pick.ts
 src/lib/actions/horse-view.ts
+src/lib/actions/swipe-deck-call.ts
 src/lib/api.ts
 src/lib/config.ts
 src/lib/nav.ts

@@ -44,9 +44,6 @@ check(res.status === 303 && res.headers.get("location") === `/horses/${horse}`, 
 const page = await (await fetch(`${web}/horses/${horse}`)).text();
 check(page.includes("Edited by a form."), "/horses/[id] shows the edit");
 
-res = await post("/swipe", { horse, target: horse, liked: "on" });
-check(res.status === 200 && (await res.text()).includes("Same horse."), "/swipe shows a step's declared error");
-
 // Picking posts one of the picker's forms: the one around this horse.
 const picker = await (await fetch(`${web}/pick`)).text();
 const form =

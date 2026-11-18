@@ -62,7 +62,7 @@ func TestViewerErrors(t *testing.T) {
 		{"picks then a page by id", `picks: viewer then "/me"`, `picks: viewer then "/products/[id]"`, `then »"/products/[id]"`, "needs an id"},
 		{"no picker", "      picks: viewer then \"/me\"\n", "", "»viewer: Product", "no page picks it"},
 		{"two pickers", "      shows: list of ProductCard(products)\n", "      shows: ProductPicker(products)\n", "»viewer: Product", "both pick the viewer"},
-		{"picker shows the viewer", "      shows: ProductPicker(products)\n", "      shows: ProductPicker(products), ProductView(viewer)\n", "»viewer: Product", "can't show it too"},
+		{"picker shows the viewer", "      shows: ProductPicker(products)\n", "      shows: ProductPicker(products), ProductView(viewer)\n", "»viewer: Product", "can't need it too"},
 		{"load named viewer", "load: product from products by id", "load: viewer from products by id", "load: »viewer", "name what the page loads something else"},
 	})
 }

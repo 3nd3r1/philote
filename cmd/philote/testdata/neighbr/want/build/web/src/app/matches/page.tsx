@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import * as api from "@/lib/api";
 import { must } from "@/lib/backend";
 import { readMatchCard } from "@/lib/reads";
+import { needViewer } from "@/lib/viewer";
 
 import MatchCard from "@/components/common/match-card";
 
@@ -24,12 +25,15 @@ export default function Page() {
 // Sections streams in after the page's shell.
 async function Sections() {
     await connection();
-    const loaded = await must(api.matches.list());
+    // proxy.ts already sent a visitor without a viewer to pick one; this
+    // catches one whose viewer is gone.
+    const viewer = await needViewer();
+    const loaded = await must(api.matchesOf(viewer.id));
     const props1 = await Promise.all(loaded.map(readMatchCard));
     return (
         <>
             {props1.length === 0 ? (
-                <p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{"No matches yet."}</p>
+                <p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{"No matches yet. Keep swiping."}</p>
             ) : (
                 <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
                     {props1.map((item) => (

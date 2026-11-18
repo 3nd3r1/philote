@@ -114,7 +114,8 @@ type Look struct {
 type Page struct {
 	Route    string // params as [id]
 	Load     string // the name of what it loads; empty for none, and for forms
-	Resource string // what it loads or submits to, in the backend the frontend uses; empty for a form on a custom endpoint
+	Resource string // what it loads or submits to, in the backend the frontend uses; empty for a custom endpoint
+	Endpoint string // the GET endpoint it loads a list from, each route input filled with the viewer; empty for a resource
 	Entity   string
 	ByID     bool // loads the record named by the route's [id]; otherwise lists them all
 	Sections []*Section
@@ -122,6 +123,7 @@ type Page struct {
 	NotFound string // by-id pages: shown when the record doesn't exist
 	Form     string // form pages: the endpoint it submits to, like horses.create or swipe
 	Then     string // form pages: where to go after a save; [id] is the saved record's
+	Viewer   bool   // it shows the viewer, loads with it or shows a component that calls with it, so it needs one picked
 }
 
 // Section is one component a page shows, full width, in order.
@@ -148,6 +150,16 @@ type Component struct {
 	LinkLabel string   // the link's button text; empty makes the whole component the link
 	Actions   []*Action
 	Picks     string // the route to go to after tapping a record makes it the viewer; empty for none
+	Calls     *Call  // the endpoint it calls; nil for none
+}
+
+// Call is a custom endpoint a component calls. The template fills the
+// inputs bound to the viewer on the server; the component's body passes the
+// rest.
+type Call struct {
+	Endpoint string
+	Viewer   []string // inputs filled with the viewer's id
+	Passed   []*Value // inputs the body passes, in the endpoint's order: a record's id, or a scalar
 }
 
 // ActionKind is what an action under a component does.
@@ -221,16 +233,18 @@ type Endpoint struct {
 // Flow is what a custom endpoint does: check its input, then run its steps
 // in order. Step parameters are bound by name to an input or an earlier result.
 type Flow struct {
-	Input []*Value
-	Steps []*Step
+	Params []*Value // records sent in the route as their ids, in route order, like [horse]
+	Input  []*Value // the request body
+	Steps  []*Step
 }
 
 // Value is an input, step parameter or step result: a scalar, or a record
-// of an entity.
+// of an entity, or a list of records.
 type Value struct {
 	Name   string
 	Field  *Field // the scalar's type; nil for a record
 	Entity string // the record's entity
+	List   bool   // a list of Entity records
 }
 
 // Step is a function whose body a model writes.

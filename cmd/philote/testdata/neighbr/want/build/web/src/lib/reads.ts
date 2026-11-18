@@ -25,6 +25,26 @@ export async function readHorsePicker(horses: Horse[]): Promise<HorsePickerProps
     };
 }
 
+export type SwipeDeckProps = {
+    deck: Array<Pick<Horse, "id" | "name" | "age" | "breed" | "bio">>;
+};
+
+export async function readSwipeDeck(deck: Horse[]): Promise<SwipeDeckProps> {
+    return {
+        deck: await Promise.all(
+            deck.map(async (record) => {
+                return {
+                    id: record.id,
+                    name: record.name,
+                    age: record.age,
+                    breed: record.breed,
+                    bio: record.bio,
+                };
+            }),
+        ),
+    };
+}
+
 export type HorseCardProps = {
     horse: Pick<Horse, "id" | "name" | "breed" | "age">;
 };

@@ -9,14 +9,19 @@ import (
 	"github.com/3nd3r1/philote/internal/target"
 )
 
-// reserved are names the generated component and read code use itself.
-var reserved = []string{"props", "item", "record", "must", "cn", "Icons", "link", "actions", "says"}
+// reserved are names the generated component and read code use itself,
+// and the hooks and toast a calling component imports.
+var reserved = []string{"props", "item", "record", "must", "cn", "Icons", "link", "actions", "says",
+	"useEffect", "useRef", "useState", "useTransition", "toast"}
 
 // marker is the line in a component file that the model's body replaces.
 const marker = "    // philote:body"
 
 type componentView struct {
 	Name, Marker string
+	Client       bool   // the component calls an endpoint, so it runs in the browser
+	Call         string // the action the body calls, empty for none
+	CallFile     string // the file that action is in
 	Props        bool   // the component takes a record or a list, as XProps
 	Extras       string // props the wrapper adds for the body: link and actions
 	Says         string // the says array's items, as JavaScript strings
@@ -42,7 +47,7 @@ type readsView struct {
 
 // components renders each component around a slot for its body, and
 // reads.ts, which loads their props.
-func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error) {
+func components(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Slot, error) {
 	var files []target.File
 	var slots []target.Slot
 	reads := readsView{}
@@ -52,9 +57,10 @@ func components(app *ir.App, part *ir.Part) ([]target.File, []target.Slot, error
 			return nil, nil, err
 		}
 		path := "src/components/common/" + kebab(c.Name) + ".tsx"
-		files = append(files, render("component.tsx.tmpl", path, newComponentView(c)))
+		files = append(files, render("component.tsx.tmpl", path, newComponentView(app, c)))
 		files = append(files, actionFiles(app, part, c)...)
 		files = append(files, pickFiles(c)...)
+		files = append(files, callFiles(app, backend, c)...)
 		slots = append(slots, target.Slot{
 			Node:   part.Name + "/" + c.Name,
 			File:   path,
@@ -79,13 +85,18 @@ func checkComponent(c *ir.Component) error {
 			return fmt.Errorf("component %s: the relation %s has the parameter's name; rename the parameter", c.Name, s.Name)
 		}
 	}
+	if c.Calls != nil {
+		if name := camel(c.Calls.Endpoint); name == c.Param || slices.Contains(reserved, name) {
+			return fmt.Errorf("component %s: the action %s clashes with the generated code; rename the endpoint or the parameter", c.Name, name)
+		}
+	}
 	return nil
 }
 
 // newComponentView builds the wrapper that hands the body its props, plus
 // the link and actions it places, which the model never sees the targets of.
-func newComponentView(c *ir.Component) componentView {
-	v := componentView{Name: c.Name, Marker: marker, Props: c.Param != ""}
+func newComponentView(app *ir.App, c *ir.Component) componentView {
+	v := componentView{Name: c.Name, Marker: marker, Props: c.Param != "", Client: c.Calls != nil}
 	var extras []string
 	if c.LinksTo != "" {
 		link := jsString(c.LinksTo)
@@ -105,6 +116,10 @@ func newComponentView(c *ir.Component) componentView {
 		v.Actions = kebab(c.Name) + "-actions"
 		extras = append(extras, fmt.Sprintf(" actions={<%sActions id={props.%s.id} />}", c.Name, c.Param))
 	}
+	if c.Calls != nil {
+		v.Call, v.CallFile = camel(c.Calls.Endpoint), kebab(c.Name)+"-call"
+		extras = append(extras, fmt.Sprintf(" %[1]s={%[1]s}", v.Call))
+	}
 	v.Extras = strings.Join(extras, "")
 	if c.Picks != "" {
 		v.Pick = kebab(c.Name) + "-pick"
@@ -112,15 +127,15 @@ func newComponentView(c *ir.Component) componentView {
 	if len(c.Says) > 0 {
 		v.Says = strings.Join(jsStrings(c.Says), ", ")
 	}
-	names, types := bodyParams(c)
+	names, types := bodyParams(app, c)
 	v.BodyArgs = bodyArgs(c, names, types)
 	v.ImportLink = c.LinksTo != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" })
 	return v
 }
 
 // bodyParams names what the body receives, and the type of what the
-// wrapper adds beside the record: the link and the actions.
-func bodyParams(c *ir.Component) ([]string, string) {
+// wrapper adds beside the record: the link, the actions and the call.
+func bodyParams(app *ir.App, c *ir.Component) ([]string, string) {
 	var names, types []string
 	if c.Param != "" {
 		names = append(names, c.Param)
@@ -136,6 +151,11 @@ func bodyParams(c *ir.Component) ([]string, string) {
 	if len(c.Actions) > 0 {
 		names = append(names, "actions")
 		types = append(types, "actions: React.ReactNode")
+	}
+	if c.Calls != nil {
+		name := camel(c.Calls.Endpoint)
+		names = append(names, name)
+		types = append(types, name+": "+actionType(app, c.Calls))
 	}
 	return names, strings.Join(types, "; ")
 }

@@ -2,6 +2,7 @@ package hono
 
 import (
 	"fmt"
+	"regexp"
 	"slices"
 	"strconv"
 	"strings"
@@ -25,6 +26,9 @@ func tsType(f *ir.Field) string {
 }
 
 func valueType(v *ir.Value) string {
+	if v.List {
+		return v.Entity + "[]"
+	}
 	if v.Entity != "" {
 		return v.Entity
 	}
@@ -122,21 +126,36 @@ func stepTypes(app *ir.App, s *ir.Step) ([]*ir.Enum, []*ir.Entity) {
 
 type endpointView struct {
 	Name, Func, Method, Route, Types string
+	Find                             bool // the handler finds records by id
 	Steps                            []mountView
 	Rules                            []ruleView
 	Lines                            []string
 }
+
+// routeParam matches a route param like [horse].
+var routeParam = regexp.MustCompile(`\[(\w+)\]`)
 
 func newEndpointView(app *ir.App, ep *ir.Endpoint) endpointView {
 	v := endpointView{
 		Name:   ep.Name,
 		Func:   "route" + pascal(ep.Name),
 		Method: strings.ToLower(ep.Method),
-		Route:  ep.Route,
+		Route:  routeParam.ReplaceAllString(ep.Route, ":$1"),
 		Types:  typeNames(app.Enums, app.Entities),
+	}
+	// A record in the route that doesn't exist is not_found, like a
+	// resource's get; one in the body is invalid_input.
+	for _, in := range ep.Flow.Params {
+		v.Find = true
+		v.Lines = append(v.Lines,
+			fmt.Sprintf("const %s = find(%q, ctx.req.param(%q)) as %s | undefined;", in.Name, in.Entity, in.Name, in.Entity),
+			fmt.Sprintf("if (!%s) {", in.Name),
+			`  return ctx.json({ error: "not_found" }, 404);`,
+			"}")
 	}
 	for _, in := range ep.Flow.Input {
 		if in.Entity != "" {
+			v.Find = true
 			v.Rules = append(v.Rules, ruleView{in.Name, refRule(in.Entity)})
 			v.Lines = append(v.Lines, fmt.Sprintf("const %s = find(%q, checked.values.%s as string) as %s;", in.Name, in.Entity, in.Name, in.Entity))
 		} else {
@@ -154,7 +173,7 @@ func newEndpointView(app *ir.App, ep *ir.Endpoint) endpointView {
 		call := fmt.Sprintf("await %s(%s);", camel(s.Name), strings.Join(args, ", "))
 		if s.Result != nil {
 			call = fmt.Sprintf("const %s = %s", s.Result.Name, call)
-			if s.Result.Entity == ep.Output && ep.Output != "" {
+			if s.Result.Entity == ep.Output && s.Result.List == ep.List && ep.Output != "" {
 				result = s.Result.Name
 			}
 		}

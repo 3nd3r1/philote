@@ -134,9 +134,9 @@ func TestFrozenWithoutBody(t *testing.T) {
 	}
 }
 
-// copySpec copies the horse example's backend, without its lock or its
-// frontend, into a temp dir and returns the path of its main file. Step
-// tests then ask the model for steps only.
+// copySpec copies the horse example's backend, without its lock, its
+// frontend or its read endpoints, into a temp dir and returns the path of
+// its main file. Step tests then ask the model for the swipe's steps only.
 func copySpec(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
@@ -146,6 +146,7 @@ func copySpec(t *testing.T) string {
 			t.Fatal(err)
 		}
 		data = bytes.Replace(data, []byte("  frontend web: nextjs\n"), nil, 1)
+		data, _, _ = bytes.Cut(data, []byte("\nendpoint candidates"))
 		if err := os.WriteFile(filepath.Join(dir, name), data, 0o644); err != nil {
 			t.Fatal(err)
 		}

@@ -45,7 +45,17 @@ req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$biscuit\",\"liked\":t
 req POST /swipe 422 "{\"horse\":\"$biscuit\",\"target\":\"$ed\",\"liked\":true}"
 req GET /matches 200
 [ "$body" = "[]" ] || { echo "FAIL a one-sided like made a match: $body"; fails=$((fails + 1)); }
+# Candidates leave out the horse itself and the horses it already swiped on.
+req GET "/horses/$ed/candidates" 200
+[ "$(printf '%s' "$body" | grep -c "$biscuit")" = 1 ] || { echo "FAIL ed's candidates don't include biscuit: $body"; fails=$((fails + 1)); }
+req GET "/horses/$biscuit/candidates" 200
+[ "$body" = "[]" ] || { echo "FAIL biscuit already swiped on every other horse: $body"; fails=$((fails + 1)); }
+req GET /horses/nope/candidates 404
 req POST /swipe 200 "{\"horse\":\"$ed\",\"target\":\"$biscuit\",\"liked\":true}"
+req GET "/horses/$ed/candidates" 200
+[ "$body" = "[]" ] || { echo "FAIL ed still sees biscuit after swiping: $body"; fails=$((fails + 1)); }
+req GET "/horses/$biscuit/matches" 200
+[ "$(printf '%s' "$body" | grep -c "$ed")" = 1 ] || { echo "FAIL biscuit's matches don't include ed: $body"; fails=$((fails + 1)); }
 req GET /matches 200
 count=$(printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).length))')
 [ "$count" = 1 ] || { echo "FAIL a mutual like made $count matches"; fails=$((fails + 1)); }
@@ -78,9 +88,10 @@ API_URL="http://localhost:$PORT" npx next start -p 3998 >"$out/web.log" 2>&1 &
 web=$!
 trap 'kill $pid $web' EXIT
 until curl -s localhost:3998 >/dev/null; do sleep 0.2; done
-# page PATH TEXT: the page must render TEXT once its data streams in.
+# page PATH TEXT [VIEWER]: the page must render TEXT once its data streams
+# in, for a visitor who picked VIEWER if one is given.
 page() {
-  if curl -s "localhost:3998$1" | grep -q "$2"; then echo "ok   page $1 shows $2"; else echo "FAIL page $1 doesn't show $2"; fails=$((fails + 1)); fi
+  if curl -s ${3:+-b "philote-viewer=$3"} "localhost:3998$1" | grep -q "$2"; then echo "ok   page $1 shows $2"; else echo "FAIL page $1 doesn't show $2"; fails=$((fails + 1)); fi
 }
 page /horses "Sea Biscuit"
 page /horses "/horses/$biscuit"
@@ -88,11 +99,15 @@ page "/horses/$biscuit" "sea-biscuit"
 page "/horses/$biscuit" "Loves apples"
 page "/horses/$biscuit" "/horses/$biscuit/edit"
 page /horses/nope "That horse doesn"
-page /matches "Mister Ed"
-page /matches "Shadowfax"
+page /matches "Mister Ed" "$biscuit"
+# The deck holds the horses the viewer hasn't swiped on: the client's, not Mister Ed.
+page /swipe "Shadowfax" "$biscuit"
+if curl -s -b "philote-viewer=$biscuit" localhost:3998/swipe | grep -q "Mister Ed"; then echo "FAIL page /swipe shows a horse biscuit swiped on"; fails=$((fails + 1)); else echo "ok   page /swipe leaves out swiped horses"; fi
 # A page that shows the viewer sends a visitor who hasn't picked one to the picker.
-got=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' localhost:3998/me)
-if [ "$got" = "307 http://localhost:3998/pick" ]; then echo "ok   page /me without a viewer goes to /pick"; else echo "FAIL page /me without a viewer: $got"; fails=$((fails + 1)); fi
+for path in /me /swipe /matches; do
+  got=$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' "localhost:3998$path")
+  if [ "$got" = "307 http://localhost:3998/pick" ]; then echo "ok   page $path without a viewer goes to /pick"; else echo "FAIL page $path without a viewer: $got"; fails=$((fails + 1)); fi
+done
 if curl -s -b "philote-viewer=$biscuit" localhost:3998/me | grep -q "sea-biscuit"; then echo "ok   page /me shows the viewer"; else echo "FAIL page /me doesn't show the viewer"; fails=$((fails + 1)); fi
 [ "$fails" = 0 ] || { echo "smoke: $fails failed"; exit 1; }
 node "$root/tools/smoke-forms.mjs" http://localhost:3998 "$biscuit"

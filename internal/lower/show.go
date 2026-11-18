@@ -2,6 +2,7 @@ package lower
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/3nd3r1/philote/internal/ir"
@@ -131,6 +132,8 @@ func pageSummary(pg *ir.Page) string {
 	}
 	out := strings.Join(shows, ", ")
 	switch {
+	case pg.Endpoint != "":
+		out = "load " + pg.Load + " from " + pg.Endpoint + " as the viewer, " + out
 	case pg.ByID:
 		out = "load " + pg.Load + " from " + pg.Resource + " by id, " + out
 	case pg.Load != "":
@@ -180,6 +183,26 @@ func componentTree(b *strings.Builder, c *ir.Component, depth int) {
 	if c.Picks != "" {
 		fmt.Fprintf(b, "      picks the viewer, then %s\n", c.Picks)
 	}
+	if c.Calls != nil {
+		fmt.Fprintf(b, "      %s\n", callLine(c.Calls))
+	}
+}
+
+// callLine prints what a component calls, like "calls swipe as the viewer
+// (horse), passing target, liked".
+func callLine(call *ir.Call) string {
+	out := "calls " + call.Endpoint
+	if len(call.Viewer) > 0 {
+		out += " as the viewer (" + strings.Join(call.Viewer, ", ") + ")"
+	}
+	var passed []string
+	for _, v := range call.Passed {
+		passed = append(passed, v.Name)
+	}
+	if len(passed) > 0 {
+		out += ", passing " + strings.Join(passed, ", ")
+	}
+	return out
 }
 
 // action prints what an action does, like "deletes via horses.delete, then /horses".
@@ -260,26 +283,33 @@ func stepList(f *ir.Flow) string {
 }
 
 func valueType(v *ir.Value) string {
+	if v.List {
+		return "[" + v.Entity + "]"
+	}
 	if v.Entity != "" {
 		return v.Entity
 	}
 	return FieldType(v.Field)
 }
 
-// flowSpec prints a custom endpoint with the steps it runs.
+// flowSpec prints a custom endpoint with the steps it runs. Route inputs
+// come first, like the route reads.
 func flowSpec(ep *ir.Endpoint) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "endpoint %s {\n  route: %s %q\n", ep.Name, ep.Method, ep.Route)
-	if len(ep.Flow.Input) > 0 {
+	if inputs := append(slices.Clone(ep.Flow.Params), ep.Flow.Input...); len(inputs) > 0 {
 		var fields []string
-		for _, v := range ep.Flow.Input {
+		for _, v := range inputs {
 			fields = append(fields, v.Name+": "+valueType(v))
 		}
 		fmt.Fprintf(&b, "  input: { %s }\n", strings.Join(fields, ", "))
 	}
 	if ep.Output != "" {
-		fmt.Fprintf(&b, "  output: %s\n", ep.Output)
+		fmt.Fprintf(&b, "  output: %s\n", valueType(&ir.Value{Entity: ep.Output, List: ep.List}))
 	}
-	fmt.Fprintf(&b, "  errors: %s\n  steps: %s\n}\n", strings.Join(ep.Errors, ", "), stepList(ep.Flow))
+	if len(ep.Errors) > 0 {
+		fmt.Fprintf(&b, "  errors: %s\n", strings.Join(ep.Errors, ", "))
+	}
+	fmt.Fprintf(&b, "  steps: %s\n}\n", stepList(ep.Flow))
 	return b.String()
 }

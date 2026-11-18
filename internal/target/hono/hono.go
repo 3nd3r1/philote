@@ -26,7 +26,7 @@ type Hono struct{}
 
 func (Hono) Name() string      { return "hono" }
 func (Hono) Kind() ir.PartKind { return ir.Backend }
-func (Hono) Version() string   { return "0.4.0" }
+func (Hono) Version() string   { return "0.5.0" }
 
 // reserved are names the generated endpoint handlers use themselves.
 var reserved = []string{"ctx", "checked", "error", "app"}
@@ -74,7 +74,7 @@ type mountView struct{ Func, File string }
 
 func checkNames(part *ir.Part) error {
 	for _, ep := range part.Custom {
-		for _, v := range ep.Flow.Input {
+		for _, v := range slices.Concat(ep.Flow.Params, ep.Flow.Input) {
 			if slices.Contains(reserved, v.Name) {
 				return fmt.Errorf("endpoint %s: the input name %q clashes with the generated handler; rename it", ep.Name, v.Name)
 			}

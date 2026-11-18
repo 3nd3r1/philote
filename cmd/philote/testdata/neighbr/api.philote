@@ -21,3 +21,27 @@ step match_if_mutual(swipe: Swipe) {
   writes: Match
   intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
 }
+
+endpoint candidates {
+  route: GET "/horses/[horse]/candidates"
+  input: { horse: Horse }
+  output: list of Horse
+  steps: pick_candidates
+}
+
+step pick_candidates(horse: Horse) -> horses: list of Horse {
+  reads: Horse, Swipe
+  intent: "every other horse this one hasn't swiped on yet"
+}
+
+endpoint matches_of {
+  route: GET "/horses/[horse]/matches"
+  input: { horse: Horse }
+  output: list of Match
+  steps: find_matches
+}
+
+step find_matches(horse: Horse) -> matches: list of Match {
+  reads: Match
+  intent: "every match this horse is in, newest first"
+}

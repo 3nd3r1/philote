@@ -32,9 +32,9 @@ page "/horses/[id]" {
 }
 
 page "/matches" {
-  load: matches
+  load: matches from matches_of(horse: viewer)
   shows: list of MatchCard(matches)
-  empty: "No matches yet."
+  empty: "No matches yet. Keep swiping."
 }
 
 page "/horses/new" {
@@ -49,8 +49,9 @@ page "/horses/[id]/edit" {
 }
 
 page "/swipe" {
-  form: swipe
-  then: "/matches"
+  load: deck from candidates(horse: viewer)
+  shows: SwipeDeck(deck)
+  empty: "You've seen every horse. Check back later."
 }
 
 component Landing {
@@ -70,6 +71,13 @@ component JoinHerd {
   says: "Not in the herd yet?"
   links_to: "/horses/new" as "Add your horse"
   look: "a small centered line with a quiet button, under the picker"
+}
+
+component SwipeDeck(deck: list of Horse) {
+  shows: deck.name, deck.age, deck.breed, deck.bio
+  says: "You've seen every horse. Check back later."
+  calls: swipe(horse: viewer, target: deck, liked)
+  look: "tinder: one big card at a time, drag right to like, left to pass, round ✕ and ♥ buttons under it, the next card peeking behind"
 }
 
 component HorseCard(horse: Horse) {

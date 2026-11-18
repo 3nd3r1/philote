@@ -62,3 +62,9 @@ export const matches = {
 
 export const swipe = (input: SwipeInput) =>
     call<Swipe, "invalid_input" | "same_horse" | "already_swiped">("POST", "/swipe", ["invalid_input", "same_horse", "already_swiped"], input);
+
+export const candidates = (horse: string) =>
+    call<Horse[], "not_found">("GET", `/horses/${encodeURIComponent(horse)}/candidates`, ["not_found"]);
+
+export const matchesOf = (horse: string) =>
+    call<Match[], "not_found">("GET", `/horses/${encodeURIComponent(horse)}/matches`, ["not_found"]);

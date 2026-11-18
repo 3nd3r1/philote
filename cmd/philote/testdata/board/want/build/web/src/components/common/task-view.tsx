@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 import TaskViewActions from "@/components/common/task-view-actions";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function TaskView(props: TaskViewProps) {
     return <TaskViewBody {...props} actions={<TaskViewActions id={props.task.id} />} />;
 }

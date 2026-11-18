@@ -19,9 +19,13 @@ Colors come only from the theme's variables: bg-background, text-foreground, bg-
 // another component or an unrelated entity doesn't change its key (D-019).
 func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 	var b strings.Builder
-	b.WriteString("Write the body of one React server component in a Next.js app that philote generated.\n" + themeRules + "\n")
+	kind := "server"
+	if c.Calls != nil {
+		kind = "client"
+	}
+	fmt.Fprintf(&b, "Write the body of one React %s component in a Next.js app that philote generated.\n%s\n", kind, themeRules)
 	fmt.Fprintf(&b, "The component, %s, %s. %s\n", c.Name, subject(c), usage(part, c))
-	names, extras := bodyParams(c)
+	names, extras := bodyParams(app, c)
 	fmt.Fprintf(&b, "\nThe function whose body you write:\nfunction %sBody(%s): React.ReactNode\n\n", c.Name, bodyArgs(c, names, extras))
 	if c.Param != "" {
 		typ := propsType(app, c, "    ")
@@ -53,18 +57,36 @@ Already imported. Use only these:
 	if c.Picks != "" {
 		b.WriteString("- Pick({ id, className, children }): the button that picks one record.\n")
 	}
-	b.WriteString(`
+	if c.Calls != nil {
+		b.WriteString("- useState, useEffect, useRef and useTransition from react, and toast from sonner.\n")
+	}
+	b.WriteString(rules(c))
+	return b.String()
+}
+
+// rules are what every body must keep to. A component that calls an
+// endpoint runs in the browser and may move with a gesture; any other
+// renders once on the server.
+func rules(c *ir.Component) string {
+	running := `- It renders on the server: no hooks, no state, no event handlers, no "use client".
+`
+	style := "No inline styles"
+	if c.Calls != nil {
+		running = `- It runs in the browser, already marked "use client": hooks, state and event handlers are fine. Use pointer events for gestures, so they work with a mouse and a finger.
+- Never fetch or call anything else: act only through ` + camel(c.Calls.Endpoint) + `.
+`
+		style = "No inline styles, except a transform or opacity that follows a gesture"
+	}
+	return `
 Rules:
 - Write only the statements inside the function, ending with a return of JSX. No imports, no other functions.
-- It renders on the server: no hooks, no state, no event handlers, no "use client".
-- Show only what the props hold. Don't invent data, placeholder text or images.
+` + running + `- Show only what the props hold. Don't invent data, placeholder text or images.
 - Show each value once. Don't repeat a field in a second place or a second format.
 - Words come only from the props, says and link.label. Don't write any other text, except a field's name as its label.
 - Keep the card parts' own layout. CardAction already sits at the top right of its CardHeader.
-- Style with Tailwind classes and the theme's variables. No inline styles, no hard-coded colors.
+- Style with Tailwind classes and the theme's variables. ` + style + `, no hard-coded colors.
 - Reply with the statements in one ` + "```tsx" + ` block and nothing else.
-`)
-	return b.String()
+`
 }
 
 func subject(c *ir.Component) string {
@@ -91,6 +113,9 @@ func placed(b *strings.Builder, c *ir.Component) {
 	}
 	if c.Picks != "" {
 		fmt.Fprintf(b, "\nTapping a %[1]s makes it the visitor's own %[1]s. Wrap what shows each record in <Pick id={item.id} className=\"...\">...</Pick>, exactly one Pick per record: it renders a <button> with your className around its children, so style it as the tappable thing.\n", c.Entity)
+	}
+	if c.Calls != nil {
+		callPrompt(b, c)
 	}
 	if len(c.Says) > 0 {
 		b.WriteString("\nsays holds the spec's words, in order. Render each one exactly once, as {says[0]} and so on, never retyped:\n")

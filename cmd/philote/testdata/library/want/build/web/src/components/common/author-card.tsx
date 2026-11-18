@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 import AuthorCardActions from "@/components/common/author-card-actions";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function AuthorCard(props: AuthorCardProps) {
     return <AuthorCardBody {...props} link={{ href: `/authors/${encodeURIComponent(props.author.id)}` }} actions={<AuthorCardActions id={props.author.id} />} />;
 }

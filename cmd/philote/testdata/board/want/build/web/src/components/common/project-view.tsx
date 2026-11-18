@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 import ProjectViewActions from "@/components/common/project-view-actions";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function ProjectView(props: ProjectViewProps) {
     return <ProjectViewBody {...props} actions={<ProjectViewActions id={props.project.id} />} />;
 }

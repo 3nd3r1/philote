@@ -34,7 +34,7 @@ func viewerFiles(part *ir.Part) []target.File {
 		view.PickerJS = jsString(v.Picker)
 	}
 	for _, pg := range part.Pages {
-		if showsViewer(pg) {
+		if pg.Viewer {
 			view.Matcher = append(view.Matcher, jsString(strings.ReplaceAll(pg.Route, "[id]", ":id")))
 		}
 	}

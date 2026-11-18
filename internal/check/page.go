@@ -34,7 +34,7 @@ func (c *checker) page(part, backend *ir.Part, s *syntax.Page) (*ir.Page, string
 		c.d.Errorf(s.Then.Pos, "only a form page has then")
 		return nil, ""
 	}
-	if !c.pageLoad(pg, backend, s) || !c.pageSections(pg, part, s) || !c.pageCopy(pg, s) {
+	if !c.pageLoad(pg, part, backend, s) || !c.pageSections(pg, part, s) || !c.pageCopy(pg, s) {
 		return nil, ""
 	}
 	part.Pages = append(part.Pages, pg)
@@ -57,9 +57,10 @@ func isRoute(route string) bool {
 	return true
 }
 
-// pageLoad resolves what a page fetches: a resource's list, or one record
-// by the route's [id]. A page without load fetches nothing.
-func (c *checker) pageLoad(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
+// pageLoad resolves what a page fetches: a resource's list, one record by
+// the route's [id], or what a GET endpoint returns. A page without load
+// fetches nothing.
+func (c *checker) pageLoad(pg *ir.Page, part, backend *ir.Part, s *syntax.Page) bool {
 	hasID := strings.Contains(pg.Route, "[id]")
 	if s.Load == nil {
 		if hasID {
@@ -74,6 +75,15 @@ func (c *checker) pageLoad(pg *ir.Page, backend *ir.Part, s *syntax.Page) bool {
 		c.d.Hint("show the viewer with `shows: <Component>(viewer)`")
 		return false
 	}
+	if s.Load.Call {
+		return c.endpointLoad(pg, part, backend, s)
+	}
+	return c.resourceLoad(pg, backend, s, hasID)
+}
+
+// resourceLoad resolves a load from a resource: its list, or one record by
+// the route's [id].
+func (c *checker) resourceLoad(pg *ir.Page, backend *ir.Part, s *syntax.Page, hasID bool) bool {
 	from := s.Load.Name
 	if s.Load.From != nil {
 		from = *s.Load.From
@@ -119,10 +129,14 @@ func (c *checker) pageSections(pg *ir.Page, part *ir.Part, s *syntax.Page) bool 
 	}
 	ok := true
 	for _, sec := range s.Shows {
-		if x := c.section(pg, part, sec); x != nil {
-			pg.Sections = append(pg.Sections, x)
-		} else {
+		x := c.section(pg, part, sec)
+		if x == nil {
 			ok = false
+			continue
+		}
+		pg.Sections = append(pg.Sections, x)
+		if calls := findComponent(part, x.Component).Calls; x.Viewer || calls != nil && len(calls.Viewer) > 0 {
+			pg.Viewer = true
 		}
 	}
 	if pg.Load != "" && !slices.ContainsFunc(pg.Sections, func(x *ir.Section) bool { return x.Arg && !x.Viewer }) {
@@ -211,7 +225,7 @@ func (c *checker) pageCopy(pg *ir.Page, s *syntax.Page) bool {
 	switch {
 	case list && s.Empty == nil:
 		c.d.Errorf(s.Word.Pos, "a page that loads a list must say what shows when it's empty")
-		c.d.Hint(`add empty: "No %s yet."`, pg.Resource)
+		c.d.Hint(`add empty: "No %s yet."`, pg.Load)
 	case pg.ByID && s.NotFound == nil:
 		c.d.Errorf(s.Word.Pos, "a page by id must say what shows when the record doesn't exist")
 		c.d.Hint(`add not_found: "That %s doesn't exist."`, strings.ToLower(pg.Entity))

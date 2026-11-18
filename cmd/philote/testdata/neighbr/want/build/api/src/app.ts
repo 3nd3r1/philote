@@ -4,6 +4,8 @@ import { mountHorses } from "./resources/horses.js";
 import { mountSwipes } from "./resources/swipes.js";
 import { mountMatches } from "./resources/matches.js";
 import { routeSwipe } from "./endpoints/swipe.js";
+import { routeCandidates } from "./endpoints/candidates.js";
+import { routeMatchesOf } from "./endpoints/matches_of.js";
 
 export const app = new Hono();
 
@@ -13,3 +15,5 @@ mountHorses(app);
 mountSwipes(app);
 mountMatches(app);
 routeSwipe(app);
+routeCandidates(app);
+routeMatchesOf(app);

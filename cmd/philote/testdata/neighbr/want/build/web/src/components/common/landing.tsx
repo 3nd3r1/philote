@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function Landing() {
     return <LandingBody link={{ href: "/pick", label: "Start swiping" }} />;
 }

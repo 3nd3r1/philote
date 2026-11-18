@@ -14,5 +14,7 @@ export function proxy(request: NextRequest) {
 export const config = {
     matcher: [
         "/me",
+        "/matches",
+        "/swipe",
     ],
 };

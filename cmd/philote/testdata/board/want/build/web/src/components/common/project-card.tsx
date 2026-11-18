@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-// The wrapper hands the body its props, and the link and actions it places.
+// The wrapper hands the body its props, and what the template places beside them.
 export default function ProjectCard(props: ProjectCardProps) {
     return <ProjectCardBody {...props} link={{ href: `/projects/${encodeURIComponent(props.project.id)}` }} />;
 }

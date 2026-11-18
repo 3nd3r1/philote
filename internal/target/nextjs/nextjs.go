@@ -26,7 +26,7 @@ type Nextjs struct{}
 
 func (Nextjs) Name() string      { return "nextjs" }
 func (Nextjs) Kind() ir.PartKind { return ir.Frontend }
-func (Nextjs) Version() string   { return "0.5.0" }
+func (Nextjs) Version() string   { return "0.6.0" }
 
 func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	backend := usedBackend(app, part)
@@ -34,7 +34,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
-	views, slots, err := components(app, part)
+	views, slots, err := components(app, backend, part)
 	if err != nil {
 		return target.Output{}, err
 	}

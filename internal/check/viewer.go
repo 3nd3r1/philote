@@ -72,7 +72,7 @@ func (c *checker) picks(part *ir.Part, comp *ir.Component, s *syntax.Component) 
 	}
 }
 
-// picker finds the one page that picks the viewer, where a page that shows
+// picker finds the one page that picks the viewer, where a page that needs
 // the viewer sends a visitor who hasn't picked yet.
 func (c *checker) picker(part *ir.Part) {
 	v := part.Viewer
@@ -84,18 +84,25 @@ func (c *checker) picker(part *ir.Part) {
 		if slices.ContainsFunc(pg.Sections, func(s *ir.Section) bool { return findComponent(part, s.Component).Picks != "" }) {
 			pickers = append(pickers, pg.Route)
 		}
-		if slices.ContainsFunc(pg.Sections, func(s *ir.Section) bool { return s.Viewer }) {
+		if pg.Viewer {
 			needers = append(needers, pg.Route)
+		}
+	}
+	// The action behind a call as the viewer sends a visitor without one to
+	// the picker too, even from a component no page shows yet.
+	for _, comp := range part.Components {
+		if comp.Calls != nil && len(comp.Calls.Viewer) > 0 {
+			needers = append(needers, comp.Name)
 		}
 	}
 	switch {
 	case len(pickers) == 0 && len(needers) > 0:
-		c.d.Errorf(v.Pos, "%s shows the viewer, but no page picks it", needers[0])
+		c.d.Errorf(v.Pos, "%s needs the viewer, but no page picks it", needers[0])
 		c.d.Hint("add `picks: viewer then \"%s\"` to a component that takes a list of %s, and show it on a page", needers[0], v.Entity)
 	case len(pickers) > 1:
 		c.d.Errorf(v.Pos, "%s and %s both pick the viewer; keep one picker page", pickers[0], pickers[1])
 	case len(pickers) == 1 && slices.Contains(needers, pickers[0]):
-		c.d.Errorf(v.Pos, "%s picks the viewer, so it can't show it too", pickers[0])
+		c.d.Errorf(v.Pos, "%s picks the viewer, so it can't need it too", pickers[0])
 	case len(pickers) == 1:
 		v.Picker = pickers[0]
 	}

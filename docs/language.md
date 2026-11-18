@@ -71,6 +71,22 @@ step finish_task(task: Task) -> done: Task {
 }
 ```
 
+A GET endpoint reads. Its inputs are records named in its route, sent as their ids, and it takes no body. A record that doesn't exist is `not_found`. Under a resource's path, a route looks like `/projects/[project]/open` and can't take one of the resource's own routes, like `/projects/[id]/tasks`.
+
+```
+endpoint open_tasks {
+  route: GET "/projects/[project]/open"
+  input: { project: Project }
+  output: list of Task          // a step returns a list of Task
+  steps: find_open
+}
+
+step find_open(project: Project) -> tasks: list of Task {
+  reads: Task
+  intent: "the project's tasks that aren't done, oldest first"
+}
+```
+
 A step's parameters come from the endpoint's input, or from earlier steps' results, by name. The model writes only the step's body. It sees the signature, the intent, and the types of the tables the step can reach. It can only touch the tables the step lists, and the body has to typecheck.
 
 ## Frontend
@@ -153,6 +169,7 @@ component TaskCard(task: Task) {
 ```
 
 - `load: <name> [from <resource>] [by id]` names what the page fetches. A page loads at most one thing; a page that loads a list says what shows when it's `empty`, a page by id says what shows when it's `not_found`.
+- `load: <name> from <endpoint>(<input>: viewer)` loads the list a GET endpoint returns, with the viewer as every input, like `load: mine from open_tasks(project: viewer)`. The page needs the viewer.
 - `shows` lists the page's sections. `C(name)` hands a component what the page loads, as it is; `list of C(name)` shows one `C` per record in a grid. A component without a parameter, like `Welcome`, takes nothing.
 - A component takes no record, one record, or `list of` an entity. Its `shows` lists every field it reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
 - `says` gives a component its words, up to 200 characters each. The body shows each one exactly as written, and other than these, data and labels, the model writes no text.
@@ -160,6 +177,19 @@ component TaskCard(task: Task) {
 - The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it.
 - A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
 - Form fields are the endpoint's input, in order.
+
+A component can call one custom endpoint that changes something. It then runs in the browser: the model can give it state and gestures, and the template hands its body the endpoint as an action.
+
+```
+component SwipeDeck(deck: list of Horse) {
+  shows: deck.name, deck.bio
+  calls: swipe(horse: viewer, target: deck, liked)
+  look: "one card at a time, drag right to like, left to pass"
+}
+```
+
+- Every input is listed once. `<input>: viewer` is filled on the server with the viewer, so the body never sends who the visitor is, and a page that shows the component needs the viewer. `<input>: <param>` is the id of the component's record, or of the one in its list the visitor acts on. A bare `<input>` is a value from what the visitor does, like a bool.
+- The body calls the action, like `await swipe({ target, liked })`, and gets an error message to show, or nothing when it worked. A body that never calls it, or that uses `fetch`, goes back to the model.
 
 ## Build
 

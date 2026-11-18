@@ -1,6 +1,6 @@
 // Calls the running backend through the generated Next.js client. smoke.sh
 // copies it into the built web part and runs it with API_URL set.
-import { horses, matches, swipe } from "@/lib/api";
+import { candidates, horses, matches, matchesOf, swipe } from "@/lib/api";
 
 let fails = 0;
 function expect(what: string, ok: boolean, got: unknown) {
@@ -27,6 +27,12 @@ expect("lists a has-many relation", liked.ok && liked.value.length === 1 && like
 const all = await matches.list();
 const mine = all.ok ? all.value.filter((m) => [m.first_id, m.second_id].includes(pony.value.id)) : [];
 expect("sees the match", mine.length === 1, all);
+const left = await candidates(pony.value.id);
+expect("lists candidates without the horse or who it swiped on", left.ok && !left.value.some((h) => [pony.value.id, shadow.value.id].includes(h.id)), left);
+const own = await matchesOf(pony.value.id);
+expect("lists a horse's own matches", own.ok && own.value.length === 1, own);
+const stranger = await candidates("nope");
+expect("returns not_found for a missing route record", !stranger.ok && stranger.error === "not_found", stranger);
 const loner = await horses.create({ name: "Loner", breed: "arabian", age: 9, bio: "Keeps to itself." });
 if (!loner.ok) throw new Error("setup failed");
 const gone = await horses.delete(loner.value.id);

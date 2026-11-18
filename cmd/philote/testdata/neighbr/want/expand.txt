@@ -82,3 +82,19 @@ endpoint swipe {
   errors: invalid_input, same_horse, already_swiped
   steps: record_swipe, match_if_mutual
 }
+
+endpoint candidates {
+  route: GET "/horses/[horse]/candidates"
+  input: { horse: Horse }
+  output: [Horse]
+  errors: not_found
+  steps: pick_candidates
+}
+
+endpoint matches_of {
+  route: GET "/horses/[horse]/matches"
+  input: { horse: Horse }
+  output: [Match]
+  errors: not_found
+  steps: find_matches
+}

@@ -11,6 +11,7 @@ func TestCheckBodies(t *testing.T) {
 	const says = "const says = [\"Find your herd.\", \"Say \\\"hi\\\"]\"] as const;\n"
 	const linked = "export default function X(props: XProps) {\n    return <XBody {...props} link={{ href: \"/a\" }} actions={<XActions id={props.x.id} />} />;\n}\n"
 	const picker = "import Pick from \"@/components/common/x-pick\";\n"
+	const caller = "import { swipe } from \"@/lib/actions/x-call\";\n"
 	files := map[string]struct {
 		head, body string
 		want       []string
@@ -23,6 +24,10 @@ func TestCheckBodies(t *testing.T) {
 		}},
 		"picker.tsx":   {picker, "return <ul>{x.map((item) => <Pick key={item.id} id={item.id}>{item.name}</Pick>)}</ul>;", nil},
 		"unpicked.tsx": {picker, "return <ul>{x.map((item) => <li key={item.id}>{item.name}</li>)}</ul>;", []string{"the body must wrap each record in <Pick id={...}>"}},
+		"caller.tsx":   {caller, "return <button onClick={() => swipe({ target: x[0].id, liked: true })} />;", nil},
+		"uncalled.tsx": {caller, "return <button onClick={() => fetch(\"/api/swipe\")} />;", []string{
+			"the body must call swipe when the visitor acts", "the body must not fetch; it shows its props and acts only through what it's handed",
+		}},
 	}
 	dir := t.TempDir()
 	common := filepath.Join(dir, "src/components/common")

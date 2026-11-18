@@ -19,6 +19,12 @@ neighbr
     swipe (endpoint)
       POST /swipe
       steps: record_swipe, match_if_mutual
+    candidates (endpoint)
+      GET /horses/[horse]/candidates
+      steps: pick_candidates
+    matches_of (endpoint)
+      GET /horses/[horse]/matches
+      steps: find_matches
   web (frontend, nextjs) uses api
     theme: from its look
     viewer: Horse from horses, picked on /pick
@@ -28,10 +34,10 @@ neighbr
     /me: HorseView(viewer)
     /horses: load horses from horses, list of HorseCard(horses)
     /horses/[id]: load horse from horses by id, HorseView(horse)
-    /matches: load matches from matches, list of MatchCard(matches)
+    /matches: load matches from matches_of as the viewer, list of MatchCard(matches)
     /horses/new: form horses.create, then /horses/[id]
     /horses/[id]/edit: form horses.update, then /horses/[id]
-    /swipe: form swipe, then /matches
+    /swipe: load deck from candidates as the viewer, SwipeDeck(deck)
     Landing
       says: Find your herd. / Swipe on horses near you. Match when it's mutual.
       links to /pick
@@ -42,6 +48,10 @@ neighbr
     JoinHerd
       says: Not in the herd yet?
       links to /horses/new
+    SwipeDeck(deck: list of Horse)
+      shows: deck.name, deck.age, deck.breed, deck.bio
+      says: You've seen every horse. Check back later.
+      calls swipe as the viewer (horse), passing target, liked
     HorseCard(horse: Horse)
       shows: horse.name, horse.breed, horse.age
       links to /horses/[id]

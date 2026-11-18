@@ -3,7 +3,6 @@ package nextjs
 import (
 	"encoding/json"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/3nd3r1/philote/internal/ir"
@@ -40,7 +39,7 @@ func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []navItemView) {
 			}
 			continue
 		}
-		v := newPageView(app, part, pg)
+		v := newPageView(app, backend, part, pg)
 		dir := "src/app" + strings.TrimSuffix(pg.Route, "/") + "/"
 		files = append(files, render("page.tsx.tmpl", dir+"page.tsx", v))
 		switch {
@@ -53,16 +52,18 @@ func pages(app *ir.App, backend, part *ir.Part) ([]target.File, []navItemView) {
 	return files, append(nav, forms...)
 }
 
-func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
+func newPageView(app *ir.App, backend, part *ir.Part, pg *ir.Page) pageView {
 	v := pageView{Route: pg.Route, Title: jsString(title(app, pg)), NotFound: jsString(pg.NotFound), ByID: pg.ByID}
-	if pg.Load != "" {
-		// The page holds what it loads in a local named loaded and reaches
-		// the client through the api namespace, so no spec name, like a load
-		// named horses next to the horses client, can shadow generated code.
+	// The page holds what it loads in a local named loaded and reaches the
+	// client through the api namespace, so no spec name, like a load named
+	// horses next to the horses client, can shadow generated code.
+	switch {
+	case pg.Endpoint != "":
+		v.Client = "api." + camel(pg.Endpoint) + "(" + viewerArgs(endpoint(backend, pg.Endpoint)) + ")"
+	case pg.ByID:
+		v.Client = "api." + camel(pg.Resource) + ".get(id)"
+	case pg.Load != "":
 		v.Client = "api." + camel(pg.Resource) + ".list()"
-		if pg.ByID {
-			v.Client = "api." + camel(pg.Resource) + ".get(id)"
-		}
 	}
 	reads, imported := map[string]bool{}, map[string]bool{}
 	for i, sec := range pg.Sections {
@@ -81,13 +82,19 @@ func newPageView(app *ir.App, part *ir.Part, pg *ir.Page) pageView {
 		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props))
 	}
 	v.Reads = strings.Join(sortedKeys(reads), ", ")
-	v.Viewer = showsViewer(pg)
+	v.Viewer = pg.Viewer
 	v.Async = v.Client != "" || v.Viewer
 	return v
 }
 
-func showsViewer(pg *ir.Page) bool {
-	return slices.ContainsFunc(pg.Sections, func(s *ir.Section) bool { return s.Viewer })
+// viewerArgs fills each of a GET endpoint's route inputs with the viewer's
+// id; check allows nothing else there.
+func viewerArgs(ep *ir.Endpoint) string {
+	args := make([]string, len(ep.Flow.Params))
+	for i := range args {
+		args[i] = "viewer.id"
+	}
+	return strings.Join(args, ", ")
 }
 
 // sectionPrep reads a section's props from what the page loaded.

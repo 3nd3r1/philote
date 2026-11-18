@@ -1,6 +1,20 @@
 # Step and component bodies written by a model and pinned by philote build (D-015, D-019).
 # Commit this file and review its diff like code. Don't edit it by hand.
 
+step api/find_matches
+key b2bcfbf6639cc3789a77a799597368a71807e41877b501759933d20e80ce1f45
+model claude-opus-5-5
+| const matches = (all("Match") as Match[]).filter(
+|   (m) => m.first_id === horse.id || m.second_id === horse.id
+| );
+| matches.sort((a, b) => {
+|   const ta = Date.parse(a.matched_at);
+|   const tb = Date.parse(b.matched_at);
+|   if (tb !== ta) return tb - ta;
+|   return b.id < a.id ? -1 : b.id > a.id ? 1 : 0;
+| });
+| return matches;
+
 step api/match_if_mutual
 key 385a38fde97e6b9d9d46abe828733b3db8e405ce9b4320bf9235b35dda3e84a7
 model claude-opus-5-5
@@ -36,6 +50,18 @@ model claude-opus-5-5
 |   first_id: swipe.horse_id,
 |   second_id: swipe.target_id,
 | });
+
+step api/pick_candidates
+key 23fcc78defd414d21a67eb95161b7b32168e10a306889cce46105a1bc5ec04bf
+model claude-opus-5-5
+| const swiped = new Set(
+|   (all("Swipe") as Swipe[])
+|     .filter((s) => s.horse_id === horse.id)
+|     .map((s) => s.target_id)
+| );
+| return (all("Horse") as Horse[]).filter(
+|   (h) => h.id !== horse.id && !swiped.has(h.id)
+| );
 
 step api/record_swipe
 key 56deeecfd9ea24dc54a254b3428a855cec85ddf9faff643293833c02225a5ce7
@@ -272,6 +298,159 @@ model claude-opus-5-5
 |             </p>
 |         </CardContent>
 |     </Card>
+| );
+
+component web/SwipeDeck
+key 80a6beb1c5dd68f3b21591087845efd71ebecb9a063495cf592b3b3b8e426e73
+model claude-opus-5-5
+| const [gone, setGone] = useState<string[]>([]);
+| const [dx, setDx] = useState(0);
+| const [dragging, setDragging] = useState(false);
+| const startX = useRef<number | null>(null);
+| const [, startTransition] = useTransition();
+|
+| const remaining = deck.filter((h) => !gone.includes(h.id));
+| const top = remaining[0];
+| const threshold = 110;
+|
+| const decide = (liked: boolean) => {
+|   if (!top) return;
+|   const id = top.id;
+|   setGone((g) => [...g, id]);
+|   setDx(0);
+|   setDragging(false);
+|   startX.current = null;
+|   startTransition(async () => {
+|     const message = await swipe({ target: id, liked });
+|     if (message) {
+|       toast.error(message);
+|       setGone((g) => g.filter((x) => x !== id));
+|     }
+|   });
+| };
+|
+| const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+|   if ((e.target as HTMLElement).closest("button")) return;
+|   e.currentTarget.setPointerCapture(e.pointerId);
+|   startX.current = e.clientX;
+|   setDragging(true);
+| };
+|
+| const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+|   if (startX.current === null) return;
+|   setDx(e.clientX - startX.current);
+| };
+|
+| const onPointerEnd = () => {
+|   if (startX.current === null) return;
+|   startX.current = null;
+|   setDragging(false);
+|   if (dx > threshold) decide(true);
+|   else if (dx < -threshold) decide(false);
+|   else setDx(0);
+| };
+|
+| const stack = remaining.slice(0, 2).reverse();
+| const likeOpacity = Math.max(0, Math.min(1, dx / threshold));
+| const passOpacity = Math.max(0, Math.min(1, -dx / threshold));
+|
+| return (
+|   <section className="w-full bg-background text-foreground">
+|     <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-8 sm:px-6 sm:py-12">
+|       {top ? (
+|         <>
+|           <div className="grid w-full max-w-md">
+|             {stack.map((horse) => {
+|               const isTop = horse.id === top.id;
+|               return (
+|                 <div
+|                   key={horse.id}
+|                   className={cn(
+|                     "col-start-1 row-start-1",
+|                     isTop
+|                       ? "z-10 cursor-grab touch-none select-none active:cursor-grabbing"
+|                       : "pointer-events-none z-0 translate-y-4 scale-95 opacity-70 transition-transform duration-300",
+|                     isTop && !dragging && "transition-transform duration-300 ease-out"
+|                   )}
+|                   style={
+|                     isTop
+|                       ? { transform: `translateX(${dx}px) rotate(${dx / 18}deg)` }
+|                       : undefined
+|                   }
+|                   onPointerDown={isTop ? onPointerDown : undefined}
+|                   onPointerMove={isTop ? onPointerMove : undefined}
+|                   onPointerUp={isTop ? onPointerEnd : undefined}
+|                   onPointerCancel={isTop ? onPointerEnd : undefined}
+|                 >
+|                   <Card className="relative min-h-[26rem] overflow-hidden rounded-xl border bg-card text-card-foreground shadow-lg sm:min-h-[30rem]">
+|                     {isTop && (
+|                       <>
+|                         <div
+|                           className="pointer-events-none absolute left-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 border-primary bg-background/80 text-primary"
+|                           style={{ opacity: likeOpacity }}
+|                         >
+|                           <Icons.Heart className="size-7 fill-current" />
+|                         </div>
+|                         <div
+|                           className="pointer-events-none absolute right-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 bg-background/80 text-muted-foreground"
+|                           style={{ opacity: passOpacity }}
+|                         >
+|                           <Icons.X className="size-7" />
+|                         </div>
+|                       </>
+|                     )}
+|                     <CardHeader className="gap-2 pt-6">
+|                       <CardTitle className="font-heading text-3xl font-bold leading-tight sm:text-4xl">
+|                         {horse.name}
+|                       </CardTitle>
+|                       <CardDescription className="flex items-baseline gap-1.5 text-base text-muted-foreground">
+|                         <span className="text-xs uppercase tracking-wide">Age</span>
+|                         <span className="text-lg font-semibold text-foreground">{horse.age}</span>
+|                       </CardDescription>
+|                       <CardAction>
+|                         <Badge variant="secondary" className="capitalize">
+|                           {horse.breed}
+|                         </Badge>
+|                       </CardAction>
+|                     </CardHeader>
+|                     <Separator />
+|                     <CardContent className="flex-1 pb-6">
+|                       <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground">
+|                         {horse.bio}
+|                       </p>
+|                     </CardContent>
+|                   </Card>
+|                 </div>
+|               );
+|             })}
+|           </div>
+|           <div className="flex items-center justify-center gap-8">
+|             <button
+|               type="button"
+|               onClick={() => decide(false)}
+|               className="flex size-16 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-105 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+|             >
+|               <Icons.X className="size-7" />
+|             </button>
+|             <button
+|               type="button"
+|               onClick={() => decide(true)}
+|               className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+|             >
+|               <Icons.Heart className="size-7 fill-current" />
+|             </button>
+|           </div>
+|         </>
+|       ) : (
+|         <Card className="w-full max-w-md rounded-xl border bg-muted text-muted-foreground">
+|           <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+|             <Icons.Heart className="size-10" />
+|             <p className="font-heading text-lg">{says[0]}</p>
+|           </CardContent>
+|         </Card>
+|       )}
+|     </div>
+|   </section>
 | );
 
 nav web/nav

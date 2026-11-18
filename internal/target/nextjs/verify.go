@@ -17,6 +17,9 @@ var tscError = regexp.MustCompile(`^(\S+)\((\d+),(\d+)\): error (.*)$`)
 // saysItem matches one item of a component's says array.
 var saysItem = regexp.MustCompile(`"(?:[^"\\]|\\.)*"`)
 
+// callImport matches the import of the action a calling component's body is handed.
+var callImport = regexp.MustCompile(`import \{ (\w+) \} from "@/lib/actions/[\w-]+-call";`)
+
 // Verify checks the theme and the bodies' shape, installs dependencies if
 // needed, then typechecks and lints the project. Route types like LayoutProps come from next typegen, so it
 // runs first.
@@ -160,6 +163,12 @@ func bodyProblems(head, body string) []string {
 	}
 	if strings.Contains(head, "import Pick from") && !strings.Contains(body, "<Pick ") {
 		out = append(out, "the body must wrap each record in <Pick id={...}>")
+	}
+	if m := callImport.FindStringSubmatch(head); m != nil && !strings.Contains(body, m[1]+"(") {
+		out = append(out, "the body must call "+m[1]+" when the visitor acts")
+	}
+	if strings.Contains(body, "fetch(") {
+		out = append(out, "the body must not fetch; it shows its props and acts only through what it's handed")
 	}
 	if strings.Contains(head, "<NavBody ") {
 		out = append(out, navProblems(body)...)

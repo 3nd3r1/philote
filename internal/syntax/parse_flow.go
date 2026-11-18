@@ -46,10 +46,11 @@ func (p *parser) identList(what string) []Ident {
 	return out
 }
 
-// param is `<name>: <Type>(limits)`.
+// param is `<name>: [list of] <Type>(limits)`.
 func (p *parser) param() *Field {
 	f := &Field{Name: p.ident("a name")}
 	p.expect(tColon, "':' and a type after '"+f.Name.Name+"'")
+	f.List = p.listOf()
 	f.Type = p.ident("a type")
 	if p.peek().kind == tLParen {
 		f.Limits = p.limits()
@@ -103,6 +104,7 @@ func (p *parser) endpoint() Item {
 		case "input":
 			e.Input = p.record()
 		case "output":
+			e.List = p.listOf()
 			o := p.ident("an entity")
 			e.Output = &o
 		case "errors":
@@ -137,4 +139,14 @@ func (p *parser) step() Item {
 	})
 	p.endStatement()
 	return s
+}
+
+// listOf reads an optional `list of`.
+func (p *parser) listOf() bool {
+	if !p.isWord("list") {
+		return false
+	}
+	p.next()
+	p.word("of")
+	return true
 }
