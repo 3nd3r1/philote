@@ -14,6 +14,7 @@ export const metadata: Metadata = { title: "Projects" };
 export default function Page() {
     return (
         <main className="flex flex-1 flex-col">
+            <h1 className="mx-auto w-full max-w-5xl px-4 pt-8 font-heading text-3xl font-semibold tracking-tight sm:px-6">{"Projects"}</h1>
             <Suspense fallback={<p className="px-4 py-16 text-center text-muted-foreground">Loading…</p>}>
                 <Sections />
             </Suspense>
@@ -31,7 +32,7 @@ async function Sections() {
             {props1.length === 0 ? (
                 <p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{"No projects yet. Start one."}</p>
             ) : (
-                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 pt-4 pb-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
                     {props1.map((item) => (
                         <ProjectCard key={item.project.id} {...item} />
                     ))}

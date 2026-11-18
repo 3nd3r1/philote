@@ -28,6 +28,9 @@ export const metadata: Metadata = { title: {{.Title}} };
 export default function Page({{if .ByID}}{ params }: PageProps<"{{.Route}}">{{end}}) {
     return (
         <main className="flex flex-1 flex-col">
+{{- if .Heading}}
+            <h1 className="mx-auto w-full max-w-5xl px-4 pt-8 font-heading text-3xl font-semibold tracking-tight sm:px-6">{{"{"}}{{.Heading}}{{"}"}}</h1>
+{{- end}}
             <Suspense fallback={<p className="px-4 py-16 text-center text-muted-foreground">Loading…</p>}>
                 <Sections{{if .ByID}} params={params}{{end}} />
             </Suspense>

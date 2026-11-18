@@ -13,6 +13,7 @@ import (
 // NotFound are JavaScript string literals.
 type pageView struct {
 	Route, Title, NotFound string
+	Heading                string // the title over a page that opens with a list; empty for none
 	Client                 string // the client call that loads the page's data; empty for none
 	ByID                   bool
 	Viewer                 bool   // the page shows the viewer
@@ -65,6 +66,11 @@ func newPageView(app *ir.App, backend, part *ir.Part, pg *ir.Page) pageView {
 	case pg.Load != "":
 		v.Client = "api." + camel(pg.Resource) + ".list()"
 	}
+	// A page that opens with a list says what the list is; a page that opens
+	// with a component, like a hero or a deck, lets it speak for itself.
+	if len(pg.Sections) > 0 && pg.Sections[0].List {
+		v.Heading = v.Title
+	}
 	reads, imported := map[string]bool{}, map[string]bool{}
 	for i, sec := range pg.Sections {
 		c := component(part, sec.Component)
@@ -79,7 +85,7 @@ func newPageView(app *ir.App, backend, part *ir.Part, pg *ir.Page) pageView {
 		reads["read"+c.Name] = true
 		props := fmt.Sprintf("props%d", i+1)
 		v.Prep = append(v.Prep, sectionPrep(c, sec, props))
-		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props))
+		v.Sections = append(v.Sections, sectionJSX(pg, c, sec, props, i == 0 && v.Heading != ""))
 	}
 	v.Reads = strings.Join(sortedKeys(reads), ", ")
 	v.Viewer = pg.Viewer
@@ -109,21 +115,25 @@ func sectionPrep(c *ir.Component, sec *ir.Section, props string) string {
 }
 
 // sectionJSX renders a section. A list that's empty shows the page's empty
-// text in its place.
-func sectionJSX(pg *ir.Page, c *ir.Component, sec *ir.Section, props string) string {
+// text in its place. A list under the page's heading sits closer to it.
+func sectionJSX(pg *ir.Page, c *ir.Component, sec *ir.Section, props string, headed bool) string {
 	empty := `<p className="mx-auto w-full max-w-5xl px-4 py-16 text-center text-muted-foreground sm:px-6">{` + jsString(pg.Empty) + `}</p>`
+	pad := "py-8"
+	if headed {
+		pad = "pt-4 pb-8"
+	}
 	switch {
 	case sec.Viewer:
 	case sec.List:
 		return fmt.Sprintf(`{%[2]s.length === 0 ? (
                 %[3]s
             ) : (
-                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-8 sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 %[5]s sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
                     {%[2]s.map((item) => (
                         <%[1]s key={item.%[4]s.id} {...item} />
                     ))}
                 </section>
-            )}`, c.Name, props, empty, c.Param)
+            )}`, c.Name, props, empty, c.Param, pad)
 	case !pg.ByID:
 		return fmt.Sprintf(`{%[2]s.%[3]s.length === 0 ? %[4]s : <%[1]s {...%[2]s} />}`, c.Name, props, c.Param, empty)
 	}
