@@ -6,7 +6,7 @@ import Link from "next/link";
 {{- end}}
 {{- if .Delete}}
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { toast } from "sonner";
 
@@ -22,6 +22,9 @@ export default function {{.Component}}Actions({ id }: { id: string }) {
 {{- if .Delete}}
     const router = useRouter();
     const [pending, start] = useTransition();
+    // A delete asks on the page, not in a browser dialog, so the question
+    // looks like the app and sits next to the button it's about.
+    const [confirming, setConfirming] = useState(false);
 {{- end}}
     return (
         <div className="flex flex-wrap gap-2">
@@ -31,26 +34,36 @@ export default function {{.Component}}Actions({ id }: { id: string }) {
                 {{"{"}}{{.Label}}{{"}"}}
             </Link>
 {{- else}}
-            <Button
-                variant="destructive"
-                size="sm"
-                disabled={pending}
-                onClick={() => {
-                    if (!window.confirm({{.Confirm}})) {
-                        return;
-                    }
-                    start(async () => {
-                        const error = await remove(id);
-                        if (error) {
-                            toast.error(error);
-                        } else {
-                            router.refresh();
-                        }
-                    });
-                }}
-            >
-                {{"{"}}{{.Label}}{{"}"}}
-            </Button>
+            {confirming ? (
+                <>
+                    <span className="self-center text-sm text-muted-foreground">{{"{"}}{{.Confirm}}{{"}"}}</span>
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        disabled={pending}
+                        onClick={() => {
+                            start(async () => {
+                                const error = await remove(id);
+                                if (error) {
+                                    toast.error(error);
+                                    setConfirming(false);
+                                } else {
+                                    router.refresh();
+                                }
+                            });
+                        }}
+                    >
+                        {{"{"}}{{.Label}}{{"}"}}
+                    </Button>
+                    <Button variant="ghost" size="sm" disabled={pending} onClick={() => setConfirming(false)}>
+                        Cancel
+                    </Button>
+                </>
+            ) : (
+                <Button variant="destructive" size="sm" onClick={() => setConfirming(true)}>
+                    {{"{"}}{{.Label}}{{"}"}}
+                </Button>
+            )}
 {{- end}}
 {{- end}}
         </div>
