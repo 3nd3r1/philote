@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import ProjectViewActions from "@/components/common/project-view-actions";
 
 // The wrapper hands the body its props, and what the template places beside them.
@@ -34,19 +36,28 @@ function ProjectViewBody({ project, actions }: ProjectViewProps & { actions: Rea
     return (
       <section className="w-full py-6 sm:py-10">
         <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-          <Card className="rounded-xl">
-            <CardHeader className="gap-2">
-              <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground sm:text-3xl">
-                {name}
+          <Card className="relative overflow-hidden rounded-xl">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-br from-primary/15 via-background/0 to-accent/40"
+            />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-primary/10 blur-2xl"
+            />
+            <CardHeader className="relative gap-2">
+              <CardTitle className="flex items-center gap-3 font-heading text-2xl font-semibold tracking-tight text-card-foreground sm:gap-4 sm:text-3xl">
+                <Mark name={name} className="size-10 shrink-0 sm:size-12" />
+                <span className="min-w-0 break-words">{name}</span>
               </CardTitle>
               <CardDescription className="text-base leading-relaxed text-muted-foreground">
                 {summary}
               </CardDescription>
             </CardHeader>
             <Separator orientation="horizontal" />
-            <CardContent className="flex flex-col gap-4">
+            <CardContent className="relative gap-4">
               <div className="flex items-center gap-2">
-                <Icons.ListTodo className="size-4 text-muted-foreground" />
+                <Icons.ListTodo className="size-4 text-muted-foreground" aria-hidden="true" />
                 <h2 className="font-heading text-lg font-medium text-card-foreground">
                   Tasks
                 </h2>
@@ -61,17 +72,20 @@ function ProjectViewBody({ project, actions }: ProjectViewProps & { actions: Rea
                         className="group flex items-center justify-between gap-3 rounded-lg px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         <span className="flex min-w-0 items-center gap-3">
-                          <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
+                          <Mark name={item.title} className="size-8 shrink-0" />
                           <span className="truncate">{item.title}</span>
                         </span>
-                        <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                        <Icons.ChevronRight
+                          className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        />
                       </Link>
                     </li>
                   ))}
                 </ul>
               )}
             </CardContent>
-            <CardFooter className="flex flex-wrap items-center justify-end gap-2">
+            <CardFooter className="relative flex flex-wrap items-center justify-end gap-2">
               {actions}
             </CardFooter>
           </Card>

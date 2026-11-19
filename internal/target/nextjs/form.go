@@ -23,11 +23,17 @@ type formInput struct {
 type controlView struct {
 	Name, Label, Control, Type, Attrs string
 	Choices                           []string // an enum's values
+	Chips                             string   // a short enum's values and labels, as a JavaScript array
+	Max                               string   // a string's most characters, for its counter
 	Read, Initial                     string
 }
 
 // optionView is a list of records a select offers, labelled by display.
 type optionView struct{ Name, Client, Label string }
+
+// maxChips is how many values an enum can have and still show as chips; a
+// longer one is a select, so the form stays short.
+const maxChips = 6
 
 // formView is everything a form page's three templates print.
 type formView struct {
@@ -38,6 +44,7 @@ type formView struct {
 	Readers, Types                     string // imports from @/lib/form and @/lib/types
 	LocalDateTime                      bool
 	UIImports                          string // only the controls the form renders
+	Chips, Counter                     bool   // the form renders chips, or a counter
 	Fields                             []controlView
 	Options                            []optionView
 }
@@ -84,6 +91,8 @@ func newFormView(app *ir.App, backend *ir.Part, pg *ir.Page) formView {
 			v.Options = append(v.Options, optionView{in.Name, client, "r." + ent.Display + optionalDefault(findField(ent, ent.Display))})
 		}
 		v.Fields, uses[f.Control] = append(v.Fields, f), true
+		v.Chips = v.Chips || f.Control == "chips"
+		v.Counter = v.Counter || f.Max != ""
 	}
 	v.Then = jsString(pg.Then)
 	if strings.Contains(pg.Then, "[id]") {
@@ -145,10 +154,7 @@ func newFieldView(app *ir.App, in formInput, readers, types map[string]bool) con
 	reader := "text"
 	switch f.Kind {
 	case ir.String, ir.Markdown:
-		if f.Kind == ir.Markdown || f.Max == nil || *f.Max > 160 {
-			v.Control = "textarea"
-		}
-		v.Attrs += bounds("minLength", "maxLength", f)
+		textControl(&v, f)
 	case ir.Email:
 		v.Type = "email"
 	case ir.Int:
@@ -162,6 +168,9 @@ func newFieldView(app *ir.App, in formInput, readers, types map[string]bool) con
 		v.Type, reader = "datetime-local", "dateTime"
 	case ir.EnumValue:
 		v.Control, v.Choices = "select", app.Enum(f.Enum).Values
+		if len(v.Choices) <= maxChips {
+			v.Control, v.Chips = "chips", chips(v.Choices)
+		}
 		types[f.Enum] = true
 	}
 	readers[reader] = true
@@ -171,6 +180,28 @@ func newFieldView(app *ir.App, in formInput, readers, types map[string]bool) con
 	}
 	v.Initial = initial(f)
 	return v
+}
+
+// textControl is a one-line input for a short string and a textarea for a
+// long one, with a counter when the string has a max.
+func textControl(v *controlView, f *ir.Field) {
+	if f.Kind == ir.Markdown || f.Max == nil || *f.Max > 160 {
+		v.Control = "textarea"
+	}
+	v.Attrs += bounds("minLength", "maxLength", f)
+	if f.Max != nil {
+		v.Max = strconv.Itoa(*f.Max)
+	}
+}
+
+// chips lists an enum's values with their labels, like in_progress as
+// "In progress".
+func chips(values []string) string {
+	items := make([]string, len(values))
+	for i, val := range values {
+		items[i] = fmt.Sprintf("{ value: %s, label: %s }", jsString(val), jsString(words(val)))
+	}
+	return "[" + strings.Join(items, ", ") + "]"
 }
 
 func read(reader, name string) string { return fmt.Sprintf("%s(data, %q)", reader, name) }

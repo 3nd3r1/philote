@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import AuthorCardActions from "@/components/common/author-card-actions";
 
 // The wrapper hands the body its props, and what the template places beside them.
@@ -30,13 +32,20 @@ export default function AuthorCard(props: AuthorCardProps) {
 
 function AuthorCardBody({ author, link, actions }: AuthorCardProps & { link: { href: string }; actions: React.ReactNode }): React.ReactNode {
     return (
-      <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
+      <Card
+        data-shape="tile"
+        className="relative h-full overflow-hidden rounded-xl transition-colors hover:bg-accent"
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-12 -right-12 size-32 rounded-full bg-linear-to-br from-primary/15 via-primary/5 to-transparent"
+        />
         <CardHeader>
-          <CardTitle className="flex min-w-0 items-center gap-2 font-heading text-lg leading-tight">
-            <Icons.User aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
+          <CardTitle className="flex min-w-0 items-center gap-3 font-heading text-base leading-tight sm:text-lg">
+            <Mark name={author.name} className="size-10 shrink-0" />
             <Link
               href={link.href}
-              className="truncate rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
+              className="min-w-0 rounded-md break-words outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
             >
               {author.name}
             </Link>

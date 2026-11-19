@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import { swipe } from "@/lib/actions/swipe-deck-call";
 
 // The wrapper hands the body its props, and what the template places beside them.
@@ -40,6 +42,7 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
     const [dx, setDx] = useState(0);
     const [dragging, setDragging] = useState(false);
     const startX = useRef<number | null>(null);
+    const dxRef = useRef(0);
     const [, startTransition] = useTransition();
 
     const remaining = deck.filter((h) => !gone.includes(h.id));
@@ -51,6 +54,7 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
       const id = top.id;
       setGone((g) => [...g, id]);
       setDx(0);
+      dxRef.current = 0;
       setDragging(false);
       startX.current = null;
       startTransition(async () => {
@@ -66,21 +70,28 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
       if ((e.target as HTMLElement).closest("button")) return;
       e.currentTarget.setPointerCapture(e.pointerId);
       startX.current = e.clientX;
+      dxRef.current = 0;
       setDragging(true);
     };
 
     const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
       if (startX.current === null) return;
-      setDx(e.clientX - startX.current);
+      const next = e.clientX - startX.current;
+      dxRef.current = next;
+      setDx(next);
     };
 
     const onPointerEnd = () => {
       if (startX.current === null) return;
+      const final = dxRef.current;
       startX.current = null;
       setDragging(false);
-      if (dx > threshold) decide(true);
-      else if (dx < -threshold) decide(false);
-      else setDx(0);
+      if (final > threshold) decide(true);
+      else if (final < -threshold) decide(false);
+      else {
+        setDx(0);
+        dxRef.current = 0;
+      }
     };
 
     const stack = remaining.slice(0, 2).reverse();
@@ -88,11 +99,15 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
     const passOpacity = Math.max(0, Math.min(1, -dx / threshold));
 
     return (
-      <section className="w-full bg-background text-foreground">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-8 sm:px-6 sm:py-12">
+      <section className="relative w-full overflow-hidden bg-linear-to-b from-primary/10 via-background to-background text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 left-1/2 size-96 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-8 sm:px-6 sm:py-12">
           {top ? (
             <>
-              <div className="grid w-full max-w-md">
+              <div className="grid w-full max-w-sm sm:max-w-md">
                 {stack.map((horse) => {
                   const isTop = horse.id === top.id;
                   return (
@@ -110,21 +125,28 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
                           ? { transform: `translateX(${dx}px) rotate(${dx / 18}deg)` }
                           : undefined
                       }
+                      aria-hidden={isTop ? undefined : true}
                       onPointerDown={isTop ? onPointerDown : undefined}
                       onPointerMove={isTop ? onPointerMove : undefined}
                       onPointerUp={isTop ? onPointerEnd : undefined}
                       onPointerCancel={isTop ? onPointerEnd : undefined}
                     >
-                      <Card className="relative min-h-[26rem] overflow-hidden rounded-xl border bg-card text-card-foreground shadow-lg sm:min-h-[30rem]">
+                      <Card className="relative h-full overflow-hidden rounded-xl border bg-card pt-0 text-card-foreground shadow-lg">
+                        <Mark
+                          name={horse.name}
+                          className="pointer-events-none aspect-[4/3] w-full rounded-none"
+                        />
                         {isTop && (
                           <>
                             <div
+                              aria-hidden
                               className="pointer-events-none absolute left-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 border-primary bg-background/80 text-primary"
                               style={{ opacity: likeOpacity }}
                             >
                               <Icons.Heart className="size-7 fill-current" />
                             </div>
                             <div
+                              aria-hidden
                               className="pointer-events-none absolute right-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 bg-background/80 text-muted-foreground"
                               style={{ opacity: passOpacity }}
                             >
@@ -132,7 +154,7 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
                             </div>
                           </>
                         )}
-                        <CardHeader className="gap-2 pt-6">
+                        <CardHeader className="gap-2">
                           <CardTitle className="font-heading text-3xl font-bold leading-tight sm:text-4xl">
                             {horse.name}
                           </CardTitle>
@@ -147,8 +169,8 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
                           </CardAction>
                         </CardHeader>
                         <Separator />
-                        <CardContent className="flex-1 pb-6">
-                          <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground">
+                        <CardContent className="flex-1">
+                          <p className="line-clamp-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
                             {horse.bio}
                           </p>
                         </CardContent>
@@ -177,7 +199,7 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
           ) : (
             <Card className="w-full max-w-md rounded-xl border bg-muted text-muted-foreground">
               <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
-                <Icons.Heart className="size-10" />
+                <Icons.Heart aria-hidden className="size-10" />
                 <p className="font-heading text-lg">{says[0]}</p>
               </CardContent>
             </Card>

@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props, and what the template places beside them.
 export default function Landing() {
     return <LandingBody link={{ href: "/pick", label: "Start swiping" }} />;
@@ -30,20 +32,38 @@ const says = ["Find your herd.", "Swipe on horses near you. Match when it's mutu
 
 function LandingBody({ link }: { link: { href: string; label: string } }): React.ReactNode {
     return (
-      <section className="w-full bg-background text-foreground">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-20 text-center sm:gap-8 sm:px-6 sm:py-28 lg:py-36">
-          <h1 className="font-heading text-5xl font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl">
+      <section className="relative w-full overflow-hidden bg-linear-to-br from-primary/20 via-background to-accent">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-primary/20 blur-3xl sm:size-96"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-20 -bottom-32 size-80 rounded-full bg-secondary/40 blur-3xl sm:size-[28rem]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/3 right-1/4 size-24 rotate-12 rounded-xl border border-primary/20 bg-primary/5"
+        />
+        <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-20 text-center sm:gap-8 sm:px-6 sm:py-28 lg:py-36">
+          <div
+            aria-hidden="true"
+            className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 sm:size-16"
+          >
+            <Icons.Heart className="size-7 sm:size-8" />
+          </div>
+          <h1 className="font-heading text-5xl font-bold tracking-tight text-balance text-foreground sm:text-7xl lg:text-8xl">
             {says[0]}
           </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground text-balance sm:text-xl">
+          <p className="max-w-2xl text-lg text-balance text-muted-foreground sm:text-xl lg:text-2xl">
             {says[1]}
           </p>
           <Link
             href={link.href}
-            className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-8 text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:h-14 sm:px-10 sm:text-lg"
+            className="mt-2 inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 focus-visible:ring-4 focus-visible:ring-ring/50 focus-visible:outline-none sm:h-16 sm:px-10 sm:text-xl"
           >
             {link.label}
-            <Icons.ArrowRight className="size-5" />
+            <Icons.ArrowRight aria-hidden="true" className="size-5 sm:size-6" />
           </Link>
         </div>
       </section>

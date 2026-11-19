@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props, and what the template places beside them.
 export default function JoinHerd() {
     return <JoinHerdBody link={{ href: "/horses/new", label: "Add your horse" }} />;
@@ -41,7 +43,7 @@ function JoinHerdBody({ link }: { link: { href: string; label: string } }): Reac
             )}
           >
             {link.label}
-            <Icons.ArrowRight className="size-4" />
+            <Icons.ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </div>
       </section>

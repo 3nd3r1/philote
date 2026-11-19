@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import HorseViewActions from "@/components/common/horse-view-actions";
 
 // The wrapper hands the body its props, and what the template places beside them.
@@ -39,8 +41,22 @@ function HorseViewBody({ horse, actions }: HorseViewProps & { actions: React.Rea
     const breedLabel = breedLabels[horse.breed];
 
     return (
-        <section className="bg-background text-foreground w-full">
-            <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+        <section className="bg-background text-foreground relative w-full overflow-hidden">
+            <div
+                aria-hidden="true"
+                className="bg-linear-to-br from-primary/15 via-background to-accent/40 pointer-events-none absolute inset-x-0 top-0 h-72 sm:h-96"
+            />
+            <div
+                aria-hidden="true"
+                className="bg-primary/10 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl"
+            />
+
+            <div className="relative mx-auto grid w-full max-w-5xl gap-6 px-4 py-6 sm:px-6 sm:py-10 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start md:gap-8">
+                <Mark
+                    name={horse.name}
+                    className="aspect-square w-full rounded-xl text-7xl shadow-sm sm:aspect-[4/3] md:aspect-[4/5]"
+                />
+
                 <Card className="overflow-hidden rounded-xl">
                     <CardHeader className="gap-3 pt-6">
                         <div className="flex min-w-0 flex-col gap-1">
@@ -53,7 +69,12 @@ function HorseViewBody({ horse, actions }: HorseViewProps & { actions: React.Rea
                             </CardDescription>
                         </div>
                         <CardAction>
-                            <Icons.Heart className="text-primary size-6" aria-hidden="true" />
+                            <span
+                                aria-hidden="true"
+                                className="bg-primary/10 flex size-10 items-center justify-center rounded-full"
+                            >
+                                <Icons.Heart className="text-primary size-5" />
+                            </span>
                         </CardAction>
                         <div className="flex flex-wrap items-center gap-2">
                             <Badge variant="default" className="gap-1">
@@ -65,7 +86,7 @@ function HorseViewBody({ horse, actions }: HorseViewProps & { actions: React.Rea
 
                     <Separator />
 
-                    <CardContent className="flex flex-col gap-3 py-6">
+                    <CardContent className="gap-3 py-6">
                         <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
                             <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
                             Bio

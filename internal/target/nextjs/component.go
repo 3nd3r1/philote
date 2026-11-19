@@ -14,6 +14,11 @@ import (
 var reserved = []string{"props", "item", "record", "must", "cn", "Icons", "link", "actions", "says",
 	"useEffect", "useRef", "useState", "useTransition", "toast"}
 
+// imported are the names every component file imports, which a component
+// can't take as its own name.
+var imported = []string{"Link", "Badge", "Card", "CardAction", "CardContent", "CardDescription",
+	"CardFooter", "CardHeader", "CardTitle", "Separator", "Mark", "FormField", "SubmitButton"}
+
 // marker is the line in a component file that the model's body replaces.
 const marker = "    // philote:body"
 
@@ -77,6 +82,9 @@ func components(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Sl
 }
 
 func checkComponent(c *ir.Component) error {
+	if slices.Contains(imported, c.Name) {
+		return fmt.Errorf("component %s: the name clashes with a component the app already has; rename it", c.Name)
+	}
 	if slices.Contains(reserved, c.Param) {
 		return fmt.Errorf("component %s: the parameter name %q clashes with the generated code; rename it", c.Name, c.Param)
 	}

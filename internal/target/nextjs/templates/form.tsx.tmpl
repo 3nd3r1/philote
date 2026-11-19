@@ -7,7 +7,9 @@ import type { FormState } from "@/lib/form";
 
 {{.UIImports}}
 
-import FormField from "@/components/common/form-field";
+{{if .Chips}}import Chips from "@/components/common/chips";
+{{end}}{{if .Counter}}import Counter from "@/components/common/counter";
+{{end}}import FormField from "@/components/common/form-field";
 import SubmitButton from "@/components/common/submit-button";
 
 {{- if .Options}}
@@ -38,6 +40,8 @@ export default function Form({
                 <Textarea id="{{.Name}}" name="{{.Name}}"{{.Attrs}} defaultValue={values.{{.Name}}} aria-invalid={!!state.issues?.{{.Name}}} />
 {{- else if eq .Control "checkbox"}}
                 <input id="{{.Name}}" name="{{.Name}}" type="checkbox" defaultChecked={values.{{.Name}} === "on"} className="size-4 accent-primary" />
+{{- else if eq .Control "chips"}}
+                <Chips id="{{.Name}}" name="{{.Name}}" choices={{"{"}}{{.Chips}}{{"}"}}{{.Attrs}} defaultValue={values.{{.Name}}} invalid={!!state.issues?.{{.Name}}} />
 {{- else if eq .Control "select"}}
                 <NativeSelect id="{{.Name}}" name="{{.Name}}"{{.Attrs}} defaultValue={values.{{.Name}} ?? ""} aria-invalid={!!state.issues?.{{.Name}}} className="w-full">
                     <NativeSelectOption value="">Choose…</NativeSelectOption>
@@ -54,6 +58,9 @@ export default function Form({
                         </NativeSelectOption>
                     ))}
                 </NativeSelect>
+{{- end}}
+{{- if .Max}}
+                <Counter id="{{.Name}}" max={{"{"}}{{.Max}}{{"}"}} initial={(values.{{.Name}} ?? "").length} />
 {{- end}}
             </FormField>
 {{- end}}

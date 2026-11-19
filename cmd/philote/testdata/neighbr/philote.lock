@@ -82,46 +82,34 @@ model claude-opus-5-5
 | }) as Swipe;
 
 component web/HorseCard
-key 73fc6e22664774f57239a9cfed2db25b9138c6f364212515f48962c23249d874
+key b22210d2de46c84b6920dc1c72f37d99e75b822ca671490f94a3edfa90b1ab2b
 model claude-opus-5-5
-| const breedLabels: Record<HorseCardProps["horse"]["breed"], string> = {
-|     arabian: "Arabian",
-|     mustang: "Mustang",
-|     shetland: "Shetland",
-|     clydesdale: "Clydesdale",
-|     other: "Other",
-| };
-|
-| const initial = horse.name.trim().charAt(0).toUpperCase();
-|
 | return (
-|     <Card className="relative h-full overflow-hidden transition-shadow hover:ring-2 hover:ring-ring/40">
+|     <Card
+|         data-shape="tile"
+|         className="relative h-full overflow-hidden transition-shadow hover:ring-2 hover:ring-ring/40"
+|     >
 |         <CardContent>
-|             <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-primary/10">
-|                 <span
-|                     className="font-heading text-8xl font-bold text-primary select-none sm:text-9xl"
-|                     aria-hidden="true"
-|                 >
-|                     {initial}
-|                 </span>
+|             <div className="rounded-xl bg-linear-to-br from-primary/20 via-primary/10 to-accent p-1.5">
+|                 <Mark name={horse.name} className="w-full aspect-[4/3] rounded-lg text-8xl" />
 |             </div>
 |         </CardContent>
 |         <CardHeader className="gap-2">
 |             <CardTitle className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
 |                 <Link
 |                     href={link.href}
-|                     className="min-w-0 font-heading text-2xl font-bold tracking-tight break-words text-card-foreground outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring sm:text-3xl"
+|                     className="min-w-0 break-words font-heading text-xl font-bold tracking-tight text-card-foreground outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring sm:text-2xl"
 |                 >
 |                     {horse.name}
 |                 </Link>
-|                 <span className="font-heading text-xl font-medium text-muted-foreground tabular-nums sm:text-2xl">
+|                 <span className="shrink-0 font-heading text-lg font-medium text-muted-foreground tabular-nums sm:text-xl">
 |                     {horse.age}
 |                 </span>
 |             </CardTitle>
 |             <div>
-|                 <Badge variant="secondary" className="gap-1">
+|                 <Badge variant="secondary" className="gap-1 capitalize">
 |                     <Icons.Sparkles className="size-3" aria-hidden="true" />
-|                     {breedLabels[horse.breed]}
+|                     {horse.breed}
 |                 </Badge>
 |             </div>
 |         </CardHeader>
@@ -129,22 +117,30 @@ model claude-opus-5-5
 | );
 
 component web/HorsePicker
-key ce1ea5fabd5b6938fa28d689bb7512e0f560b1de5ce3dd1fb9a406aacbc54078
+key 0ffdc24a732d028edc5ba38576dfcf72b7590520e25ccf8ad7cdd482b807dfad
 model claude-opus-5-5
 | return (
-|   <section className="w-full bg-background text-foreground">
-|     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+|   <section className="relative w-full overflow-hidden bg-background text-foreground">
+|     <div
+|       aria-hidden="true"
+|       className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b from-primary/10 via-background to-background"
+|     />
+|     <div
+|       aria-hidden="true"
+|       className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-accent/40 blur-3xl"
+|     />
+|     <div className="relative mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
 |       <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
 |         {says[0]}
 |       </h1>
 |       <div className="mt-6 grid grid-cols-2 gap-4 sm:mt-8 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5">
 |         {horses.map((item) => (
-|           <Pick key={item.id} id={item.id} className="group flex w-full flex-col items-center gap-3 rounded-xl border border-transparent p-3 text-center transition-colors hover:border-border hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4">
-|             <span
-|               aria-hidden="true"
-|               className="flex size-20 items-center justify-center rounded-full bg-primary/10 font-heading text-3xl font-semibold uppercase text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-105 sm:size-24 sm:text-4xl"
-|             >
-|               {item.name.charAt(0)}
+|           <Pick id={item.id} className="group flex w-full flex-col items-center gap-3 rounded-xl border border-transparent p-3 text-center transition-colors hover:border-border hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4" key={item.id}>
+|             <span className="rounded-full bg-primary/10 p-1.5 ring-1 ring-primary/15 transition-colors group-hover:bg-primary/15">
+|               <Mark
+|                 name={item.name}
+|                 className="size-20 text-3xl transition-transform group-hover:scale-105 sm:size-24 sm:text-4xl"
+|               />
 |             </span>
 |             <span className="flex w-full min-w-0 flex-col items-center gap-1.5">
 |               <span className="w-full truncate text-sm font-medium text-foreground sm:text-base">
@@ -162,7 +158,7 @@ model claude-opus-5-5
 | );
 
 component web/HorseView
-key 8b0d454bca70f112cdf1f7fe7b895b0e050e6ca40a8b2b88159fc48542196e49
+key e466e7799aae2575cda1f90d2aa7a34f6cfb2019344766981e579f1637f9021c
 model claude-opus-5-5
 | const breedLabels: Record<HorseViewProps["horse"]["breed"], string> = {
 |     arabian: "Arabian",
@@ -175,8 +171,22 @@ model claude-opus-5-5
 | const breedLabel = breedLabels[horse.breed];
 |
 | return (
-|     <section className="bg-background text-foreground w-full">
-|         <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+|     <section className="bg-background text-foreground relative w-full overflow-hidden">
+|         <div
+|             aria-hidden="true"
+|             className="bg-linear-to-br from-primary/15 via-background to-accent/40 pointer-events-none absolute inset-x-0 top-0 h-72 sm:h-96"
+|         />
+|         <div
+|             aria-hidden="true"
+|             className="bg-primary/10 pointer-events-none absolute -top-24 -right-24 size-72 rounded-full blur-3xl"
+|         />
+|
+|         <div className="relative mx-auto grid w-full max-w-5xl gap-6 px-4 py-6 sm:px-6 sm:py-10 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:items-start md:gap-8">
+|             <Mark
+|                 name={horse.name}
+|                 className="aspect-square w-full rounded-xl text-7xl shadow-sm sm:aspect-[4/3] md:aspect-[4/5]"
+|             />
+|
 |             <Card className="overflow-hidden rounded-xl">
 |                 <CardHeader className="gap-3 pt-6">
 |                     <div className="flex min-w-0 flex-col gap-1">
@@ -189,7 +199,12 @@ model claude-opus-5-5
 |                         </CardDescription>
 |                     </div>
 |                     <CardAction>
-|                         <Icons.Heart className="text-primary size-6" aria-hidden="true" />
+|                         <span
+|                             aria-hidden="true"
+|                             className="bg-primary/10 flex size-10 items-center justify-center rounded-full"
+|                         >
+|                             <Icons.Heart className="text-primary size-5" />
+|                         </span>
 |                     </CardAction>
 |                     <div className="flex flex-wrap items-center gap-2">
 |                         <Badge variant="default" className="gap-1">
@@ -201,7 +216,7 @@ model claude-opus-5-5
 |
 |                 <Separator />
 |
-|                 <CardContent className="flex flex-col gap-3 py-6">
+|                 <CardContent className="gap-3 py-6">
 |                     <h2 className="font-heading text-foreground flex items-center gap-2 text-lg font-semibold">
 |                         <Icons.User className="text-muted-foreground size-4" aria-hidden="true" />
 |                         Bio
@@ -222,7 +237,7 @@ model claude-opus-5-5
 | );
 
 component web/JoinHerd
-key 3b3227a2d105ec013a7273632b2e4ccc995339824dde0d6b64cfbeed2d70d878
+key d08433a523c01cf6b893c76c669f85b04cdb8175e74a4f2c3283c753da8e503e
 model claude-opus-5-5
 | return (
 |   <section className="w-full">
@@ -236,77 +251,128 @@ model claude-opus-5-5
 |         )}
 |       >
 |         {link.label}
-|         <Icons.ArrowRight className="size-4" />
+|         <Icons.ArrowRight className="size-4" aria-hidden="true" />
 |       </Link>
 |     </div>
 |   </section>
 | );
 
 component web/Landing
-key 2e90cba919532d42c92390cc807725e03338967398a7e9b62306b36f1ede7a65
+key 9c2f368d89bd5657b40262cec8ccda10fe65c6dffad6936d6eee41bc87e41b53
 model claude-opus-5-5
 | return (
-|   <section className="w-full bg-background text-foreground">
-|     <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-20 text-center sm:gap-8 sm:px-6 sm:py-28 lg:py-36">
-|       <h1 className="font-heading text-5xl font-bold tracking-tight text-balance sm:text-6xl lg:text-7xl">
+|   <section className="relative w-full overflow-hidden bg-linear-to-br from-primary/20 via-background to-accent">
+|     <div
+|       aria-hidden="true"
+|       className="pointer-events-none absolute -top-24 -left-24 size-72 rounded-full bg-primary/20 blur-3xl sm:size-96"
+|     />
+|     <div
+|       aria-hidden="true"
+|       className="pointer-events-none absolute -right-20 -bottom-32 size-80 rounded-full bg-secondary/40 blur-3xl sm:size-[28rem]"
+|     />
+|     <div
+|       aria-hidden="true"
+|       className="pointer-events-none absolute top-1/3 right-1/4 size-24 rotate-12 rounded-xl border border-primary/20 bg-primary/5"
+|     />
+|     <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-6 px-4 py-20 text-center sm:gap-8 sm:px-6 sm:py-28 lg:py-36">
+|       <div
+|         aria-hidden="true"
+|         className="flex size-14 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20 sm:size-16"
+|       >
+|         <Icons.Heart className="size-7 sm:size-8" />
+|       </div>
+|       <h1 className="font-heading text-5xl font-bold tracking-tight text-balance text-foreground sm:text-7xl lg:text-8xl">
 |         {says[0]}
 |       </h1>
-|       <p className="max-w-2xl text-lg text-muted-foreground text-balance sm:text-xl">
+|       <p className="max-w-2xl text-lg text-balance text-muted-foreground sm:text-xl lg:text-2xl">
 |         {says[1]}
 |       </p>
 |       <Link
 |         href={link.href}
-|         className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-primary px-8 text-base font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:h-14 sm:px-10 sm:text-lg"
+|         className="mt-2 inline-flex h-14 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-lg font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 focus-visible:ring-4 focus-visible:ring-ring/50 focus-visible:outline-none sm:h-16 sm:px-10 sm:text-xl"
 |       >
 |         {link.label}
-|         <Icons.ArrowRight className="size-5" />
+|         <Icons.ArrowRight aria-hidden="true" className="size-5 sm:size-6" />
 |       </Link>
 |     </div>
 |   </section>
 | );
 
 component web/MatchCard
-key 6d2b28a69696143fa77f3a160e244fdc21737318a10b28506895932244c868e2
+key b8b73b8eed8b96e20000853022d45c5fa1c9ae374cedb3ac351148f60cc29ca4
 model claude-opus-5-5
+| const { first, second, matched_at } = match;
+|
 | return (
-|     <Card className="h-full rounded-xl">
-|         <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
-|             <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
-|                 <Link
-|                     href={match.first.href}
-|                     className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
-|                 >
-|                     {match.first.name}
-|                 </Link>
-|                 <span
-|                     aria-hidden="true"
-|                     className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
-|                 >
-|                     <Icons.Heart className="size-5 fill-current" aria-hidden="true" />
-|                 </span>
-|                 <Link
-|                     href={match.second.href}
-|                     className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
-|                 >
-|                     {match.second.name}
-|                 </Link>
-|             </div>
-|             <Separator className="w-full" />
-|             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-|                 <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
-|                 <time dateTime={match.matched_at}>{formatDateTime(match.matched_at)}</time>
-|             </p>
-|         </CardContent>
-|     </Card>
+|   <Card
+|     data-shape="row"
+|     className="relative h-full overflow-hidden bg-linear-to-br from-primary/15 via-card to-accent/40"
+|   >
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -top-16 left-1/2 size-48 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+|     />
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -bottom-12 -left-10 size-32 rounded-full bg-accent/50 blur-2xl"
+|     />
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -right-8 -bottom-10 size-32 rounded-full bg-primary/10 blur-2xl"
+|     />
+|     <CardContent className="relative flex flex-1 flex-row items-center justify-between gap-3 py-2 sm:gap-4">
+|       <div className="flex min-w-0 flex-1 flex-col items-center gap-3 text-center">
+|         <Mark
+|           name={first.name}
+|           className="size-12 ring-4 ring-background shadow-sm sm:size-16"
+|         />
+|         <Link
+|           href={first.href}
+|           className="max-w-full font-heading text-lg leading-tight font-semibold tracking-tight wrap-break-word text-foreground underline-offset-4 hover:text-primary hover:underline sm:text-2xl"
+|         >
+|           {first.name}
+|         </Link>
+|       </div>
+|
+|       <div className="flex shrink-0 flex-col items-center">
+|         <div className="relative flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20 sm:size-14">
+|           <Icons.Heart className="size-5 fill-current sm:size-7" aria-hidden />
+|         </div>
+|       </div>
+|
+|       <div className="flex min-w-0 flex-1 flex-col items-center gap-3 text-center">
+|         <Mark
+|           name={second.name}
+|           className="size-12 ring-4 ring-background shadow-sm sm:size-16"
+|         />
+|         <Link
+|           href={second.href}
+|           className="max-w-full font-heading text-lg leading-tight font-semibold tracking-tight wrap-break-word text-foreground underline-offset-4 hover:text-primary hover:underline sm:text-2xl"
+|         >
+|           {second.name}
+|         </Link>
+|       </div>
+|     </CardContent>
+|     <CardFooter className="relative justify-center">
+|       <time
+|         dateTime={matched_at}
+|         className="flex items-center gap-1.5 text-xs text-muted-foreground"
+|       >
+|         <Icons.Sparkles className="size-3.5" aria-hidden />
+|         {formatDateTime(matched_at)}
+|       </time>
+|     </CardFooter>
+|   </Card>
 | );
 
 component web/SwipeDeck
-key 80a6beb1c5dd68f3b21591087845efd71ebecb9a063495cf592b3b3b8e426e73
+key 7449d4455b3549ce02f68b62c466ac992270af3e09cae3c7c4d091cf0dc36171
 model claude-opus-5-5
 | const [gone, setGone] = useState<string[]>([]);
 | const [dx, setDx] = useState(0);
 | const [dragging, setDragging] = useState(false);
 | const startX = useRef<number | null>(null);
+| const dxRef = useRef(0);
 | const [, startTransition] = useTransition();
 |
 | const remaining = deck.filter((h) => !gone.includes(h.id));
@@ -318,6 +384,7 @@ model claude-opus-5-5
 |   const id = top.id;
 |   setGone((g) => [...g, id]);
 |   setDx(0);
+|   dxRef.current = 0;
 |   setDragging(false);
 |   startX.current = null;
 |   startTransition(async () => {
@@ -333,21 +400,28 @@ model claude-opus-5-5
 |   if ((e.target as HTMLElement).closest("button")) return;
 |   e.currentTarget.setPointerCapture(e.pointerId);
 |   startX.current = e.clientX;
+|   dxRef.current = 0;
 |   setDragging(true);
 | };
 |
 | const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
 |   if (startX.current === null) return;
-|   setDx(e.clientX - startX.current);
+|   const next = e.clientX - startX.current;
+|   dxRef.current = next;
+|   setDx(next);
 | };
 |
 | const onPointerEnd = () => {
 |   if (startX.current === null) return;
+|   const final = dxRef.current;
 |   startX.current = null;
 |   setDragging(false);
-|   if (dx > threshold) decide(true);
-|   else if (dx < -threshold) decide(false);
-|   else setDx(0);
+|   if (final > threshold) decide(true);
+|   else if (final < -threshold) decide(false);
+|   else {
+|     setDx(0);
+|     dxRef.current = 0;
+|   }
 | };
 |
 | const stack = remaining.slice(0, 2).reverse();
@@ -355,11 +429,15 @@ model claude-opus-5-5
 | const passOpacity = Math.max(0, Math.min(1, -dx / threshold));
 |
 | return (
-|   <section className="w-full bg-background text-foreground">
-|     <div className="mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-8 sm:px-6 sm:py-12">
+|   <section className="relative w-full overflow-hidden bg-linear-to-b from-primary/10 via-background to-background text-foreground">
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -top-24 left-1/2 size-96 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+|     />
+|     <div className="relative mx-auto flex max-w-5xl flex-col items-center gap-8 px-4 py-8 sm:px-6 sm:py-12">
 |       {top ? (
 |         <>
-|           <div className="grid w-full max-w-md">
+|           <div className="grid w-full max-w-sm sm:max-w-md">
 |             {stack.map((horse) => {
 |               const isTop = horse.id === top.id;
 |               return (
@@ -377,21 +455,28 @@ model claude-opus-5-5
 |                       ? { transform: `translateX(${dx}px) rotate(${dx / 18}deg)` }
 |                       : undefined
 |                   }
+|                   aria-hidden={isTop ? undefined : true}
 |                   onPointerDown={isTop ? onPointerDown : undefined}
 |                   onPointerMove={isTop ? onPointerMove : undefined}
 |                   onPointerUp={isTop ? onPointerEnd : undefined}
 |                   onPointerCancel={isTop ? onPointerEnd : undefined}
 |                 >
-|                   <Card className="relative min-h-[26rem] overflow-hidden rounded-xl border bg-card text-card-foreground shadow-lg sm:min-h-[30rem]">
+|                   <Card className="relative h-full overflow-hidden rounded-xl border bg-card pt-0 text-card-foreground shadow-lg">
+|                     <Mark
+|                       name={horse.name}
+|                       className="pointer-events-none aspect-[4/3] w-full rounded-none"
+|                     />
 |                     {isTop && (
 |                       <>
 |                         <div
+|                           aria-hidden
 |                           className="pointer-events-none absolute left-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 border-primary bg-background/80 text-primary"
 |                           style={{ opacity: likeOpacity }}
 |                         >
 |                           <Icons.Heart className="size-7 fill-current" />
 |                         </div>
 |                         <div
+|                           aria-hidden
 |                           className="pointer-events-none absolute right-4 top-4 z-20 flex size-14 items-center justify-center rounded-full border-2 bg-background/80 text-muted-foreground"
 |                           style={{ opacity: passOpacity }}
 |                         >
@@ -399,7 +484,7 @@ model claude-opus-5-5
 |                         </div>
 |                       </>
 |                     )}
-|                     <CardHeader className="gap-2 pt-6">
+|                     <CardHeader className="gap-2">
 |                       <CardTitle className="font-heading text-3xl font-bold leading-tight sm:text-4xl">
 |                         {horse.name}
 |                       </CardTitle>
@@ -414,8 +499,8 @@ model claude-opus-5-5
 |                       </CardAction>
 |                     </CardHeader>
 |                     <Separator />
-|                     <CardContent className="flex-1 pb-6">
-|                       <p className="whitespace-pre-line text-base leading-relaxed text-muted-foreground">
+|                     <CardContent className="flex-1">
+|                       <p className="line-clamp-4 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
 |                         {horse.bio}
 |                       </p>
 |                     </CardContent>
@@ -444,7 +529,7 @@ model claude-opus-5-5
 |       ) : (
 |         <Card className="w-full max-w-md rounded-xl border bg-muted text-muted-foreground">
 |           <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
-|             <Icons.Heart className="size-10" />
+|             <Icons.Heart aria-hidden className="size-10" />
 |             <p className="font-heading text-lg">{says[0]}</p>
 |           </CardContent>
 |         </Card>
@@ -454,7 +539,7 @@ model claude-opus-5-5
 | );
 
 nav web/nav
-key 6a22d5378645a9fde9d89e2ba4075310681abb720b121ffd68489d1497dd4f69
+key 6897bc86abaf1a51d27637e27bf5c136929f0cd59f78fdcdc27193e7a7b3c9f2
 model claude-opus-5-5
 | const iconFor: Record<string, React.ComponentType<{ className?: string }>> = {
 |   "/swipe": Icons.Heart,

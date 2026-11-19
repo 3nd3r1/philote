@@ -21,41 +21,75 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props.
 export default function MatchCard(props: MatchCardProps) {
     return <MatchCardBody {...props} />;
 }
 
 function MatchCardBody({ match }: MatchCardProps): React.ReactNode {
+    const { first, second, matched_at } = match;
+
     return (
-        <Card className="h-full rounded-xl">
-            <CardContent className="flex flex-col items-center gap-4 py-6 text-center">
-                <div className="flex w-full flex-col items-center gap-3 sm:flex-row sm:justify-center">
-                    <Link
-                        href={match.first.href}
-                        className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
-                    >
-                        {match.first.name}
-                    </Link>
-                    <span
-                        aria-hidden="true"
-                        className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
-                    >
-                        <Icons.Heart className="size-5 fill-current" aria-hidden="true" />
-                    </span>
-                    <Link
-                        href={match.second.href}
-                        className="font-heading text-2xl font-semibold text-card-foreground underline-offset-4 hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring break-words"
-                    >
-                        {match.second.name}
-                    </Link>
-                </div>
-                <Separator className="w-full" />
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Icons.CalendarHeart className="size-3.5" aria-hidden="true" />
-                    <time dateTime={match.matched_at}>{formatDateTime(match.matched_at)}</time>
-                </p>
-            </CardContent>
-        </Card>
+      <Card
+        data-shape="row"
+        className="relative h-full overflow-hidden bg-linear-to-br from-primary/15 via-card to-accent/40"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 left-1/2 size-48 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-12 -left-10 size-32 rounded-full bg-accent/50 blur-2xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-8 -bottom-10 size-32 rounded-full bg-primary/10 blur-2xl"
+        />
+        <CardContent className="relative flex flex-1 flex-row items-center justify-between gap-3 py-2 sm:gap-4">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-3 text-center">
+            <Mark
+              name={first.name}
+              className="size-12 ring-4 ring-background shadow-sm sm:size-16"
+            />
+            <Link
+              href={first.href}
+              className="max-w-full font-heading text-lg leading-tight font-semibold tracking-tight wrap-break-word text-foreground underline-offset-4 hover:text-primary hover:underline sm:text-2xl"
+            >
+              {first.name}
+            </Link>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-center">
+            <div className="relative flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20 sm:size-14">
+              <Icons.Heart className="size-5 fill-current sm:size-7" aria-hidden />
+            </div>
+          </div>
+
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-3 text-center">
+            <Mark
+              name={second.name}
+              className="size-12 ring-4 ring-background shadow-sm sm:size-16"
+            />
+            <Link
+              href={second.href}
+              className="max-w-full font-heading text-lg leading-tight font-semibold tracking-tight wrap-break-word text-foreground underline-offset-4 hover:text-primary hover:underline sm:text-2xl"
+            >
+              {second.name}
+            </Link>
+          </div>
+        </CardContent>
+        <CardFooter className="relative justify-center">
+          <time
+            dateTime={matched_at}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground"
+          >
+            <Icons.Sparkles className="size-3.5" aria-hidden />
+            {formatDateTime(matched_at)}
+          </time>
+        </CardFooter>
+      </Card>
     );
 }

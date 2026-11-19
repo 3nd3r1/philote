@@ -6,9 +6,10 @@ import { useActionState } from "react";
 import type { FormState } from "@/lib/form";
 
 import { Input } from "@/components/ui/input";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 
+import Chips from "@/components/common/chips";
+import Counter from "@/components/common/counter";
 import FormField from "@/components/common/form-field";
 import SubmitButton from "@/components/common/submit-button";
 
@@ -26,22 +27,17 @@ export default function Form({
         <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="name" label={"Name"} issue={state.issues?.name}>
                 <Input id="name" name="name" type="text" required maxLength={60} defaultValue={values.name} aria-invalid={!!state.issues?.name} />
+                <Counter id="name" max={60} initial={(values.name ?? "").length} />
             </FormField>
             <FormField name="breed" label={"Breed"} issue={state.issues?.breed}>
-                <NativeSelect id="breed" name="breed" required defaultValue={values.breed ?? ""} aria-invalid={!!state.issues?.breed} className="w-full">
-                    <NativeSelectOption value="">Choose…</NativeSelectOption>
-                    <NativeSelectOption value="arabian">arabian</NativeSelectOption>
-                    <NativeSelectOption value="mustang">mustang</NativeSelectOption>
-                    <NativeSelectOption value="shetland">shetland</NativeSelectOption>
-                    <NativeSelectOption value="clydesdale">clydesdale</NativeSelectOption>
-                    <NativeSelectOption value="other">other</NativeSelectOption>
-                </NativeSelect>
+                <Chips id="breed" name="breed" choices={[{ value: "arabian", label: "Arabian" }, { value: "mustang", label: "Mustang" }, { value: "shetland", label: "Shetland" }, { value: "clydesdale", label: "Clydesdale" }, { value: "other", label: "Other" }]} required defaultValue={values.breed} invalid={!!state.issues?.breed} />
             </FormField>
             <FormField name="age" label={"Age"} issue={state.issues?.age}>
                 <Input id="age" name="age" type="number" required min={1} max={40} defaultValue={values.age} aria-invalid={!!state.issues?.age} />
             </FormField>
             <FormField name="bio" label={"Bio"} issue={state.issues?.bio}>
                 <Textarea id="bio" name="bio" required maxLength={280} defaultValue={values.bio} aria-invalid={!!state.issues?.bio} />
+                <Counter id="bio" max={280} initial={(values.bio ?? "").length} />
             </FormField>
             {state.error && <p role="alert" className="text-sm text-destructive">{state.error}</p>}
             <SubmitButton>Save</SubmitButton>

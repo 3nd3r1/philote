@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props.
 export default function AuthorView(props: AuthorViewProps) {
     return <AuthorViewBody {...props} />;
@@ -29,21 +31,35 @@ function AuthorViewBody({ author }: AuthorViewProps): React.ReactNode {
     const books = author.books;
 
     return (
-      <section className="w-full bg-background text-foreground">
-        <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
+      <section className="relative w-full overflow-hidden bg-background text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-linear-to-br from-primary/15 via-background to-accent/40"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-primary/10 blur-3xl"
+        />
+        <div className="relative mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6 sm:py-12">
           <Card className="rounded-xl">
             <CardHeader className="gap-2">
-              <CardTitle className="font-heading text-2xl tracking-tight sm:text-3xl">
-                {author.name}
-              </CardTitle>
-              <CardDescription className="flex items-center gap-2 text-muted-foreground">
-                <Icons.Cake className="size-4 shrink-0" />
-                <span>Born {formatDate(author.born)}</span>
-              </CardDescription>
+              <div className="flex items-center gap-4">
+                <Mark name={author.name} className="size-14 shrink-0 sm:size-16" />
+                <div className="flex min-w-0 flex-col gap-1.5">
+                  <CardTitle className="font-heading text-2xl tracking-tight break-words sm:text-3xl">
+                    {author.name}
+                  </CardTitle>
+                  <CardDescription className="flex items-center gap-2 text-muted-foreground">
+                    <Icons.Cake className="size-4 shrink-0" />
+                    <span>Born {formatDate(author.born)}</span>
+                  </CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <Separator />
             <CardContent className="flex flex-col gap-4">
               <h2 className="flex items-center gap-2 font-heading text-lg font-semibold text-card-foreground">
+                <Icons.BookOpen className="size-5 shrink-0 text-muted-foreground" />
                 Books
                 <Badge variant="secondary">{books.length}</Badge>
               </h2>
@@ -52,10 +68,10 @@ function AuthorViewBody({ author }: AuthorViewProps): React.ReactNode {
                   {books.map((book) => (
                     <li
                       key={book.id}
-                      className="flex items-center gap-3 rounded-lg border bg-muted px-4 py-3"
+                      className="flex items-center gap-3 rounded-lg border bg-muted/50 px-4 py-3"
                     >
-                      <Icons.Book className="size-4 shrink-0 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">
+                      <Mark name={book.title} className="size-8 shrink-0 rounded-md" />
+                      <span className="min-w-0 line-clamp-2 text-sm font-medium text-foreground">
                         {book.title}
                       </span>
                     </li>

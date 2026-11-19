@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props.
 export default function BookShelf(props: BookShelfProps) {
     return <BookShelfBody {...props} />;
@@ -41,9 +43,9 @@ function BookShelfBody({ books }: BookShelfProps): React.ReactNode {
                     <CardDescription>
                       <Link
                         href={book.author.href}
-                        className="inline-flex items-center gap-1.5 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="inline-flex min-w-0 max-w-full items-center gap-2 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
-                        <Icons.User className="size-4 shrink-0" />
+                        <Mark name={book.author.name} className="size-6 shrink-0" />
                         <span className="truncate">{book.author.name}</span>
                       </Link>
                     </CardDescription>
@@ -58,7 +60,7 @@ function BookShelfBody({ books }: BookShelfProps): React.ReactNode {
                     <dl className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex flex-col gap-1">
                         <dt className="flex items-center gap-1.5 text-muted-foreground">
-                          <Icons.Calendar className="size-4 shrink-0" />
+                          <Icons.Calendar className="size-4 shrink-0" aria-hidden />
                           Published
                         </dt>
                         <dd className="font-medium">
@@ -69,11 +71,7 @@ function BookShelfBody({ books }: BookShelfProps): React.ReactNode {
                       </div>
                       <div className="flex flex-col gap-1">
                         <dt className="flex items-center gap-1.5 text-muted-foreground">
-                          {book.in_print ? (
-                            <Icons.BookCheck className="size-4 shrink-0" />
-                          ) : (
-                            <Icons.BookX className="size-4 shrink-0" />
-                          )}
+                          <Icons.BookOpen className="size-4 shrink-0" aria-hidden />
                           In print
                         </dt>
                         <dd className="font-medium">{formatBool(book.in_print)}</dd>

@@ -135,7 +135,7 @@ page "/" {
 
 page "/tasks" {
   load: tasks
-  shows: list of TaskCard(tasks)  // one TaskCard per task, in a grid
+  shows: list of TaskCard(tasks)  // one TaskCard per task, in a grid or in rows
   empty: "No tasks yet."
 }
 
@@ -170,11 +170,11 @@ component TaskCard(task: Task) {
 
 - `load: <name> [from <resource>] [by id]` names what the page fetches. A page loads at most one thing; a page that loads a list says what shows when it's `empty`, a page by id says what shows when it's `not_found`.
 - `load: <name> from <endpoint>(<input>: viewer)` loads the list a GET endpoint returns, with the viewer as every input, like `load: mine from open_tasks(project: viewer)`. The page needs the viewer.
-- `shows` lists the page's sections. `C(name)` hands a component what the page loads, as it is; `list of C(name)` shows one `C` per record in a grid. A component without a parameter, like `Welcome`, takes nothing.
+- `shows` lists the page's sections. `C(name)` hands a component what the page loads, as it is; `list of C(name)` shows one `C` per record, in a grid or in rows as the component chooses. A component without a parameter, like `Welcome`, takes nothing.
 - A component takes no record, one record, or `list of` an entity. Its `shows` lists every field it reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
 - `says` gives a component its words, up to 200 characters each. The body shows each one exactly as written, and other than these, data and labels, the model writes no text.
 - `links_to` makes a card a link to a record's page. With `as "<label>"` it's a button to any page instead. A component that takes a list can't have `links_to` or `actions`.
-- The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it.
+- The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it. A record shown by name gets the same picture, its first letter on its own tint, in every component.
 - A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
 - Form fields are the endpoint's input, in order.
 

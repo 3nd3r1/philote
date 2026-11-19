@@ -15,12 +15,19 @@ model claude-opus-5-5
 | return updated ?? { ...current, status: "done", finished_at: new Date().toISOString() };
 
 component web/ProjectCard
-key 68f681086ded86363f05019f6309004787c0c315a83190d3b7d27e67f9a16d39
+key a78c31926d9f2cd4723057064e9ed30ff1faa205eb4831638e667dca1486ec0d
 model claude-opus-5-5
 | return (
-|   <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
+|   <Card
+|     data-shape="tile"
+|     className="relative isolate h-full overflow-hidden rounded-xl transition-colors hover:bg-accent"
+|   >
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -top-12 -right-12 -z-10 size-32 rounded-full bg-linear-to-br from-primary/20 via-primary/5 to-transparent"
+|     />
 |     <CardHeader>
-|       <CardTitle className="font-heading text-lg leading-snug text-card-foreground">
+|       <CardTitle className="min-w-0 font-heading text-base leading-snug break-words text-card-foreground sm:text-lg">
 |         <Link
 |           href={link.href}
 |           className="rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
@@ -32,33 +39,42 @@ model claude-opus-5-5
 |         {project.summary}
 |       </CardDescription>
 |       <CardAction>
-|         <Icons.FolderKanban aria-hidden="true" className="size-4 text-muted-foreground" />
+|         <Mark name={project.name} className="size-10" />
 |       </CardAction>
 |     </CardHeader>
 |   </Card>
 | );
 
 component web/ProjectView
-key fb50a82ae73d30bdaeec2f7a0388642568e64dea7d443ffa50fe6cbea1379b6c
+key c82c425f452da893dee5453e62ba41b83e8a33652eaf4774048dec01ce7a3759
 model claude-opus-5-5
 | const { name, summary, tasks } = project;
 |
 | return (
 |   <section className="w-full py-6 sm:py-10">
 |     <div className="mx-auto w-full max-w-5xl px-4 sm:px-6">
-|       <Card className="rounded-xl">
-|         <CardHeader className="gap-2">
-|           <CardTitle className="font-heading text-2xl font-semibold tracking-tight text-card-foreground sm:text-3xl">
-|             {name}
+|       <Card className="relative overflow-hidden rounded-xl">
+|         <div
+|           aria-hidden="true"
+|           className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-linear-to-br from-primary/15 via-background/0 to-accent/40"
+|         />
+|         <div
+|           aria-hidden="true"
+|           className="pointer-events-none absolute -top-16 -right-16 size-48 rounded-full bg-primary/10 blur-2xl"
+|         />
+|         <CardHeader className="relative gap-2">
+|           <CardTitle className="flex items-center gap-3 font-heading text-2xl font-semibold tracking-tight text-card-foreground sm:gap-4 sm:text-3xl">
+|             <Mark name={name} className="size-10 shrink-0 sm:size-12" />
+|             <span className="min-w-0 break-words">{name}</span>
 |           </CardTitle>
 |           <CardDescription className="text-base leading-relaxed text-muted-foreground">
 |             {summary}
 |           </CardDescription>
 |         </CardHeader>
 |         <Separator orientation="horizontal" />
-|         <CardContent className="flex flex-col gap-4">
+|         <CardContent className="relative gap-4">
 |           <div className="flex items-center gap-2">
-|             <Icons.ListTodo className="size-4 text-muted-foreground" />
+|             <Icons.ListTodo className="size-4 text-muted-foreground" aria-hidden="true" />
 |             <h2 className="font-heading text-lg font-medium text-card-foreground">
 |               Tasks
 |             </h2>
@@ -73,17 +89,20 @@ model claude-opus-5-5
 |                     className="group flex items-center justify-between gap-3 rounded-lg px-4 py-3 text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 |                   >
 |                     <span className="flex min-w-0 items-center gap-3">
-|                       <Icons.CircleDot className="size-4 shrink-0 text-muted-foreground" />
+|                       <Mark name={item.title} className="size-8 shrink-0" />
 |                       <span className="truncate">{item.title}</span>
 |                     </span>
-|                     <Icons.ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+|                     <Icons.ChevronRight
+|                       className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+|                       aria-hidden="true"
+|                     />
 |                   </Link>
 |                 </li>
 |               ))}
 |             </ul>
 |           )}
 |         </CardContent>
-|         <CardFooter className="flex flex-wrap items-center justify-end gap-2">
+|         <CardFooter className="relative flex flex-wrap items-center justify-end gap-2">
 |           {actions}
 |         </CardFooter>
 |       </Card>
@@ -92,7 +111,7 @@ model claude-opus-5-5
 | );
 
 component web/TaskView
-key fc0bdff055dfced46e0a78bbb7f28bf044564fecdd73da24f535807e624900ff
+key 8741f4caf6c0062d2a74ee4416d947f5379123b928f6cba32268345a5711eadb
 model claude-opus-5-5
 | const statusMeta: Record<
 |   TaskViewProps["task"]["status"],
@@ -107,12 +126,21 @@ model claude-opus-5-5
 | const StatusIcon = status.Icon;
 |
 | return (
-|   <section className="w-full bg-background text-foreground">
-|     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+|   <section className="relative w-full overflow-hidden bg-background text-foreground">
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-br from-primary/15 via-background to-accent/40 sm:h-64"
+|     />
+|     <div
+|       aria-hidden
+|       className="pointer-events-none absolute -top-16 right-0 size-56 rounded-full bg-primary/10 blur-3xl sm:size-72"
+|     />
+|     <div className="relative mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
 |       <Card className="rounded-xl">
 |         <CardHeader>
-|           <CardTitle className="font-heading text-xl font-semibold tracking-tight text-card-foreground sm:text-2xl break-words">
-|             {task.title}
+|           <CardTitle className="flex min-w-0 items-center gap-3 font-heading text-xl font-semibold tracking-tight text-card-foreground sm:gap-4 sm:text-2xl">
+|             <Mark name={task.title} className="size-10 shrink-0 sm:size-12" />
+|             <span className="min-w-0 break-words">{task.title}</span>
 |           </CardTitle>
 |           <CardAction>
 |             <Badge variant={status.variant} className="gap-1 capitalize">
@@ -125,7 +153,7 @@ model claude-opus-5-5
 |         <CardContent>
 |           <dl className="grid gap-4 sm:grid-cols-3 sm:gap-6">
 |             {task.due ? (
-|               <div className="flex flex-col gap-1">
+|               <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
 |                 <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |                   <Icons.CalendarDays className="size-4" />
 |                   Due
@@ -135,22 +163,23 @@ model claude-opus-5-5
 |                 </dd>
 |               </div>
 |             ) : null}
-|             <div className="flex flex-col gap-1">
+|             <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
 |               <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |                 <Icons.Folder className="size-4" />
 |                 Project
 |               </dt>
-|               <dd className="text-sm font-medium">
+|               <dd className="flex min-w-0 items-center gap-2 text-sm font-medium">
+|                 <Mark name={task.project.name} className="size-6 shrink-0" />
 |                 <Link
 |                   href={task.project.href}
-|                   className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+|                   className="min-w-0 truncate rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 |                 >
 |                   {task.project.name}
 |                 </Link>
 |               </dd>
 |             </div>
 |             {task.finished_at ? (
-|               <div className="flex flex-col gap-1">
+|               <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
 |                 <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
 |                   <Icons.CheckCheck className="size-4" />
 |                   Finished

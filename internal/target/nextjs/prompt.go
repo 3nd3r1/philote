@@ -12,6 +12,7 @@ import (
 // knowing its values, so changing the look rewrites only the theme.
 const themeRules = `The app uses shadcn/ui in the base-vega style with Tailwind CSS v4. The app's theme sets its colors, fonts and corner radius, and can change, so never assume a particular color, font or radius: use the theme's classes. Corners follow the theme with rounded-md, rounded-lg, rounded-xl and up.
 Colors come only from the theme's variables: bg-background, text-foreground, bg-card, text-card-foreground, bg-muted, text-muted-foreground, bg-primary, text-primary-foreground, bg-secondary, text-secondary-foreground, bg-accent, border, ring. Headings can use font-heading.
+Tints and gradients of these are fine and make a design feel finished, like bg-primary/10 or bg-linear-to-br from-primary/20 via-background to-accent, and so are decorative shapes made of them, marked aria-hidden.
 `
 
 // componentPrompt is everything the model is told about one component. It's
@@ -44,7 +45,7 @@ func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 	}
 	b.WriteString(`
 Already imported. Use only these:
-- Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter: shadcn's card parts.
+- Card, CardHeader, CardTitle, CardDescription, CardAction, CardContent, CardFooter: shadcn's card parts. CardContent is already a column (flex flex-col gap-3): add flex-row to lay its children side by side.
 - Badge, with variant "default" | "secondary" | "destructive" | "outline" | "ghost" | "link".
 - Separator, with orientation "horizontal" | "vertical".
 - Icons: every lucide-react icon, as <Icons.Heart className="size-4" />.
@@ -57,6 +58,7 @@ Already imported. Use only these:
 	if c.Picks != "" {
 		b.WriteString("- Pick({ id, className, children }): the button that picks one record.\n")
 	}
+	pictures(&b, app, c)
 	if c.Calls != nil {
 		b.WriteString("- useState, useEffect, useRef and useTransition from react, and toast from sonner.\n")
 	}
@@ -87,6 +89,27 @@ Rules:
 - Style with Tailwind classes and the theme's variables. ` + style + `, no hard-coded colors.
 - Reply with the statements in one ` + "```tsx" + ` block and nothing else.
 `
+}
+
+// pictures offers Mark for each record the component shows by name. Mark
+// draws a record the same way wherever it appears, so components that are
+// written apart still look like one app.
+func pictures(b *strings.Builder, app *ir.App, c *ir.Component) {
+	var names []string
+	if c.Param != "" {
+		if ent := app.Entity(c.Entity); ent.Display != "" && shown(c, ent.Display) {
+			names = append(names, fmt.Sprintf("a %s by its %s", ent.Name, ent.Display))
+		}
+	}
+	for _, s := range c.Shows {
+		if s.Relation != nil {
+			names = append(names, fmt.Sprintf("the %s by its %s", s.Name, s.Display))
+		}
+	}
+	if len(names) == 0 {
+		return
+	}
+	fmt.Fprintf(b, "- Mark({ name, className }): a record's picture, the first letter of its name on a tint that is the same for that record everywhere in the app. Records have no photos: wherever the design pictures a record, like an avatar or where a photo would go, use Mark, never your own letter or icon. Size and shape it with className, like size-12 (round by default), or w-full aspect-[4/5] rounded-xl. Here: %s.\n", strings.Join(names, "; "))
 }
 
 func subject(c *ir.Component) string {
@@ -134,7 +157,7 @@ func usage(part *ir.Part, c *ir.Component) string {
 			switch {
 			case sec.Component != c.Name:
 			case sec.List:
-				uses = append(uses, fmt.Sprintf("It's one card in a grid of cards on the %s page: return one Card that fills its cell (h-full), and the grid sets its width.", pg.Route))
+				uses = append(uses, fmt.Sprintf("It's one card in a list on the %s page: return one Card that fills its cell (h-full), and the list sets its width. Choose the list's shape and put it on the Card as data-shape: \"tile\" for a grid two or three across, each card about 300px wide, or \"row\" for one column of cards about 700px wide. Choose row when the card lays things side by side, like two records with something between them, or reads as one line; a tile must fit its 300px without long names wrapping. On a phone either shape is about 340px wide: let names wrap or shrink there, never cut them off.", pg.Route))
 			default:
 				uses = append(uses, fmt.Sprintf("It's a full-width section of the %s page, under the app's navbar: it sets its own width (center its content in max-w-5xl with px-4 sm:px-6, or go full-bleed), padding and spacing, for phones and laptops.", pg.Route))
 			}

@@ -34,6 +34,8 @@ src/app/robots.ts
 src/app/sitemap.ts
 src/app/swipe/page.tsx
 src/app/twitter-image.tsx
+src/components/common/chips.tsx
+src/components/common/counter.tsx
 src/components/common/form-field.tsx
 src/components/common/horse-card.tsx
 src/components/common/horse-picker-pick.tsx
@@ -45,6 +47,7 @@ src/components/common/landing.tsx
 src/components/common/layouts/main-navbar.tsx
 src/components/common/layouts/mode-toggle.tsx
 src/components/common/layouts/theme-provider.tsx
+src/components/common/mark.tsx
 src/components/common/match-card.tsx
 src/components/common/submit-button.tsx
 src/components/common/swipe-deck.tsx

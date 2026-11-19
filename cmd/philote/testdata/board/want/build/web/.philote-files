@@ -34,10 +34,13 @@ src/app/tasks/new/actions.ts
 src/app/tasks/new/form.tsx
 src/app/tasks/new/page.tsx
 src/app/twitter-image.tsx
+src/components/common/chips.tsx
+src/components/common/counter.tsx
 src/components/common/form-field.tsx
 src/components/common/layouts/main-navbar.tsx
 src/components/common/layouts/mode-toggle.tsx
 src/components/common/layouts/theme-provider.tsx
+src/components/common/mark.tsx
 src/components/common/project-card.tsx
 src/components/common/project-view-actions.tsx
 src/components/common/project-view.tsx

@@ -128,7 +128,7 @@ func sectionJSX(pg *ir.Page, c *ir.Component, sec *ir.Section, props string, hea
 		return fmt.Sprintf(`{%[2]s.length === 0 ? (
                 %[3]s
             ) : (
-                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 %[5]s sm:grid-cols-2 sm:px-6 lg:grid-cols-3">
+                <section className="mx-auto grid w-full max-w-5xl gap-6 px-4 %[5]s sm:grid-cols-2 sm:px-6 lg:grid-cols-3 has-[>[data-shape=row]]:max-w-3xl has-[>[data-shape=row]]:grid-cols-1 has-[>[data-shape=row]]:gap-4">
                     {%[2]s.map((item) => (
                         <%[1]s key={item.%[4]s.id} {...item} />
                     ))}

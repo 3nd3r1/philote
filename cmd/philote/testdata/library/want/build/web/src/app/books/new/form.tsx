@@ -8,6 +8,8 @@ import type { FormState } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
+import Chips from "@/components/common/chips";
+import Counter from "@/components/common/counter";
 import FormField from "@/components/common/form-field";
 import SubmitButton from "@/components/common/submit-button";
 
@@ -28,14 +30,10 @@ export default function Form({
         <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="title" label={"Title"} issue={state.issues?.title}>
                 <Input id="title" name="title" type="text" required maxLength={120} defaultValue={values.title} aria-invalid={!!state.issues?.title} />
+                <Counter id="title" max={120} initial={(values.title ?? "").length} />
             </FormField>
             <FormField name="genre" label={"Genre"} issue={state.issues?.genre}>
-                <NativeSelect id="genre" name="genre" required defaultValue={values.genre ?? ""} aria-invalid={!!state.issues?.genre} className="w-full">
-                    <NativeSelectOption value="">Choose…</NativeSelectOption>
-                    <NativeSelectOption value="fiction">fiction</NativeSelectOption>
-                    <NativeSelectOption value="poetry">poetry</NativeSelectOption>
-                    <NativeSelectOption value="history">history</NativeSelectOption>
-                </NativeSelect>
+                <Chips id="genre" name="genre" choices={[{ value: "fiction", label: "Fiction" }, { value: "poetry", label: "Poetry" }, { value: "history", label: "History" }]} required defaultValue={values.genre} invalid={!!state.issues?.genre} />
             </FormField>
             <FormField name="published" label={"Published"} issue={state.issues?.published}>
                 <Input id="published" name="published" type="date" required defaultValue={values.published} aria-invalid={!!state.issues?.published} />

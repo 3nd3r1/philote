@@ -54,6 +54,34 @@ func TestComponentBodies(t *testing.T) {
 	}
 }
 
+// Each body's prompt is built from its own component, so changing one
+// component in the spec asks the model for that body alone (D-019).
+func TestOneComponentChanges(t *testing.T) {
+	spec := copyLibrary(t)
+	out := filepath.Join(filepath.Dir(spec), "build")
+	linkNodeModules(t, "testdata/library/want/build/web/package.json", filepath.Join(out, "web"))
+	useReplies(t, map[string][]string{
+		"AuthorCardBody": {goodAuthorCard},
+		"AuthorViewBody": {goodAuthorView},
+		"BookShelfBody":  {goodBookShelf},
+	})
+	runOK(t, "build", "--out", out, spec)
+
+	src := readFile(t, spec)
+	edited := strings.Replace(src, "books.published, books.in_print\n", "books.published, books.in_print\n      look: \"compact rows\"\n", 1)
+	if edited == src {
+		t.Fatal("the BookShelf shows line moved; update the test")
+	}
+	if err := os.WriteFile(spec, []byte(edited), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r := useReplies(t, map[string][]string{"BookShelfBody": {goodBookShelf}})
+	runOK(t, "build", "--out", out, spec)
+	if len(r.prompts) != 1 || len(r.prompts["BookShelfBody"]) != 1 {
+		t.Errorf("a new look on BookShelf: want one call for BookShelf, got %v", r.prompts)
+	}
+}
+
 func TestRedoErrors(t *testing.T) {
 	spec := copyLibrary(t)
 	for _, tc := range []struct {

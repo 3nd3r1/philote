@@ -8,6 +8,7 @@ import type { FormState } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
+import Counter from "@/components/common/counter";
 import FormField from "@/components/common/form-field";
 import SubmitButton from "@/components/common/submit-button";
 
@@ -25,9 +26,11 @@ export default function Form({
         <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="name" label={"Name"} issue={state.issues?.name}>
                 <Input id="name" name="name" type="text" required maxLength={80} defaultValue={values.name} aria-invalid={!!state.issues?.name} />
+                <Counter id="name" max={80} initial={(values.name ?? "").length} />
             </FormField>
             <FormField name="summary" label={"Summary"} issue={state.issues?.summary}>
                 <Textarea id="summary" name="summary" required maxLength={400} defaultValue={values.summary} aria-invalid={!!state.issues?.summary} />
+                <Counter id="summary" max={400} initial={(values.summary ?? "").length} />
             </FormField>
             {state.error && <p role="alert" className="text-sm text-destructive">{state.error}</p>}
             <SubmitButton>Save</SubmitButton>

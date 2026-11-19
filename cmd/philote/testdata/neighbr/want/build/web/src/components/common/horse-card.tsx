@@ -21,50 +21,40 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props, and what the template places beside them.
 export default function HorseCard(props: HorseCardProps) {
     return <HorseCardBody {...props} link={{ href: `/horses/${encodeURIComponent(props.horse.id)}` }} />;
 }
 
 function HorseCardBody({ horse, link }: HorseCardProps & { link: { href: string } }): React.ReactNode {
-    const breedLabels: Record<HorseCardProps["horse"]["breed"], string> = {
-        arabian: "Arabian",
-        mustang: "Mustang",
-        shetland: "Shetland",
-        clydesdale: "Clydesdale",
-        other: "Other",
-    };
-
-    const initial = horse.name.trim().charAt(0).toUpperCase();
-
     return (
-        <Card className="relative h-full overflow-hidden transition-shadow hover:ring-2 hover:ring-ring/40">
+        <Card
+            data-shape="tile"
+            className="relative h-full overflow-hidden transition-shadow hover:ring-2 hover:ring-ring/40"
+        >
             <CardContent>
-                <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-primary/10">
-                    <span
-                        className="font-heading text-8xl font-bold text-primary select-none sm:text-9xl"
-                        aria-hidden="true"
-                    >
-                        {initial}
-                    </span>
+                <div className="rounded-xl bg-linear-to-br from-primary/20 via-primary/10 to-accent p-1.5">
+                    <Mark name={horse.name} className="w-full aspect-[4/3] rounded-lg text-8xl" />
                 </div>
             </CardContent>
             <CardHeader className="gap-2">
                 <CardTitle className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
                     <Link
                         href={link.href}
-                        className="min-w-0 font-heading text-2xl font-bold tracking-tight break-words text-card-foreground outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring sm:text-3xl"
+                        className="min-w-0 break-words font-heading text-xl font-bold tracking-tight text-card-foreground outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring sm:text-2xl"
                     >
                         {horse.name}
                     </Link>
-                    <span className="font-heading text-xl font-medium text-muted-foreground tabular-nums sm:text-2xl">
+                    <span className="shrink-0 font-heading text-lg font-medium text-muted-foreground tabular-nums sm:text-xl">
                         {horse.age}
                     </span>
                 </CardTitle>
                 <div>
-                    <Badge variant="secondary" className="gap-1">
+                    <Badge variant="secondary" className="gap-1 capitalize">
                         <Icons.Sparkles className="size-3" aria-hidden="true" />
-                        {breedLabels[horse.breed]}
+                        {horse.breed}
                     </Badge>
                 </div>
             </CardHeader>

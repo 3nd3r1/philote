@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import TaskViewActions from "@/components/common/task-view-actions";
 
 // The wrapper hands the body its props, and what the template places beside them.
@@ -42,12 +44,21 @@ function TaskViewBody({ task, actions }: TaskViewProps & { actions: React.ReactN
     const StatusIcon = status.Icon;
 
     return (
-      <section className="w-full bg-background text-foreground">
-        <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
+      <section className="relative w-full overflow-hidden bg-background text-foreground">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-br from-primary/15 via-background to-accent/40 sm:h-64"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 right-0 size-56 rounded-full bg-primary/10 blur-3xl sm:size-72"
+        />
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 sm:py-10">
           <Card className="rounded-xl">
             <CardHeader>
-              <CardTitle className="font-heading text-xl font-semibold tracking-tight text-card-foreground sm:text-2xl break-words">
-                {task.title}
+              <CardTitle className="flex min-w-0 items-center gap-3 font-heading text-xl font-semibold tracking-tight text-card-foreground sm:gap-4 sm:text-2xl">
+                <Mark name={task.title} className="size-10 shrink-0 sm:size-12" />
+                <span className="min-w-0 break-words">{task.title}</span>
               </CardTitle>
               <CardAction>
                 <Badge variant={status.variant} className="gap-1 capitalize">
@@ -60,7 +71,7 @@ function TaskViewBody({ task, actions }: TaskViewProps & { actions: React.ReactN
             <CardContent>
               <dl className="grid gap-4 sm:grid-cols-3 sm:gap-6">
                 {task.due ? (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                     <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Icons.CalendarDays className="size-4" />
                       Due
@@ -70,22 +81,23 @@ function TaskViewBody({ task, actions }: TaskViewProps & { actions: React.ReactN
                     </dd>
                   </div>
                 ) : null}
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                   <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <Icons.Folder className="size-4" />
                     Project
                   </dt>
-                  <dd className="text-sm font-medium">
+                  <dd className="flex min-w-0 items-center gap-2 text-sm font-medium">
+                    <Mark name={task.project.name} className="size-6 shrink-0" />
                     <Link
                       href={task.project.href}
-                      className="rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="min-w-0 truncate rounded-md text-card-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       {task.project.name}
                     </Link>
                   </dd>
                 </div>
                 {task.finished_at ? (
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                     <dt className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Icons.CheckCheck className="size-4" />
                       Finished

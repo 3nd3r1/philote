@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 import Pick from "@/components/common/horse-picker-pick";
 
 // The wrapper hands the body its props.
@@ -32,19 +34,27 @@ const says = ["Who are you?"] as const;
 
 function HorsePickerBody({ horses }: HorsePickerProps): React.ReactNode {
     return (
-      <section className="w-full bg-background text-foreground">
-        <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
+      <section className="relative w-full overflow-hidden bg-background text-foreground">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-linear-to-b from-primary/10 via-background to-background"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-16 size-48 rounded-full bg-accent/40 blur-3xl"
+        />
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
           <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             {says[0]}
           </h1>
           <div className="mt-6 grid grid-cols-2 gap-4 sm:mt-8 sm:grid-cols-3 sm:gap-6 md:grid-cols-4 lg:grid-cols-5">
             {horses.map((item) => (
-              <Pick key={item.id} id={item.id} className="group flex w-full flex-col items-center gap-3 rounded-xl border border-transparent p-3 text-center transition-colors hover:border-border hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4">
-                <span
-                  aria-hidden="true"
-                  className="flex size-20 items-center justify-center rounded-full bg-primary/10 font-heading text-3xl font-semibold uppercase text-primary ring-1 ring-primary/20 transition-transform group-hover:scale-105 sm:size-24 sm:text-4xl"
-                >
-                  {item.name.charAt(0)}
+              <Pick id={item.id} className="group flex w-full flex-col items-center gap-3 rounded-xl border border-transparent p-3 text-center transition-colors hover:border-border hover:bg-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:p-4" key={item.id}>
+                <span className="rounded-full bg-primary/10 p-1.5 ring-1 ring-primary/15 transition-colors group-hover:bg-primary/15">
+                  <Mark
+                    name={item.name}
+                    className="size-20 text-3xl transition-transform group-hover:scale-105 sm:size-24 sm:text-4xl"
+                  />
                 </span>
                 <span className="flex w-full min-w-0 flex-col items-center gap-1.5">
                   <span className="w-full truncate text-sm font-medium text-foreground sm:text-base">

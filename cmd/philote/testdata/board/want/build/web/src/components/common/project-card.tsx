@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import Mark from "@/components/common/mark";
+
 // The wrapper hands the body its props, and what the template places beside them.
 export default function ProjectCard(props: ProjectCardProps) {
     return <ProjectCardBody {...props} link={{ href: `/projects/${encodeURIComponent(props.project.id)}` }} />;
@@ -28,9 +30,16 @@ export default function ProjectCard(props: ProjectCardProps) {
 
 function ProjectCardBody({ project, link }: ProjectCardProps & { link: { href: string } }): React.ReactNode {
     return (
-      <Card className="relative h-full rounded-xl transition-colors hover:bg-accent">
+      <Card
+        data-shape="tile"
+        className="relative isolate h-full overflow-hidden rounded-xl transition-colors hover:bg-accent"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-12 -right-12 -z-10 size-32 rounded-full bg-linear-to-br from-primary/20 via-primary/5 to-transparent"
+        />
         <CardHeader>
-          <CardTitle className="font-heading text-lg leading-snug text-card-foreground">
+          <CardTitle className="min-w-0 font-heading text-base leading-snug break-words text-card-foreground sm:text-lg">
             <Link
               href={link.href}
               className="rounded-md outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:ring-2 focus-visible:ring-ring"
@@ -42,7 +51,7 @@ function ProjectCardBody({ project, link }: ProjectCardProps & { link: { href: s
             {project.summary}
           </CardDescription>
           <CardAction>
-            <Icons.FolderKanban aria-hidden="true" className="size-4 text-muted-foreground" />
+            <Mark name={project.name} className="size-10" />
           </CardAction>
         </CardHeader>
       </Card>

@@ -8,6 +8,8 @@ import type { FormState } from "@/lib/form";
 import { Input } from "@/components/ui/input";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 
+import Chips from "@/components/common/chips";
+import Counter from "@/components/common/counter";
 import FormField from "@/components/common/form-field";
 import SubmitButton from "@/components/common/submit-button";
 
@@ -28,14 +30,10 @@ export default function Form({
         <form key={state.attempt} action={submit} className="space-y-6">
             <FormField name="title" label={"Title"} issue={state.issues?.title}>
                 <Input id="title" name="title" type="text" required maxLength={120} defaultValue={values.title} aria-invalid={!!state.issues?.title} />
+                <Counter id="title" max={120} initial={(values.title ?? "").length} />
             </FormField>
             <FormField name="status" label={"Status"} issue={state.issues?.status}>
-                <NativeSelect id="status" name="status" required defaultValue={values.status ?? ""} aria-invalid={!!state.issues?.status} className="w-full">
-                    <NativeSelectOption value="">Choose…</NativeSelectOption>
-                    <NativeSelectOption value="todo">todo</NativeSelectOption>
-                    <NativeSelectOption value="doing">doing</NativeSelectOption>
-                    <NativeSelectOption value="done">done</NativeSelectOption>
-                </NativeSelect>
+                <Chips id="status" name="status" choices={[{ value: "todo", label: "Todo" }, { value: "doing", label: "Doing" }, { value: "done", label: "Done" }]} required defaultValue={values.status} invalid={!!state.issues?.status} />
             </FormField>
             <FormField name="due" label={"Due"} issue={state.issues?.due}>
                 <Input id="due" name="due" type="date" defaultValue={values.due} aria-invalid={!!state.issues?.due} />
