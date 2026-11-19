@@ -75,9 +75,9 @@ component JoinHerd {
 
 component SwipeDeck(deck: list of Horse) {
   shows: deck.name, deck.age, deck.breed, deck.bio
-  says: "You've seen every horse. Check back later."
+  says: "You've seen every horse. Check back later.", "It's a match!", "Keep swiping"
   calls: swipe(horse: viewer, target: deck, liked)
-  look: "tinder: one big card at a time, drag right to like, left to pass, round ✕ and ♥ buttons under it, the next card peeking behind"
+  look: "tinder: one big card, drag right to like, left to pass, round ✕ and ♥ buttons under it, the next card peeking behind; a match opens a celebration over the deck"
 }
 
 component HorseCard(horse: Horse) {

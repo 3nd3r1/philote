@@ -78,7 +78,6 @@ endpoint matches.get {
 endpoint swipe {
   route: POST "/swipe"
   input: { horse: Horse, target: Horse, liked: bool }
-  output: Swipe
   errors: invalid_input, same_horse, already_swiped
   steps: record_swipe, match_if_mutual
 }

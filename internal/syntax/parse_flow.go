@@ -46,7 +46,7 @@ func (p *parser) identList(what string) []Ident {
 	return out
 }
 
-// param is `<name>: [list of] <Type>(limits)`.
+// param is `<name>: [list of] <Type>(limits) [optional]`.
 func (p *parser) param() *Field {
 	f := &Field{Name: p.ident("a name")}
 	p.expect(tColon, "':' and a type after '"+f.Name.Name+"'")
@@ -54,6 +54,9 @@ func (p *parser) param() *Field {
 	f.Type = p.ident("a type")
 	if p.peek().kind == tLParen {
 		f.Limits = p.limits()
+	}
+	if p.isWord("optional") {
+		f.Mods = append(f.Mods, p.ident("optional"))
 	}
 	return f
 }
@@ -104,6 +107,10 @@ func (p *parser) endpoint() Item {
 		case "input":
 			e.Input = p.record()
 		case "output":
+			if p.peek().kind == tLBrace {
+				e.Outputs = p.record()
+				return
+			}
 			e.List = p.listOf()
 			o := p.ident("an entity")
 			e.Output = &o

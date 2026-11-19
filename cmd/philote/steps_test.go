@@ -19,8 +19,8 @@ const (
 	brokenSwipe = "```ts\nreturn makeSwipe(horse, target, liked);\n```"
 	goodSwipe   = "```ts\nif (horse.id === target.id) {\n  fail(\"same_horse\");\n}\n" +
 		"return insert(\"Swipe\", { liked, horse_id: horse.id, target_id: target.id }) as Swipe;\n```"
-	goodMatch = "Here is the body:\n```ts\n    if (!swipe.liked) {\n      return;\n    }\n" +
-		"    insert(\"Match\", { matched_at: new Date().toISOString(), first_id: swipe.horse_id, second_id: swipe.target_id });\n```"
+	goodMatch = "Here is the body:\n```ts\n    if (!swipe.liked) {\n      return null;\n    }\n" +
+		"    return insert(\"Match\", { matched_at: new Date().toISOString(), first_id: swipe.horse_id, second_id: swipe.target_id }) as Match;\n```"
 )
 
 // recorded replays replies in order for each body's function, or for the
@@ -88,7 +88,7 @@ func TestStepRetryAndReuse(t *testing.T) {
 			t.Errorf("want the fixed body, not the broken one:\n%s", text)
 		}
 	}
-	if !strings.Contains(lock, "| if (!swipe.liked) {\n|   return;\n| }\n") {
+	if !strings.Contains(lock, "| if (!swipe.liked) {\n|   return null;\n| }\n") {
 		t.Errorf("the match body isn't dedented in the lock:\n%s", lock)
 	}
 

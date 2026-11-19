@@ -16,6 +16,7 @@ type actionCallView struct {
 	Component, Endpoint, Func string
 	Viewer                    bool // the action fills inputs with the viewer
 	Params, Input             string
+	Result, Value, Types      string // the result type's name, what a call that worked holds, and imports from @/lib/types
 }
 
 // callFiles renders the server action a calling component's body is
@@ -26,12 +27,16 @@ func callFiles(app *ir.App, backend *ir.Part, c *ir.Component) []target.File {
 		return nil
 	}
 	call := c.Calls
-	v := actionCallView{Component: c.Name, Endpoint: call.Endpoint, Func: camel(call.Endpoint), Viewer: len(call.Viewer) > 0}
+	ep := endpoint(backend, call.Endpoint)
+	used := map[string]bool{}
+	v := actionCallView{Component: c.Name, Endpoint: call.Endpoint, Func: camel(call.Endpoint), Viewer: len(call.Viewer) > 0,
+		Result: resultName(call), Value: outputType(ep, used, func(entity string) string { return entity })}
+	v.Types = imports(app, used)
 	if len(call.Passed) > 0 {
 		v.Params = "input: " + passedType(app, call)
 	}
 	var fields []string
-	for _, in := range endpoint(backend, call.Endpoint).Flow.Input {
+	for _, in := range ep.Flow.Input {
 		if slices.Contains(call.Viewer, in.Name) {
 			fields = append(fields, in.Name+": viewer.id")
 		} else {
@@ -61,13 +66,60 @@ func passedType(app *ir.App, call *ir.Call) string {
 // actionType is the type of the action the body receives.
 func actionType(app *ir.App, call *ir.Call) string {
 	if len(call.Passed) == 0 {
-		return "() => Promise<string | undefined>"
+		return "() => Promise<" + resultName(call) + ">"
 	}
-	return fmt.Sprintf("(input: %s) => Promise<string | undefined>", passedType(app, call))
+	return fmt.Sprintf("(input: %s) => Promise<%s>", passedType(app, call), resultName(call))
 }
 
-// callPrompt tells the model what the action does and what to pass it.
-func callPrompt(b *strings.Builder, c *ir.Component) {
+// resultName is the type of what the action resolves to, like SwipeResult.
+func resultName(call *ir.Call) string { return pascal(call.Endpoint) + "Result" }
+
+// outputType is what an endpoint returns, in TypeScript, with each record
+// spelled by record: its name in code, or its fields in a prompt. It's
+// empty when the endpoint returns nothing.
+func outputType(ep *ir.Endpoint, used map[string]bool, record func(entity string) string) string {
+	one := func(v *ir.Value) string {
+		used[v.Entity] = true
+		switch {
+		case v.List:
+			return record(v.Entity) + "[]"
+		case v.Optional:
+			return record(v.Entity) + " | null"
+		}
+		return record(v.Entity)
+	}
+	switch {
+	case len(ep.Outputs) > 0:
+		fields := make([]string, len(ep.Outputs))
+		for i, o := range ep.Outputs {
+			fields[i] = o.Name + ": " + one(o)
+		}
+		return "{ " + strings.Join(fields, "; ") + " }"
+	case ep.Output != "":
+		return one(&ir.Value{Entity: ep.Output, List: ep.List})
+	}
+	return ""
+}
+
+// recordType spells out an entity's record as the backend sends it, with
+// a belongs-to relation as its id, so the prompt doesn't need types.ts.
+func recordType(app *ir.App, entity string) string {
+	ent := app.Entity(entity)
+	fields := []string{"id: string"}
+	for _, f := range ent.Fields {
+		fields = append(fields, fmt.Sprintf("%s%s: %s", f.Name, optional(f), promptType(app, f)))
+	}
+	for _, r := range ent.Relations {
+		if !r.Many {
+			fields = append(fields, r.FK+": string")
+		}
+	}
+	return "{ " + strings.Join(fields, "; ") + " }"
+}
+
+// callPrompt tells the model what the action does, what to pass it, and
+// what it resolves to.
+func callPrompt(b *strings.Builder, app *ir.App, backend *ir.Part, c *ir.Component) {
 	call := c.Calls
 	name := camel(call.Endpoint)
 	fmt.Fprintf(b, "\n%s sends the %s endpoint", name, call.Endpoint)
@@ -92,5 +144,12 @@ func callPrompt(b *strings.Builder, c *ir.Component) {
 		}
 		fmt.Fprintf(b, "Call it as await %s({ %s }): %s.", name, strings.Join(args, ", "), strings.Join(hints, "; "))
 	}
-	b.WriteString(" It resolves to an error message to show with toast.error(message), or undefined when it worked. Call it only when the visitor acts, never while rendering, and keep what's on screen in step with it.\n")
+	result := resultName(call)
+	value := outputType(endpoint(backend, call.Endpoint), map[string]bool{}, func(entity string) string { return recordType(app, entity) })
+	if value == "" {
+		fmt.Fprintf(b, " It resolves to a %[1]s:\ntype %[1]s = { ok: true } | { ok: false; error: string };\n", result)
+	} else {
+		fmt.Fprintf(b, " It resolves to a %[1]s, with what the call made in value:\ntype %[1]s = { ok: true; value: %[2]s } | { ok: false; error: string };\n", result, value)
+	}
+	b.WriteString("Show error with toast.error(error). When it worked, show what value holds if it's worth a moment, like something the call made. Call it only when the visitor acts, never while rendering, and keep what's on screen in step with it.\n")
 }

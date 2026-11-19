@@ -26,6 +26,7 @@ type componentView struct {
 	Name, Marker string
 	Client       bool   // the component calls an endpoint, so it runs in the browser
 	Call         string // the action the body calls, empty for none
+	Result       string // the type of what the action resolves to
 	CallFile     string // the file that action is in
 	Props        bool   // the component takes a record or a list, as XProps
 	Extras       string // props the wrapper adds for the body: link and actions
@@ -70,7 +71,7 @@ func components(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Sl
 			Node:   part.Name + "/" + c.Name,
 			File:   path,
 			Marker: marker,
-			Prompt: componentPrompt(app, part, c),
+			Prompt: componentPrompt(app, backend, part, c),
 		})
 		if c.Param != "" {
 			reads.Components = append(reads.Components, newReadView(c, clients, types))
@@ -125,7 +126,7 @@ func newComponentView(app *ir.App, c *ir.Component) componentView {
 		extras = append(extras, fmt.Sprintf(" actions={<%sActions id={props.%s.id} />}", c.Name, c.Param))
 	}
 	if c.Calls != nil {
-		v.Call, v.CallFile = camel(c.Calls.Endpoint), kebab(c.Name)+"-call"
+		v.Call, v.CallFile, v.Result = camel(c.Calls.Endpoint), kebab(c.Name)+"-call", resultName(c.Calls)
 		extras = append(extras, fmt.Sprintf(" %[1]s={%[1]s}", v.Call))
 	}
 	v.Extras = strings.Join(extras, "")

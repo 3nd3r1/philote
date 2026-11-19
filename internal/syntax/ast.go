@@ -96,14 +96,15 @@ type Resource struct {
 // Endpoint is a custom route whose behaviour is a list of steps:
 // `endpoint <name> { route: POST "/path"  input: { ... }  output: <Entity>  errors: a, b  steps: x, y }`.
 type Endpoint struct {
-	Name   Ident
-	Method *Ident
-	Path   *Str
-	Input  []*Field
-	Output *Ident
-	List   bool // output: list of <Entity>
-	Errors []Ident
-	Steps  []Ident
+	Name    Ident
+	Method  *Ident
+	Path    *Str
+	Input   []*Field
+	Output  *Ident
+	List    bool     // output: list of <Entity>
+	Outputs []*Field // output: { <name>: <Type>, ... }, the values it returns by name
+	Errors  []Ident
+	Steps   []Ident
 }
 
 // Step is `step <name>(<params>) [-> <name>: <Type>] { fails: a, b  reads: A

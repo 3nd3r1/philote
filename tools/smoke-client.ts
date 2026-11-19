@@ -19,9 +19,10 @@ const pony = await horses.create({ name: "Pony", breed: "shetland", age: 4, bio:
 if (!shadow.ok || !pony.ok) throw new Error("setup failed");
 const self = await swipe({ horse: pony.value.id, target: pony.value.id, liked: true });
 expect("returns a step's declared error", !self.ok && self.error === "same_horse", self);
-await swipe({ horse: pony.value.id, target: shadow.value.id, liked: true });
+const first = await swipe({ horse: pony.value.id, target: shadow.value.id, liked: true });
+expect("a one-way like makes no match", first.ok && first.value.swipe.liked && first.value.match === null, first);
 const back = await swipe({ horse: shadow.value.id, target: pony.value.id, liked: true });
-expect("swipes", back.ok && back.value.liked, back);
+expect("a mutual like returns the match", back.ok && back.value.swipe.liked && back.value.match !== null, back);
 const liked = await horses.swipedBy(pony.value.id);
 expect("lists a has-many relation", liked.ok && liked.value.length === 1 && liked.value[0].horse_id === shadow.value.id, liked);
 const all = await matches.list();

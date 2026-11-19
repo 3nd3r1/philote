@@ -27,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 
 import Mark from "@/components/common/mark";
 
-import { swipe } from "@/lib/actions/swipe-deck-call";
+import { swipe, type SwipeResult } from "@/lib/actions/swipe-deck-call";
 
 // The wrapper hands the body its props, and what the template places beside them.
 export default function SwipeDeck(props: SwipeDeckProps) {
@@ -35,33 +35,47 @@ export default function SwipeDeck(props: SwipeDeckProps) {
 }
 
 // The spec's words for SwipeDeck, in order. The body shows every one.
-const says = ["You've seen every horse. Check back later."] as const;
+const says = ["You've seen every horse. Check back later.", "It's a match!", "Keep swiping"] as const;
 
-function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { target: string; liked: boolean }) => Promise<string | undefined> }): React.ReactNode {
+function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { target: string; liked: boolean }) => Promise<SwipeResult> }): React.ReactNode {
     const [gone, setGone] = useState<string[]>([]);
     const [dx, setDx] = useState(0);
     const [dragging, setDragging] = useState(false);
+    const [match, setMatch] = useState<{
+      horse: SwipeDeckProps["deck"][number];
+      matchedAt: string;
+    } | null>(null);
     const startX = useRef<number | null>(null);
     const dxRef = useRef(0);
+    const keepRef = useRef<HTMLButtonElement | null>(null);
     const [, startTransition] = useTransition();
 
     const remaining = deck.filter((h) => !gone.includes(h.id));
     const top = remaining[0];
     const threshold = 110;
 
+    useEffect(() => {
+      if (match) keepRef.current?.focus();
+    }, [match]);
+
     const decide = (liked: boolean) => {
-      if (!top) return;
-      const id = top.id;
+      if (!top || match) return;
+      const horse = top;
+      const id = horse.id;
       setGone((g) => [...g, id]);
       setDx(0);
       dxRef.current = 0;
       setDragging(false);
       startX.current = null;
       startTransition(async () => {
-        const message = await swipe({ target: id, liked });
-        if (message) {
-          toast.error(message);
+        const result = await swipe({ target: id, liked });
+        if (!result.ok) {
+          toast.error(result.error);
           setGone((g) => g.filter((x) => x !== id));
+          return;
+        }
+        if (result.value.match) {
+          setMatch({ horse, matchedAt: result.value.match.matched_at });
         }
       });
     };
@@ -182,15 +196,19 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
               <div className="flex items-center justify-center gap-8">
                 <button
                   type="button"
+                  aria-label="Pass"
                   onClick={() => decide(false)}
-                  className="flex size-16 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-105 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+                  disabled={!!match}
+                  className="flex size-16 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-105 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:opacity-50"
                 >
                   <Icons.X className="size-7" />
                 </button>
                 <button
                   type="button"
+                  aria-label="Like"
                   onClick={() => decide(true)}
-                  className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+                  disabled={!!match}
+                  className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:opacity-50"
                 >
                   <Icons.Heart className="size-7 fill-current" />
                 </button>
@@ -205,6 +223,57 @@ function SwipeDeckBody({ deck, swipe }: SwipeDeckProps & { swipe: (input: { targ
             </Card>
           )}
         </div>
+        {match && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="swipe-match-title"
+            className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm animate-in fade-in"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/30 via-transparent to-accent/60"
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl"
+            />
+            <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-xl border bg-card p-8 text-center text-card-foreground shadow-2xl animate-in zoom-in-95">
+              <div className="relative">
+                <Mark
+                  name={match.horse.name}
+                  className="size-28 ring-4 ring-primary ring-offset-4 ring-offset-card"
+                />
+                <span
+                  aria-hidden
+                  className="absolute -bottom-2 -right-2 flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+                >
+                  <Icons.Heart className="size-5 fill-current" />
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h2
+                  id="swipe-match-title"
+                  className="font-heading text-3xl font-bold text-primary sm:text-4xl"
+                >
+                  {says[1]}
+                </h2>
+                <p className="font-heading text-xl font-semibold">{match.horse.name}</p>
+                <time dateTime={match.matchedAt} className="text-sm text-muted-foreground">
+                  {formatDateTime(match.matchedAt)}
+                </time>
+              </div>
+              <button
+                ref={keepRef}
+                type="button"
+                onClick={() => setMatch(null)}
+                className="w-full rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+              >
+                {says[2]}
+              </button>
+            </div>
+          </div>
+        )}
       </section>
     );
 }

@@ -5,7 +5,7 @@ resource matches: Match { only: list, get }
 endpoint swipe {
   route: POST "/swipe"
   input: { horse: Horse, target: Horse, liked: bool }
-  output: Swipe
+  output: { swipe: Swipe, match: Match optional }
   errors: same_horse, already_swiped
   steps: record_swipe, match_if_mutual
 }
@@ -16,10 +16,10 @@ step record_swipe(horse: Horse, target: Horse, liked: bool) -> swipe: Swipe {
   intent: "store the swipe; a horse can't swipe itself, or swipe the same horse twice"
 }
 
-step match_if_mutual(swipe: Swipe) {
+step match_if_mutual(swipe: Swipe) -> match: Match optional {
   reads: Swipe
   writes: Match
-  intent: "if this swipe is a like and the target already liked the swiper, create a Match for the two, matched now"
+  intent: "if this swipe is a like and the target already liked the swiper, create and return a Match for the two, matched now; else null"
 }
 
 endpoint candidates {

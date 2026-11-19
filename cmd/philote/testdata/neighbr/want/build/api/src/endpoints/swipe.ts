@@ -26,8 +26,8 @@ export function routeSwipe(app: Hono): void {
       const target = find("Horse", checked.values.target as string) as Horse;
       const liked = checked.values.liked as boolean;
       const swipe = await recordSwipe(horse, target, liked);
-      await matchIfMutual(swipe);
-      return ctx.json(swipe);
+      const match = await matchIfMutual(swipe);
+      return ctx.json({ swipe, match });
     } catch (error) {
       if (error instanceof StepError) {
         return ctx.json({ error: error.code }, error.code === "not_found" ? 404 : 422);

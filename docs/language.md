@@ -87,6 +87,23 @@ step find_open(project: Project) -> tasks: list of Task {
 }
 ```
 
+An endpoint can return what its steps made by name, so a caller can show it. Each value is an input or a step's result, of the same type. A step that may make nothing returns one record `optional`: the record or null. An optional result can't feed another step.
+
+```
+endpoint swipe {
+  route: POST "/swipe"
+  input: { horse: Horse, target: Horse, liked: bool }
+  output: { swipe: Swipe, match: Match optional }   // sent as { "swipe": {...}, "match": {...} or null }
+  steps: record_swipe, match_if_mutual
+}
+
+step match_if_mutual(swipe: Swipe) -> match: Match optional {
+  reads: Swipe
+  writes: Match
+  intent: "if the like is mutual, create and return a Match for the two; else null"
+}
+```
+
 A step's parameters come from the endpoint's input, or from earlier steps' results, by name. The model writes only the step's body. It sees the signature, the intent, and the types of the tables the step can reach. It can only touch the tables the step lists, and the body has to typecheck.
 
 ## Frontend
@@ -189,7 +206,7 @@ component SwipeDeck(deck: list of Horse) {
 ```
 
 - Every input is listed once. `<input>: viewer` is filled on the server with the viewer, so the body never sends who the visitor is, and a page that shows the component needs the viewer. `<input>: <param>` is the id of the component's record, or of the one in its list the visitor acts on. A bare `<input>` is a value from what the visitor does, like a bool.
-- The body calls the action, like `await swipe({ target, liked })`, and gets an error message to show, or nothing when it worked. A body that never calls it, or that uses `fetch`, goes back to the model.
+- The body calls the action, like `await swipe({ target, liked })`, and gets `{ ok: false, error }` with the message to show, or `{ ok: true, value }` with what the endpoint returned, like the match a swipe made, so the body can show it. A body that never calls it, or that uses `fetch`, goes back to the model.
 
 ## Build
 

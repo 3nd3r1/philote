@@ -50,7 +50,7 @@ neighbr
       links to /horses/new
     SwipeDeck(deck: list of Horse)
       shows: deck.name, deck.age, deck.breed, deck.bio
-      says: You've seen every horse. Check back later.
+      says: You've seen every horse. Check back later. / It's a match! / Keep swiping
       calls swipe as the viewer (horse), passing target, liked
     HorseCard(horse: Horse)
       shows: horse.name, horse.breed, horse.age

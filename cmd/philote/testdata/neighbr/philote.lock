@@ -16,10 +16,10 @@ model claude-opus-5-5
 | return matches;
 
 step api/match_if_mutual
-key 385a38fde97e6b9d9d46abe828733b3db8e405ce9b4320bf9235b35dda3e84a7
+key eebc3884666c0502c82943e8e185dc9dfc005f57c5584a23c487a31c437f3439
 model claude-opus-5-5
 | if (!swipe.liked) {
-|   return;
+|   return null;
 | }
 |
 | const swipes = all("Swipe") as Swipe[];
@@ -31,25 +31,27 @@ model claude-opus-5-5
 | );
 |
 | if (!reciprocal) {
-|   return;
+|   return null;
 | }
 |
 | const matches = all("Match") as Match[];
-| const alreadyMatched = matches.some(
+| const existing = matches.find(
 |   (m) =>
 |     (m.first_id === swipe.horse_id && m.second_id === swipe.target_id) ||
 |     (m.first_id === swipe.target_id && m.second_id === swipe.horse_id)
 | );
 |
-| if (alreadyMatched) {
-|   return;
+| if (existing) {
+|   return existing;
 | }
 |
-| insert("Match", {
+| const match = insert("Match", {
 |   matched_at: new Date().toISOString(),
 |   first_id: swipe.horse_id,
 |   second_id: swipe.target_id,
-| });
+| }) as Match;
+|
+| return match;
 
 step api/pick_candidates
 key 23fcc78defd414d21a67eb95161b7b32168e10a306889cce46105a1bc5ec04bf
@@ -366,32 +368,46 @@ model claude-opus-5-5
 | );
 
 component web/SwipeDeck
-key 7449d4455b3549ce02f68b62c466ac992270af3e09cae3c7c4d091cf0dc36171
+key 5aa0cf0a765718d1672914c80acc5b1fff669b1f9d7ca646262c4e4f108389f7
 model claude-opus-5-5
 | const [gone, setGone] = useState<string[]>([]);
 | const [dx, setDx] = useState(0);
 | const [dragging, setDragging] = useState(false);
+| const [match, setMatch] = useState<{
+|   horse: SwipeDeckProps["deck"][number];
+|   matchedAt: string;
+| } | null>(null);
 | const startX = useRef<number | null>(null);
 | const dxRef = useRef(0);
+| const keepRef = useRef<HTMLButtonElement | null>(null);
 | const [, startTransition] = useTransition();
 |
 | const remaining = deck.filter((h) => !gone.includes(h.id));
 | const top = remaining[0];
 | const threshold = 110;
 |
+| useEffect(() => {
+|   if (match) keepRef.current?.focus();
+| }, [match]);
+|
 | const decide = (liked: boolean) => {
-|   if (!top) return;
-|   const id = top.id;
+|   if (!top || match) return;
+|   const horse = top;
+|   const id = horse.id;
 |   setGone((g) => [...g, id]);
 |   setDx(0);
 |   dxRef.current = 0;
 |   setDragging(false);
 |   startX.current = null;
 |   startTransition(async () => {
-|     const message = await swipe({ target: id, liked });
-|     if (message) {
-|       toast.error(message);
+|     const result = await swipe({ target: id, liked });
+|     if (!result.ok) {
+|       toast.error(result.error);
 |       setGone((g) => g.filter((x) => x !== id));
+|       return;
+|     }
+|     if (result.value.match) {
+|       setMatch({ horse, matchedAt: result.value.match.matched_at });
 |     }
 |   });
 | };
@@ -512,15 +528,19 @@ model claude-opus-5-5
 |           <div className="flex items-center justify-center gap-8">
 |             <button
 |               type="button"
+|               aria-label="Pass"
 |               onClick={() => decide(false)}
-|               className="flex size-16 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-105 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+|               disabled={!!match}
+|               className="flex size-16 items-center justify-center rounded-full border bg-card text-muted-foreground shadow-md transition hover:scale-105 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:opacity-50"
 |             >
 |               <Icons.X className="size-7" />
 |             </button>
 |             <button
 |               type="button"
+|               aria-label="Like"
 |               onClick={() => decide(true)}
-|               className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+|               disabled={!!match}
+|               className="flex size-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 disabled:opacity-50"
 |             >
 |               <Icons.Heart className="size-7 fill-current" />
 |             </button>
@@ -535,6 +555,57 @@ model claude-opus-5-5
 |         </Card>
 |       )}
 |     </div>
+|     {match && (
+|       <div
+|         role="dialog"
+|         aria-modal="true"
+|         aria-labelledby="swipe-match-title"
+|         className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 px-4 backdrop-blur-sm animate-in fade-in"
+|       >
+|         <div
+|           aria-hidden
+|           className="pointer-events-none absolute inset-0 bg-linear-to-br from-primary/30 via-transparent to-accent/60"
+|         />
+|         <div
+|           aria-hidden
+|           className="pointer-events-none absolute left-1/2 top-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-3xl"
+|         />
+|         <div className="relative flex w-full max-w-sm flex-col items-center gap-6 rounded-xl border bg-card p-8 text-center text-card-foreground shadow-2xl animate-in zoom-in-95">
+|           <div className="relative">
+|             <Mark
+|               name={match.horse.name}
+|               className="size-28 ring-4 ring-primary ring-offset-4 ring-offset-card"
+|             />
+|             <span
+|               aria-hidden
+|               className="absolute -bottom-2 -right-2 flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md"
+|             >
+|               <Icons.Heart className="size-5 fill-current" />
+|             </span>
+|           </div>
+|           <div className="flex flex-col gap-2">
+|             <h2
+|               id="swipe-match-title"
+|               className="font-heading text-3xl font-bold text-primary sm:text-4xl"
+|             >
+|               {says[1]}
+|             </h2>
+|             <p className="font-heading text-xl font-semibold">{match.horse.name}</p>
+|             <time dateTime={match.matchedAt} className="text-sm text-muted-foreground">
+|               {formatDateTime(match.matchedAt)}
+|             </time>
+|           </div>
+|           <button
+|             ref={keepRef}
+|             type="button"
+|             onClick={() => setMatch(null)}
+|             className="w-full rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-md transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
+|           >
+|             {says[2]}
+|           </button>
+|         </div>
+|       </div>
+|     )}
 |   </section>
 | );
 

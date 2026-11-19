@@ -52,6 +52,9 @@ req GET "/horses/$biscuit/candidates" 200
 [ "$body" = "[]" ] || { echo "FAIL biscuit already swiped on every other horse: $body"; fails=$((fails + 1)); }
 req GET /horses/nope/candidates 404
 req POST /swipe 200 "{\"horse\":\"$ed\",\"target\":\"$biscuit\",\"liked\":true}"
+# A mutual like returns the swipe and the match it made, so the deck can show it.
+pair=$(printf '%s' "$body" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const r=JSON.parse(s);console.log(r.swipe&&r.swipe.liked&&r.match?[r.match.first_id,r.match.second_id].sort().join(" "):"none")})')
+[ "$pair" = "$(printf '%s\n%s\n' "$ed" "$biscuit" | LC_ALL=C sort | tr '\n' ' ' | sed 's/ $//')" ] || { echo "FAIL the mutual like returned no match for ed and biscuit: $body"; fails=$((fails + 1)); }
 req GET "/horses/$ed/candidates" 200
 [ "$body" = "[]" ] || { echo "FAIL ed still sees biscuit after swiping: $body"; fails=$((fails + 1)); }
 req GET "/horses/$biscuit/matches" 200

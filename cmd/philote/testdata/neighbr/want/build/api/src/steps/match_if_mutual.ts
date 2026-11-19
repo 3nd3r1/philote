@@ -12,9 +12,9 @@ const update = (table: "Match", id: string, values: Record<string, unknown>): Ro
   store.update(table, id, values);
 const remove = (table: "Match", id: string): boolean => store.remove(table, id);
 
-export async function matchIfMutual(swipe: Swipe): Promise<void> {
+export async function matchIfMutual(swipe: Swipe): Promise<Match | null> {
   if (!swipe.liked) {
-    return;
+    return null;
   }
 
   const swipes = all("Swipe") as Swipe[];
@@ -26,23 +26,25 @@ export async function matchIfMutual(swipe: Swipe): Promise<void> {
   );
 
   if (!reciprocal) {
-    return;
+    return null;
   }
 
   const matches = all("Match") as Match[];
-  const alreadyMatched = matches.some(
+  const existing = matches.find(
     (m) =>
       (m.first_id === swipe.horse_id && m.second_id === swipe.target_id) ||
       (m.first_id === swipe.target_id && m.second_id === swipe.horse_id)
   );
 
-  if (alreadyMatched) {
-    return;
+  if (existing) {
+    return existing;
   }
 
-  insert("Match", {
+  const match = insert("Match", {
     matched_at: new Date().toISOString(),
     first_id: swipe.horse_id,
     second_id: swipe.target_id,
-  });
+  }) as Match;
+
+  return match;
 }

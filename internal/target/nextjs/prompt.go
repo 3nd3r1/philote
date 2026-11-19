@@ -18,7 +18,7 @@ Tints and gradients of these are fine and make a design feel finished, like bg-p
 // componentPrompt is everything the model is told about one component. It's
 // built only from that component and the pages that use it, so editing
 // another component or an unrelated entity doesn't change its key (D-019).
-func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
+func componentPrompt(app *ir.App, backend, part *ir.Part, c *ir.Component) string {
 	var b strings.Builder
 	kind := "server"
 	if c.Calls != nil {
@@ -39,7 +39,7 @@ func componentPrompt(app *ir.App, part *ir.Part, c *ir.Component) string {
 			fmt.Fprintf(&b, "- %s.%s: %s\n", c.Param, s.Name, showHint(app, s))
 		}
 	}
-	placed(&b, c)
+	placed(&b, app, backend, c)
 	if c.Look != "" {
 		fmt.Fprintf(&b, "\nHow it should look: %s\n", c.Look)
 	}
@@ -124,7 +124,7 @@ func subject(c *ir.Component) string {
 
 // placed tells the model about what the template hands the body besides
 // its record: the link, the actions and the spec's words.
-func placed(b *strings.Builder, c *ir.Component) {
+func placed(b *strings.Builder, app *ir.App, backend *ir.Part, c *ir.Component) {
 	switch {
 	case c.LinkLabel != "":
 		b.WriteString("\nlink.href is another page and link.label is its button's text. Render <Link href={link.href}> with {link.label} in it as the main call to action, styled as a button.\n")
@@ -138,7 +138,7 @@ func placed(b *strings.Builder, c *ir.Component) {
 		fmt.Fprintf(b, "\nTapping a %[1]s makes it the visitor's own %[1]s. Wrap what shows each record in <Pick id={item.id} className=\"...\">...</Pick>, exactly one Pick per record: it renders a <button> with your className around its children, so style it as the tappable thing.\n", c.Entity)
 	}
 	if c.Calls != nil {
-		callPrompt(b, c)
+		callPrompt(b, app, backend, c)
 	}
 	if len(c.Says) > 0 {
 		b.WriteString("\nsays holds the spec's words, in order. Render each one exactly once, as {says[0]} and so on, never retyped:\n")

@@ -16,9 +16,14 @@ var methods = []string{"GET", "POST", "PUT", "PATCH", "DELETE"}
 // Errors the templates raise themselves; steps and endpoints can't declare them.
 var builtinErrors = []string{"not_found", "invalid_input"}
 
-// value resolves an input, parameter or result type: a scalar or an entity record.
+// value resolves an input, parameter or result type: a scalar or an entity
+// record. Only one record can be optional, since a list can just be empty.
 func (c *checker) value(f *syntax.Field) *ir.Value {
-	v := &ir.Value{Name: f.Name.Name, List: f.List}
+	v := &ir.Value{Name: f.Name.Name, List: f.List, Optional: len(f.Mods) > 0}
+	if v.Optional && (f.List || c.entities[f.Type.Name] == nil) {
+		c.d.Errorf(f.Mods[0].Pos, "only one record can be optional, like `match: Match optional`")
+		return nil
+	}
 	if c.entities[f.Type.Name] != nil {
 		if len(f.Limits) > 0 {
 			c.d.Errorf(f.Limits[0].Name.Pos, "(min/max) only applies to string and int values")
@@ -50,7 +55,7 @@ func (c *checker) value(f *syntax.Field) *ir.Value {
 
 func sameType(a, b *ir.Value) bool {
 	if a.Entity != "" || b.Entity != "" {
-		return a.Entity == b.Entity && a.List == b.List
+		return a.Entity == b.Entity && a.List == b.List && a.Optional == b.Optional
 	}
 	return a.Field.Kind == b.Field.Kind && a.Field.Enum == b.Field.Enum
 }
@@ -59,6 +64,8 @@ func typeName(v *ir.Value) string {
 	switch {
 	case v.List:
 		return "list of " + v.Entity
+	case v.Optional:
+		return v.Entity + " optional"
 	case v.Entity != "":
 		return v.Entity
 	case v.Field.Kind == ir.EnumValue:
@@ -77,7 +84,12 @@ func (c *checker) values(fields []*syntax.Field) []*ir.Value {
 			continue
 		}
 		seen[f.Name.Name] = true
-		if v := c.value(f); v != nil {
+		v := c.value(f)
+		switch {
+		case v == nil:
+		case v.Optional:
+			c.d.Errorf(f.Mods[0].Pos, "only a step's result or an endpoint's output can be optional")
+		default:
 			out = append(out, v)
 		}
 	}
@@ -159,6 +171,7 @@ func (c *checker) endpoint(part *ir.Part, e *syntax.Endpoint) {
 	if e.Output != nil && c.lookupEntity(*e.Output) != nil {
 		ep.Output, ep.List = e.Output.Name, e.List
 	}
+	outputs := c.outputs(e)
 	for _, er := range e.Errors {
 		switch {
 		case slices.Contains(builtinErrors, er.Name):
@@ -169,7 +182,8 @@ func (c *checker) endpoint(part *ir.Part, e *syntax.Endpoint) {
 			ep.Errors = append(ep.Errors, er.Name)
 		}
 	}
-	c.flow(part, e, ep)
+	scope := c.flow(part, e, ep)
+	c.named(ep, outputs, scope)
 	part.Custom = append(part.Custom, ep)
 }
 
@@ -280,10 +294,10 @@ func (c *checker) inputs(e *syntax.Endpoint, ep *ir.Endpoint, params []string) b
 
 // flow resolves the steps and checks that every parameter is bound and the
 // errors line up.
-func (c *checker) flow(part *ir.Part, e *syntax.Endpoint, ep *ir.Endpoint) {
+func (c *checker) flow(part *ir.Part, e *syntax.Endpoint, ep *ir.Endpoint) map[string]*ir.Value {
 	if len(e.Steps) == 0 {
 		c.d.Errorf(e.Name.Pos, "endpoint %s needs steps", e.Name.Name)
-		return
+		return nil
 	}
 	scope := map[string]*ir.Value{}
 	for _, v := range slices.Concat(ep.Flow.Params, ep.Flow.Input) {
@@ -301,7 +315,7 @@ func (c *checker) flow(part *ir.Part, e *syntax.Endpoint, ep *ir.Endpoint) {
 		st := part.Steps[i]
 		c.bind(ref, st, scope)
 		c.fails(ref, st, ep, raised)
-		if st.Result != nil && ep.Output != "" && st.Result.Entity == ep.Output && st.Result.List == ep.List {
+		if r := st.Result; r != nil && ep.Output != "" && r.Entity == ep.Output && r.List == ep.List && !r.Optional {
 			if producer != "" {
 				c.d.Errorf(ref.Pos, "%s and %s both return %s; exactly one step must", producer, st.Name, outputName(ep))
 			}
@@ -317,6 +331,7 @@ func (c *checker) flow(part *ir.Part, e *syntax.Endpoint, ep *ir.Endpoint) {
 			c.d.Errorf(er.Pos, "no step can fail with %s", er.Name)
 		}
 	}
+	return scope
 }
 
 // fails checks that every error a step can raise is declared on the endpoint.

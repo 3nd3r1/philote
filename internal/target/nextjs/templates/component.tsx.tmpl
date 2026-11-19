@@ -46,7 +46,7 @@ import Pick from "@/components/common/{{.Pick}}";
 {{- end}}
 {{- if .Call}}
 
-import { {{.Call}} } from "@/lib/actions/{{.CallFile}}";
+import { {{.Call}}, type {{.Result}} } from "@/lib/actions/{{.CallFile}}";
 {{- end}}
 
 {{- if or .Props .Extras}}

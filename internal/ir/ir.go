@@ -225,6 +225,7 @@ type Endpoint struct {
 	Partial  bool     // every input is optional (updates)
 	Output   string   // entity name, empty when nothing is returned
 	List     bool     // output is a list
+	Outputs  []*Value // set instead of Output when it returns named values, like { swipe, match }
 	Errors   []string
 	Relation string // for a relation read: the has-many relation it lists
 	Flow     *Flow  // set for custom endpoints
@@ -241,10 +242,11 @@ type Flow struct {
 // Value is an input, step parameter or step result: a scalar, or a record
 // of an entity, or a list of records.
 type Value struct {
-	Name   string
-	Field  *Field // the scalar's type; nil for a record
-	Entity string // the record's entity
-	List   bool   // a list of Entity records
+	Name     string
+	Field    *Field // the scalar's type; nil for a record
+	Entity   string // the record's entity
+	List     bool   // a list of Entity records
+	Optional bool   // a step's result or an output that can be missing, as null
 }
 
 // Step is a function whose body a model writes.

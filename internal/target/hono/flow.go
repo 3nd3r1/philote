@@ -29,6 +29,9 @@ func valueType(v *ir.Value) string {
 	if v.List {
 		return v.Entity + "[]"
 	}
+	if v.Optional {
+		return v.Entity + " | null"
+	}
 	if v.Entity != "" {
 		return v.Entity
 	}
@@ -179,9 +182,16 @@ func newEndpointView(app *ir.App, ep *ir.Endpoint) endpointView {
 		}
 		v.Lines = append(v.Lines, call)
 	}
-	if result != "" {
+	switch {
+	case len(ep.Outputs) > 0:
+		names := make([]string, len(ep.Outputs))
+		for i, o := range ep.Outputs {
+			names[i] = o.Name
+		}
+		v.Lines = append(v.Lines, fmt.Sprintf("return ctx.json({ %s });", strings.Join(names, ", ")))
+	case result != "":
 		v.Lines = append(v.Lines, fmt.Sprintf("return ctx.json(%s);", result))
-	} else {
+	default:
 		v.Lines = append(v.Lines, "return ctx.body(null, 204);")
 	}
 	return v
