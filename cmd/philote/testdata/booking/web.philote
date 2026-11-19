@@ -1,0 +1,99 @@
+uses: api
+look: "a calm, upscale hair salon: warm stone and deep olive, editorial serif headings"
+viewer: Client
+nav: top, "/services", "/book", "/bookings" as "My bookings", "/me" as "Me"
+
+page "/" {
+  load: services
+  shows: Hero, list of ServiceCard(services)
+  empty: "No services yet."
+}
+
+page "/pick" {
+  load: clients
+  shows: ClientPicker(clients), JoinClients
+  empty: "No clients yet."
+}
+
+page "/clients/new" {
+  form: clients.create
+  then: "/pick"
+}
+
+page "/me" {
+  shows: ClientView(viewer)
+}
+
+page "/services" {
+  load: services
+  shows: list of ServiceCard(services)
+  empty: "No services yet."
+}
+
+page "/services/[id]" {
+  load: service from services by id
+  shows: ServiceView(service)
+  not_found: "That service doesn't exist."
+}
+
+page "/services/new" {
+  form: services.create
+  then: "/services/[id]"
+}
+
+page "/slots/new" {
+  form: slots.create
+  then: "/book"
+}
+
+page "/book" {
+  load: open from open_slots(client: viewer)
+  shows: SlotPicker(open)
+  empty: "No free times right now."
+}
+
+page "/bookings" {
+  load: mine from bookings_of(client: viewer)
+  shows: list of BookingCard(mine)
+  empty: "Nothing booked yet."
+}
+
+component Hero {
+  says: "Your chair is waiting.", "Book a cut, a color or a shave in a few taps."
+  links_to: "/book" as "Book a time"
+}
+
+component ClientPicker(clients: list of Client) {
+  shows: clients.name
+  picks: viewer then "/book"
+}
+
+component JoinClients {
+  says: "New here?"
+  links_to: "/clients/new" as "Add yourself"
+}
+
+component ClientView(client: Client) {
+  shows: client.name, client.email, client.phone
+}
+
+component ServiceCard(service: Service) {
+  shows: service.name, service.minutes, service.price
+  links_to: "/services/[service.id]"
+}
+
+component ServiceView(service: Service) {
+  shows: service.name, service.minutes, service.price, service.about
+  links_to: "/book" as "Book"
+}
+
+component SlotPicker(open: list of Slot) {
+  shows: open.starts_at, open.service
+  says: "Pick a time"
+  calls: book(client: viewer, slot: open)
+}
+
+component BookingCard(booking: Booking) {
+  shows: booking.booked_at, booking.note
+  actions: delete then "/bookings"
+}

@@ -1,0 +1,43 @@
+resource services: Service
+resource slots: Slot { only: list, get, create, delete }
+resource clients: Client
+resource bookings: Booking { only: list, get, delete }
+
+endpoint open_slots {
+  route: GET "/clients/[client]/open"
+  input: { client: Client }
+  output: list of Slot
+  steps: find_open_slots
+}
+
+step find_open_slots(client: Client) -> slots: list of Slot {
+  reads: Slot, Booking
+  intent: "every slot that starts from now on and nobody has booked, soonest first"
+}
+
+endpoint book {
+  route: POST "/book"
+  input: { client: Client, slot: Slot }
+  output: Booking
+  errors: taken, started
+  steps: book_slot
+}
+
+step book_slot(client: Client, slot: Slot) -> booking: Booking {
+  fails: taken, started
+  writes: Booking
+  reads: Slot
+  intent: "book the slot for the client, booked now; fail if someone booked it or it has started"
+}
+
+endpoint bookings_of {
+  route: GET "/clients/[client]/upcoming"
+  input: { client: Client }
+  output: list of Booking
+  steps: find_bookings
+}
+
+step find_bookings(client: Client) -> bookings: list of Booking {
+  reads: Booking, Slot
+  intent: "the client's bookings whose slot starts from now on, soonest first"
+}

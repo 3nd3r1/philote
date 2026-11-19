@@ -1,0 +1,140 @@
+endpoint services.list {
+  route: GET "/services"
+  output: [Service]
+}
+
+endpoint services.get {
+  route: GET "/services/[id]"
+  output: Service
+  errors: not_found
+}
+
+endpoint services.create {
+  route: POST "/services"
+  input: { name: string(max 60), minutes: int(min 10, max 240), price: int(min 0, max 1000), about: string(max 280) }
+  output: Service
+  errors: invalid_input
+}
+
+endpoint services.update {
+  route: PATCH "/services/[id]"
+  input: { name: string(max 60), minutes: int(min 10, max 240), price: int(min 0, max 1000), about: string(max 280) } (all optional)
+  output: Service
+  errors: not_found, invalid_input
+}
+
+endpoint services.delete {
+  route: DELETE "/services/[id]"
+  errors: not_found, in_use
+}
+
+endpoint services.slots {
+  route: GET "/services/[id]/slots"
+  output: [Slot]
+  errors: not_found
+}
+
+endpoint slots.list {
+  route: GET "/slots"
+  output: [Slot]
+}
+
+endpoint slots.get {
+  route: GET "/slots/[id]"
+  output: Slot
+  errors: not_found
+}
+
+endpoint slots.create {
+  route: POST "/slots"
+  input: { starts_at: datetime, service_id: Service.id }
+  output: Slot
+  errors: invalid_input
+}
+
+endpoint slots.delete {
+  route: DELETE "/slots/[id]"
+  errors: not_found, in_use
+}
+
+endpoint slots.bookings {
+  route: GET "/slots/[id]/bookings"
+  output: [Booking]
+  errors: not_found
+}
+
+endpoint clients.list {
+  route: GET "/clients"
+  output: [Client]
+}
+
+endpoint clients.get {
+  route: GET "/clients/[id]"
+  output: Client
+  errors: not_found
+}
+
+endpoint clients.create {
+  route: POST "/clients"
+  input: { name: string(max 60), email: email, phone: string(max 30) }
+  output: Client
+  errors: invalid_input
+}
+
+endpoint clients.update {
+  route: PATCH "/clients/[id]"
+  input: { name: string(max 60), email: email, phone: string(max 30) } (all optional)
+  output: Client
+  errors: not_found, invalid_input
+}
+
+endpoint clients.delete {
+  route: DELETE "/clients/[id]"
+  errors: not_found, in_use
+}
+
+endpoint clients.bookings {
+  route: GET "/clients/[id]/bookings"
+  output: [Booking]
+  errors: not_found
+}
+
+endpoint bookings.list {
+  route: GET "/bookings"
+  output: [Booking]
+}
+
+endpoint bookings.get {
+  route: GET "/bookings/[id]"
+  output: Booking
+  errors: not_found
+}
+
+endpoint bookings.delete {
+  route: DELETE "/bookings/[id]"
+  errors: not_found
+}
+
+endpoint open_slots {
+  route: GET "/clients/[client]/open"
+  input: { client: Client }
+  output: [Slot]
+  errors: not_found
+  steps: find_open_slots
+}
+
+endpoint book {
+  route: POST "/book"
+  input: { client: Client, slot: Slot }
+  output: Booking
+  errors: invalid_input, taken, started
+  steps: book_slot
+}
+
+endpoint bookings_of {
+  route: GET "/clients/[client]/upcoming"
+  input: { client: Client }
+  output: [Booking]
+  errors: not_found
+  steps: find_bookings
+}

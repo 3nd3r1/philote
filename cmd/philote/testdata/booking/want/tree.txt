@@ -1,0 +1,79 @@
+chair
+  api (backend, hono)
+    services: Service
+      GET /services
+      GET /services/[id]
+      POST /services
+      PATCH /services/[id]
+      DELETE /services/[id]
+      GET /services/[id]/slots
+    slots: Slot
+      GET /slots
+      GET /slots/[id]
+      POST /slots
+      DELETE /slots/[id]
+      GET /slots/[id]/bookings
+    clients: Client
+      GET /clients
+      GET /clients/[id]
+      POST /clients
+      PATCH /clients/[id]
+      DELETE /clients/[id]
+      GET /clients/[id]/bookings
+    bookings: Booking
+      GET /bookings
+      GET /bookings/[id]
+      DELETE /bookings/[id]
+    open_slots (endpoint)
+      GET /clients/[client]/open
+      steps: find_open_slots
+    book (endpoint)
+      POST /book
+      steps: book_slot
+    bookings_of (endpoint)
+      GET /clients/[client]/upcoming
+      steps: find_bookings
+  web (frontend, nextjs) uses api
+    theme: from its look
+    viewer: Client from clients, picked on /pick
+    nav: top, /services, /book, /bookings, /me
+    /: load services from services, Hero, list of ServiceCard(services)
+    /pick: load clients from clients, ClientPicker(clients), JoinClients
+    /clients/new: form clients.create, then /pick
+    /me: ClientView(viewer)
+    /services: load services from services, list of ServiceCard(services)
+    /services/[id]: load service from services by id, ServiceView(service)
+    /services/new: form services.create, then /services/[id]
+    /slots/new: form slots.create, then /book
+    /book: load open from open_slots as the viewer, SlotPicker(open)
+    /bookings: load mine from bookings_of as the viewer, list of BookingCard(mine)
+    Hero
+      says: Your chair is waiting. / Book a cut, a color or a shave in a few taps.
+      links to /book
+    ClientPicker(clients: list of Client)
+      shows: clients.name
+      picks the viewer, then /book
+    JoinClients
+      says: New here?
+      links to /clients/new
+    ClientView(client: Client)
+      shows: client.name, client.email, client.phone
+    ServiceCard(service: Service)
+      shows: service.name, service.minutes, service.price
+      links to /services/[id]
+    ServiceView(service: Service)
+      shows: service.name, service.minutes, service.price, service.about
+      links to /book
+    SlotPicker(open: list of Slot)
+      shows: open.starts_at, open.service
+      says: Pick a time
+      open.service links to /services/[id]
+      calls book as the viewer (client), passing slot
+    BookingCard(booking: Booking)
+      shows: booking.booked_at, booking.note
+      deletes via bookings.delete, then /bookings
+  data (4 entities)
+    Service
+    Slot
+    Client
+    Booking

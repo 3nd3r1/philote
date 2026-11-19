@@ -1,0 +1,32 @@
+app chair {
+  backend api: hono
+  frontend web: nextjs
+}
+
+entity Service {
+  display: name
+  name: string(max 60)
+  minutes: int(min 10, max 240)
+  price: int(min 0, max 1000)
+  about: string(max 280)
+}
+
+entity Slot {
+  starts_at: datetime
+}
+
+entity Client {
+  display: name
+  name: string(max 60)
+  email: email unique
+  phone: string(max 30) optional
+}
+
+entity Booking {
+  booked_at: datetime
+  note: string(max 200) optional
+}
+
+Service has many slots: Slot
+Slot has many bookings: Booking
+Client has many bookings: Booking
