@@ -2,7 +2,7 @@
 id: decision-5
 title: The m-6 bar holds for apps besides neighbr
 date: '2026-11-18T13:16:00Z'
-status: accepted
+status: superseded
 ---
 ## Context
 

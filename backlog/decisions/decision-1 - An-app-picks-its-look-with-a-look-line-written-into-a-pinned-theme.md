@@ -2,7 +2,7 @@
 id: decision-1
 title: An app picks its look with a look line, written into a pinned theme
 date: '2026-11-16T12:26:00Z'
-status: accepted
+status: superseded
 ---
 ## Context
 
