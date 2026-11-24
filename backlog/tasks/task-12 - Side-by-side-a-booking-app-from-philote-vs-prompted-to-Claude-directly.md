@@ -5,7 +5,7 @@ status: In Progress
 assignee:
   - '@claude'
 created_date: '2026-11-18T13:16:00Z'
-updated_date: '2026-11-19T09:56:00Z'
+updated_date: '2026-11-24T10:50:00Z'
 labels: []
 milestone: m-6
 dependencies:
@@ -44,4 +44,6 @@ P3 Prices are a bare 55: no currency (no money type, L5).
 P4 The slot picker is one card per slot with the full date, not grouped by day; long on a phone.
 P5 Services get letter avatars (C for Cut and Color), which reads oddly for services.
 Direct app not run yet: launching a nested claude -p with bypassed permissions was blocked; waiting on the user.
+
+2026-11-24 L1 fixed (8f9f341): date and datetime can be display fields; relation shows and form selects format them. Slot has display: starts_at and BookingCard shows booking.slot, so My bookings shows the slot's time. Other goldens unchanged.
 <!-- SECTION:NOTES:END -->
