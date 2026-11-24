@@ -43,6 +43,7 @@ type formView struct {
 	PageClients, ActionClients         string // imports from @/lib/api
 	Readers, Types                     string // imports from @/lib/form and @/lib/types
 	LocalDateTime                      bool
+	Formats                            string // imports from @/lib/format, for option labels
 	UIImports                          string // only the controls the form renders
 	Chips, Counter                     bool   // the form renders chips, or a counter
 	Fields                             []controlView
@@ -70,6 +71,7 @@ func newFormView(app *ir.App, backend *ir.Part, pg *ir.Page) formView {
 	v := formView{Route: pg.Route, Title: jsString(formTitle(pg)), NotFound: jsString(pg.NotFound), ByID: pg.ByID}
 	pageClients, actionClients := map[string]bool{}, map[string]bool{}
 	readers, types, uses := map[string]bool{"failed": true}, map[string]bool{}, map[string]bool{}
+	formats := map[string]bool{}
 	if pg.Resource != "" {
 		client := camel(pg.Resource)
 		v.Call, actionClients[client] = client+"."+strings.TrimPrefix(pg.Form, pg.Resource+"."), true
@@ -88,7 +90,11 @@ func newFormView(app *ir.App, backend *ir.Part, pg *ir.Page) formView {
 			ent := app.Entity(in.Ref)
 			client := camel(lister(backend, in.Ref))
 			pageClients[client] = true
-			v.Options = append(v.Options, optionView{in.Name, client, "r." + ent.Display + optionalDefault(findField(ent, ent.Display))})
+			label, format := optionLabel(findField(ent, ent.Display))
+			v.Options = append(v.Options, optionView{in.Name, client, label})
+			if format != "" {
+				formats[format] = true
+			}
 		}
 		v.Fields, uses[f.Control] = append(v.Fields, f), true
 		v.Chips = v.Chips || f.Control == "chips"
@@ -101,6 +107,7 @@ func newFormView(app *ir.App, backend *ir.Part, pg *ir.Page) formView {
 	v.PageClients = strings.Join(sortedKeys(pageClients), ", ")
 	v.ActionClients = strings.Join(sortedKeys(actionClients), ", ")
 	v.Readers = strings.Join(sortedKeys(readers), ", ")
+	v.Formats = strings.Join(sortedKeys(formats), ", ")
 	v.Types = imports(app, types)
 	v.UIImports = uiImports(uses)
 	return v
@@ -222,6 +229,24 @@ func initial(f *ir.Field) string {
 		return "localDateTime(" + value + ")"
 	}
 	return value + optionalDefault(f)
+}
+
+// optionLabel is how a select names a record by its display field, and the
+// @/lib/format function that needs importing for it, if any.
+func optionLabel(display *ir.Field) (label, format string) {
+	value := "r." + display.Name
+	switch display.Kind {
+	case ir.Date:
+		format = "formatDate"
+	case ir.DateTime:
+		format = "formatDateTime"
+	default:
+		return value + optionalDefault(display), ""
+	}
+	if display.Optional {
+		return value + " ? " + format + "(" + value + `) : ""`, format
+	}
+	return format + "(" + value + ")", format
 }
 
 func optionalDefault(f *ir.Field) string {

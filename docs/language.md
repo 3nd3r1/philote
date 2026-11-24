@@ -41,7 +41,7 @@ Task belongs to owner: Person (back owned)     // Person gets owned, a list
 | `slug from <field>` | made from a string field on create |
 | an enum's name | |
 
-Modifiers go after the type: `optional`, `unique`, `readonly`. A readonly field is left out of every resource's input and form, so only steps write it. It must be optional, and some step must list its entity in `writes`. Every entity gets an `id`. Relations are a sentence each, outside the entity.
+The display field is a string, slug, email, enum, date or datetime; a date reads formatted wherever it stands for its record. Modifiers go after the type: `optional`, `unique`, `readonly`. A readonly field is left out of every resource's input and form, so only steps write it. It must be optional, and some step must list its entity in `writes`. Every entity gets an `id`. Relations are a sentence each, outside the entity.
 
 ## Backend
 

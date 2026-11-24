@@ -39,22 +39,24 @@ function BookingCardBody({ booking, actions }: BookingCardProps & { actions: Rea
         />
         <CardHeader className="relative">
           <div className="flex min-w-0 items-start gap-3">
-            <div
-              aria-hidden
-              className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
-            >
-              <Icons.CalendarClock className="size-5" />
-            </div>
+            <Mark name={booking.slot.starts_at} className="size-10 shrink-0" />
             <div className="flex min-w-0 flex-col gap-1">
-              <CardDescription>Booked at</CardDescription>
+              <CardDescription>Slot</CardDescription>
               <CardTitle className="font-heading break-words">
-                <time dateTime={booking.booked_at}>{formatDateTime(booking.booked_at)}</time>
+                <time dateTime={booking.slot.starts_at}>{formatDateTime(booking.slot.starts_at)}</time>
               </CardTitle>
             </div>
           </div>
         </CardHeader>
-        {note ? (
-          <CardContent className="relative flex-1">
+        <CardContent className="relative flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-muted-foreground">
+            <Icons.CalendarClock aria-hidden className="size-3.5 shrink-0" />
+            <span>Booked at</span>
+            <time dateTime={booking.booked_at} className="font-medium text-foreground break-words">
+              {formatDateTime(booking.booked_at)}
+            </time>
+          </div>
+          {note ? (
             <div className="flex flex-col gap-1.5 rounded-lg bg-muted/60 p-3">
               <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                 <Icons.StickyNote aria-hidden className="size-3.5" />
@@ -62,10 +64,8 @@ function BookingCardBody({ booking, actions }: BookingCardProps & { actions: Rea
               </span>
               <p className="text-sm text-foreground break-words whitespace-pre-line">{note}</p>
             </div>
-          </CardContent>
-        ) : (
-          <div className="flex-1" aria-hidden />
-        )}
+          ) : null}
+        </CardContent>
         <CardFooter className="relative mt-auto flex flex-wrap justify-end gap-2">
           {actions}
         </CardFooter>

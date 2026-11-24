@@ -94,6 +94,6 @@ component SlotPicker(open: list of Slot) {
 }
 
 component BookingCard(booking: Booking) {
-  shows: booking.booked_at, booking.note
+  shows: booking.slot, booking.booked_at, booking.note
   actions: delete then "/bookings"
 }

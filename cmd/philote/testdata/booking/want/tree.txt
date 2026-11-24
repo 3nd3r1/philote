@@ -70,7 +70,7 @@ chair
       open.service links to /services/[id]
       calls book as the viewer (client), passing slot
     BookingCard(booking: Booking)
-      shows: booking.booked_at, booking.note
+      shows: booking.slot, booking.booked_at, booking.note
       deletes via bookings.delete, then /bookings
   data (4 entities)
     Service

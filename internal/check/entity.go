@@ -40,7 +40,7 @@ func (c *checker) fields(ent *ir.Entity, e *syntax.Entity) {
 }
 
 // displayKinds are the field kinds that read well as a record's name.
-var displayKinds = []ir.Kind{ir.String, ir.Slug, ir.Email, ir.EnumValue}
+var displayKinds = []ir.Kind{ir.String, ir.Slug, ir.Email, ir.EnumValue, ir.Date, ir.DateTime}
 
 func (c *checker) display(ent *ir.Entity, e *syntax.Entity) {
 	for i, d := range e.Displays {
@@ -54,7 +54,7 @@ func (c *checker) display(ent *ir.Entity, e *syntax.Entity) {
 			c.d.Errorf(d.Field.Pos, "%s has no field '%s'", ent.Name, d.Field.Name)
 			c.d.HintNames(d.Field.Name, fieldNames(ent), "fields")
 		case !slices.Contains(displayKinds, ent.Fields[i].Kind):
-			c.d.Errorf(d.Field.Pos, "a display field must be a string, slug, email or enum")
+			c.d.Errorf(d.Field.Pos, "a display field must be a string, slug, email, enum, date or datetime")
 		default:
 			ent.Display = d.Field.Name
 		}

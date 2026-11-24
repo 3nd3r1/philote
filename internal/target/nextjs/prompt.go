@@ -198,15 +198,8 @@ func propsType(app *ir.App, c *ir.Component, indent string) string {
 }
 
 func showHint(app *ir.App, s *ir.Show) string {
-	switch {
-	case s.Relation != nil && s.Relation.Many && s.Href != "":
-		return fmt.Sprintf("a list of %s records; show each one's %s as a <Link href={item.href}> to its page", s.Relation.Target, s.Display)
-	case s.Relation != nil && s.Relation.Many:
-		return fmt.Sprintf("a list of %s records; show each one's %s", s.Relation.Target, s.Display)
-	case s.Relation != nil && s.Href != "":
-		return fmt.Sprintf("a %s; show its %s as a <Link href={...href}> to its page", s.Relation.Target, s.Display)
-	case s.Relation != nil:
-		return fmt.Sprintf("a %s; show its %s", s.Relation.Target, s.Display)
+	if s.Relation != nil {
+		return relationHint(s, findField(app.Entity(s.Relation.Target), s.Display))
 	}
 	switch s.Field.Kind {
 	case ir.Date:
@@ -221,6 +214,29 @@ func showHint(app *ir.App, s *ir.Show) string {
 		return "a URL-safe handle made from another field"
 	}
 	return promptType(app, s.Field)
+}
+
+// relationHint says how to show the other record, and how to format its
+// display field when that is a date.
+func relationHint(s *ir.Show, display *ir.Field) string {
+	var hint string
+	switch {
+	case s.Relation.Many && s.Href != "":
+		hint = fmt.Sprintf("a list of %s records; show each one's %s as a <Link href={item.href}> to its page", s.Relation.Target, s.Display)
+	case s.Relation.Many:
+		hint = fmt.Sprintf("a list of %s records; show each one's %s", s.Relation.Target, s.Display)
+	case s.Href != "":
+		hint = fmt.Sprintf("a %s; show its %s as a <Link href={...href}> to its page", s.Relation.Target, s.Display)
+	default:
+		hint = fmt.Sprintf("a %s; show its %s", s.Relation.Target, s.Display)
+	}
+	switch display.Kind {
+	case ir.Date:
+		hint += "; " + s.Display + " is an ISO string, format it with formatDate"
+	case ir.DateTime:
+		hint += "; " + s.Display + " is an ISO string, format it with formatDateTime"
+	}
+	return hint
 }
 
 func promptType(app *ir.App, f *ir.Field) string {

@@ -12,6 +12,7 @@ entity Service {
 }
 
 entity Slot {
+  display: starts_at
   starts_at: datetime
 }
 

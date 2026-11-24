@@ -3,7 +3,7 @@
 // read function loads that through the backend client.
 import "server-only";
 
-import { services } from "@/lib/api";
+import { services, slots } from "@/lib/api";
 import { must } from "@/lib/backend";
 import type { Service, Slot, Client, Booking } from "@/lib/types";
 
@@ -94,15 +94,21 @@ export async function readSlotPicker(open: Slot[]): Promise<SlotPickerProps> {
 }
 
 export type BookingCardProps = {
-    booking: Pick<Booking, "id" | "booked_at" | "note">;
+    booking: Pick<Booking, "id" | "booked_at" | "note"> & {
+        slot: Pick<Slot, "id" | "starts_at">;
+    };
 };
 
 export async function readBookingCard(booking: Booking): Promise<BookingCardProps> {
+    const [slot] = await Promise.all([
+        must(slots.get(booking.slot_id)),
+    ]);
     return {
         booking: {
             id: booking.id,
             booked_at: booking.booked_at,
             note: booking.note,
+            slot: { id: slot.id, starts_at: slot.starts_at },
         },
     };
 }
