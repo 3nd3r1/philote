@@ -1,9 +1,13 @@
 package check
 
 import (
+	"slices"
+
 	"github.com/3nd3r1/philote/internal/ir"
 	"github.com/3nd3r1/philote/internal/syntax"
 )
+
+var themes = []string{"plain", "warm", "editorial", "slate"}
 
 // frontendSrc is a frontend's body, kept until every part is known: its
 // pages read from a backend that may be declared after it.
@@ -27,6 +31,8 @@ func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
 				continue
 			}
 			uses = x
+		case *syntax.Theme:
+			c.theme(part, x)
 		case *syntax.Look:
 			c.look(part, x)
 		case *syntax.Nav:
@@ -46,7 +52,7 @@ func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
 		case *syntax.Component:
 			src.components = append(src.components, x)
 		default:
-			c.d.Errorf(it.Start(), "a frontend takes uses, look, nav, viewer, page and component")
+			c.d.Errorf(it.Start(), "a frontend takes uses, theme, look, nav, viewer, page and component")
 		}
 	}
 	if uses == nil {
@@ -86,8 +92,24 @@ func (c *checker) resolveFrontends() {
 	}
 }
 
+func (c *checker) theme(part *ir.Part, t *syntax.Theme) {
+	switch {
+	case part.Theme != "":
+		c.d.Errorf(t.Word.Pos, "%s already has a theme", part.Name)
+	case part.Look != nil:
+		c.d.Errorf(t.Word.Pos, "%s can't have both theme and look", part.Name)
+	case !slices.Contains(themes, t.Name.Name):
+		c.d.Errorf(t.Name.Pos, "unknown theme '%s'", t.Name.Name)
+		c.d.HintNames(t.Name.Name, themes, "themes")
+	default:
+		part.Theme = t.Name.Name
+	}
+}
+
 func (c *checker) look(part *ir.Part, l *syntax.Look) {
 	switch {
+	case part.Theme != "":
+		c.d.Errorf(l.Word.Pos, "%s can't have both theme and look", part.Name)
 	case part.Look != nil:
 		c.d.Errorf(l.Word.Pos, "%s already has a look", part.Name)
 	case len(l.Value.Value) > maxIntent:

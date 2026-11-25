@@ -19,6 +19,14 @@ func (p *parser) look() Item {
 	return l
 }
 
+func (p *parser) theme() Item {
+	t := &Theme{Word: p.ident("theme")}
+	p.expect(tColon, "':' and a theme name, like `theme: warm`")
+	t.Name = p.ident("a theme name: plain, warm, editorial or slate")
+	p.endStatement()
+	return t
+}
+
 func (p *parser) nav() Item {
 	n := &Nav{Word: p.ident("nav")}
 	p.expect(tColon, "':', where the nav sits and its pages, like `nav: bottom, \"/horses\" as \"Horses\"`")

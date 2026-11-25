@@ -86,7 +86,10 @@ func partTree(b *strings.Builder, p *ir.Part, depth int) {
 
 // viewTree prints a frontend's pages, then its components and what they show.
 func viewTree(b *strings.Builder, p *ir.Part, depth int) {
-	if p.Look != nil {
+	switch {
+	case p.Theme != "":
+		fmt.Fprintf(b, "    theme: %s\n", p.Theme)
+	case p.Look != nil:
 		fmt.Fprintf(b, "    theme: from its look\n")
 	}
 	if v := p.Viewer; v != nil {
@@ -144,13 +147,17 @@ func pageSummary(pg *ir.Page) string {
 
 // componentTree prints one component and, at depth 3, what it shows and links to.
 func componentTree(b *strings.Builder, c *ir.Component, depth int) {
+	kind := ""
+	if c.Kind != "" {
+		kind = ": " + c.Kind
+	}
 	switch {
 	case c.Param == "":
-		fmt.Fprintf(b, "    %s\n", c.Name)
+		fmt.Fprintf(b, "    %s%s\n", c.Name, kind)
 	case c.List:
-		fmt.Fprintf(b, "    %s(%s: list of %s)\n", c.Name, c.Param, c.Entity)
+		fmt.Fprintf(b, "    %s(%s: list of %s)%s\n", c.Name, c.Param, c.Entity, kind)
 	default:
-		fmt.Fprintf(b, "    %s(%s: %s)\n", c.Name, c.Param, c.Entity)
+		fmt.Fprintf(b, "    %s(%s: %s)%s\n", c.Name, c.Param, c.Entity, kind)
 	}
 	if depth < 3 {
 		return

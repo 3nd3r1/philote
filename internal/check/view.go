@@ -21,6 +21,7 @@ func (c *checker) views(f *frontendSrc, backend *ir.Part) {
 			if s.Calls != nil {
 				c.calls(f.part, backend, comp, s.Calls)
 			}
+			c.componentKindClauses(comp, s)
 		}
 	}
 	type then struct {
@@ -82,7 +83,7 @@ func (c *checker) component(part, backend *ir.Part, s *syntax.Component) *ir.Com
 		return nil
 	}
 	comp := &ir.Component{Name: name, Pos: s.Name.Pos}
-	if !c.componentWords(comp, s) {
+	if !c.componentKindHeader(comp, s) || !c.componentWords(comp, s) {
 		return nil
 	}
 	if len(s.Params) == 0 {

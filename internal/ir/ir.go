@@ -77,6 +77,7 @@ type Part struct {
 	Endpoints  []*Endpoint  // every route: resources expanded by lower, then Custom
 	Pages      []*Page      // frontend only
 	Components []*Component // frontend only
+	Theme      string       // frontend only: fixed theme name (plain, warm, editorial, slate); empty defaults to plain
 	Look       *Look        // frontend only: how the app looks, for the model that writes its theme
 	Nav        *Nav         // frontend only: the nav the model draws; nil for the template's top bar
 	Viewer     *Viewer      // frontend only: the record a visitor acts as; nil for none
@@ -138,6 +139,7 @@ type Section struct {
 // it reads, so a page loads exactly that.
 type Component struct {
 	Name      string
+	Kind      string // built-in component kind: card, detail, table, list, hero, callout, picker, deck
 	Pos       diag.Pos
 	Look      string   // how it should look, for the model that writes its body
 	Says      []string // its words, from the spec, in order

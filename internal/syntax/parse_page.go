@@ -102,6 +102,11 @@ func (p *parser) component() Item {
 	if p.peek().kind == tLParen {
 		c.Params = p.componentParams()
 	}
+	if p.peek().kind == tColon {
+		p.next()
+		k := p.ident("a component kind: card, detail, table, list, hero, callout, picker or deck")
+		c.Kind = &k
+	}
 	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions", "picks", "calls"}, func(key Ident) {
 		switch key.Name {
 		case "shows":

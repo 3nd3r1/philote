@@ -132,6 +132,12 @@ type Look struct {
 	Value *Str
 }
 
+// Theme is `theme: <name>` in a frontend: one of the fixed built-in themes.
+type Theme struct {
+	Word Ident
+	Name Ident
+}
+
 // Viewer is `viewer: <Entity>` in a frontend: the record a visitor picks
 // to act as, kept in a cookie until auth replaces the picker.
 type Viewer struct {
@@ -209,6 +215,7 @@ type Section struct {
 type Component struct {
 	Name      Ident
 	Params    []*Field
+	Kind      *Ident
 	Shows     []Show
 	Says      []*Str
 	LinksTo   *Str
@@ -246,6 +253,7 @@ func (r *Relation) Start() diag.Pos  { return r.From.Pos }
 func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
 func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
 func (l *Look) Start() diag.Pos      { return l.Word.Pos }
+func (t *Theme) Start() diag.Pos     { return t.Word.Pos }
 func (n *Nav) Start() diag.Pos       { return n.Word.Pos }
 func (v *Viewer) Start() diag.Pos    { return v.Word.Pos }
 func (p *Page) Start() diag.Pos      { return p.Word.Pos }

@@ -111,14 +111,14 @@ A step's parameters come from the endpoint's input, or from earlier steps' resul
 ```
 frontend web: nextjs {
   uses: api
-  look: "calm and focused; deep green, rounded cards"   // optional, up to 200 chars
+  theme: warm                                             // optional: plain (default), warm, editorial, slate
   nav: bottom, "/tasks" as "Tasks", "/projects"           // optional
   viewer: Member                                          // optional
   ...
 }
 ```
 
-The look sets the whole app's theme: colors for light and dark, which of the two the app opens in, fonts and corner radius. The model writes the theme from it, the compiler checks that every text color is readable, and the theme is pinned in `philote.lock` as `web/theme`. Changing the look rewrites only the theme. Without a look the app gets a plain default theme and no model call.
+The `theme` picks one of four built-in themes (`plain`, `warm`, `editorial`, `slate`), each with contrast-checked light and dark tokens, fonts and corner radius. Without a `theme` line the app uses `plain`.
 
 The nav sits at the `top`, `bottom` or `side` and links to pages without `[id]`, in order. An item's text is its `as` label, up to 24 characters, or the page's title. The template keeps the nav in its place and finds the active item; the model draws the nav from the look, pinned as `web/nav`. Changing an item rewrites only the nav. Without a nav line the app gets a plain top bar with every page that has no `[id]`, other than `/`, then the forms, and no model call.
 
@@ -167,23 +167,33 @@ page "/tasks/new" {
   then: "/tasks/[id]"             // [id] is the saved record
 }
 
-component Welcome {
+component Welcome: hero {
   says: "Get it done.", "Everything your team is working on."
   links_to: "/tasks/new" as "New task"
 }
 
-component TaskBoard(tasks: list of Task) {
+component TaskBoard(tasks: list of Task): table {
   shows: tasks.title, tasks.status
-  look: "a kanban board, one column per status"
 }
 
-component TaskCard(task: Task) {
+component TaskCard(task: Task): card {
   shows: task.title, task.status, task.project, task.tags as chips
   links_to: "/tasks/[task.id]"
-  look: "compact, status as a colored dot"
   actions: open "/tasks/[task.id]/edit" as "Edit", delete then "/tasks"
 }
 ```
+
+A component names its built-in kind with `: <kind>` (`card`, `detail`, `table`, `list`, `hero`, `callout`, `picker`, `deck`):
+
+| Kind | Parameter | Clauses |
+| --- | --- | --- |
+| `card` | one record | `shows`, optional `links_to`, `actions` |
+| `detail` | one record | `shows`, optional `links_to ... as`, `actions` |
+| `table`, `list` | `list of` | `shows` |
+| `hero` | none | 1–2 `says`, optional `links_to ... as` |
+| `callout` | none | 1 `says`, optional `links_to ... as` |
+| `picker` | `list of` | `shows`, 0–1 `says`, `picks` or `calls` (tapped record + viewer only) |
+| `deck` | `list of` | `shows`, 1–3 `says`, `calls` (current record + one `bool` + viewer) |
 
 - `load: <name> [from <resource>] [by id]` names what the page fetches. A page loads at most one thing; a page that loads a list says what shows when it's `empty`, a page by id says what shows when it's `not_found`.
 - `load: <name> from <endpoint>(<input>: viewer)` loads the list a GET endpoint returns, with the viewer as every input, like `load: mine from open_tasks(project: viewer)`. The page needs the viewer.
