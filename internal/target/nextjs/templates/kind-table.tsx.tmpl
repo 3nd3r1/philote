@@ -1,0 +1,24 @@
+{{- define "kind-table"}}
+    return (
+        <div className="overflow-x-auto rounded-lg border bg-card">
+            <table className="w-full text-left text-sm">
+                <thead className="border-b bg-muted/40 text-xs font-medium text-muted-foreground">
+                    <tr>
+{{- range .Fields}}
+                        <th className="px-4 py-3">{{.Label}}</th>
+{{- end}}
+                    </tr>
+                </thead>
+                <tbody className="divide-y">
+                    { {{- .Param}}.map((item) => (
+                        <tr key={item.id} className="hover:bg-muted/30">
+{{- range .Fields}}
+                            <td className="px-4 py-3">{{template "kind-value" .}}</td>
+{{- end}}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+{{- end -}}

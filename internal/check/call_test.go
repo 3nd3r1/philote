@@ -27,12 +27,12 @@ var callApp = strings.NewReplacer(
 
     endpoint rate {
       route: POST "/rate"
-      input: { product: Product, other: Product, stars: int(min 1, max 5) }
+      input: { product: Product, other: Product, liked: bool }
       output: Review
       steps: rate_product
     }
 
-    step rate_product(product: Product, other: Product, stars: int(min 1, max 5)) -> review: Review {
+    step rate_product(product: Product, other: Product, liked: bool) -> review: Review {
       writes: Review
       intent: "store a review of other by product"
     }
@@ -43,9 +43,10 @@ var callApp = strings.NewReplacer(
       empty: "Nothing like it yet."
     }
 
-    component RateDeck(picks: list of Product) {
+    component RateDeck(picks: list of Product): deck {
       shows: picks.name
-      calls: rate(product: viewer, other: picks, stars)
+      says: "Nothing left."
+      calls: rate(product: viewer, other: picks, liked)
     }
 
     component ProductCard(`,
@@ -74,7 +75,7 @@ func TestCalls(t *testing.T) {
 	for _, v := range call.Passed {
 		passed = append(passed, v.Name)
 	}
-	if call.Endpoint != "rate" || !slices.Equal(call.Viewer, []string{"product"}) || !slices.Equal(passed, []string{"other", "stars"}) {
+	if call.Endpoint != "rate" || !slices.Equal(call.Viewer, []string{"product"}) || !slices.Equal(passed, []string{"other", "liked"}) {
 		t.Errorf("RateDeck calls %+v, passing %v", call, passed)
 	}
 	if findPage(web, "/products").Viewer {
@@ -86,14 +87,14 @@ func TestCallErrors(t *testing.T) {
 	route := `route: GET "/products/[product]/related"`
 	runErrorCases(t, callApp, []errorCase{
 		{"load from an unknown endpoint", "from related(", "from relatd(", "from »relatd(", "did you mean 'related'"},
-		{"load from a POST endpoint", "related(product: viewer)", "rate(product: viewer, other: viewer, stars: viewer)", "from »rate(", "only from GET endpoints"},
+		{"load from a POST endpoint", "related(product: viewer)", "rate(product: viewer, other: viewer, liked: viewer)", "from »rate(", "only from GET endpoints"},
 		{"load fills an input with something else", "related(product: viewer)", "related(product: picks)", "related(»product: picks)", "with the viewer, like product: viewer"},
 		{"load leaves an input out", "related(product: viewer)", "related()", "from »related(", "related needs product"},
 		{"load names an unknown input", "related(product: viewer)", "related(prodct: viewer)", "related(»prodct", "did you mean 'product'"},
-		{"call a GET endpoint", "calls: rate(product: viewer, other: picks, stars)", "calls: related(product: viewer)", "calls: »related", "is a GET endpoint"},
-		{"call leaves a record open", "other: picks, stars)", "other, stars)", "viewer, »other, stars", "fill it with viewer or picks"},
-		{"call fills from a stranger", "other: picks, stars)", "other: products, stars)", "other: »products", "isn't the viewer or RateDeck's parameter"},
-		{"call fills a scalar with a record", "other: picks, stars)", "other: picks, stars: picks)", "stars: »picks", "stars is a int"},
+		{"call a GET endpoint", "calls: rate(product: viewer, other: picks, liked)", "calls: related(product: viewer)", "calls: »related", "is a GET endpoint"},
+		{"call leaves a record open", "other: picks, liked)", "other, liked)", "viewer, »other, liked", "fill it with viewer or picks"},
+		{"call fills from a stranger", "other: picks, liked)", "other: products, liked)", "other: »products", "isn't the viewer or RateDeck's parameter"},
+		{"call fills a scalar with a record", "other: picks, liked)", "other: picks, liked: picks)", "liked: »picks", "liked is a bool"},
 		{"call names an input twice", "rate(product: viewer, other", "rate(product: viewer, product: viewer, other", "viewer, »product: viewer", "listed twice"},
 		{"GET with a body", "input: { product: Product }", "input: { product: Product, limit: int }", "Product, »limit: int", "a GET endpoint takes no body"},
 		{"POST with a param", `route: POST "/rate"`, `route: POST "/rate/[product]"`, `POST »"/rate/[product]"`, "only a GET route takes [params]"},

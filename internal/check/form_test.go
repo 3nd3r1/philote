@@ -60,13 +60,13 @@ const forms = `app shop {
       then: "/products/[id]"
     }
 
-    component ProductCard(product: Product) {
+    component ProductCard(product: Product): card {
       shows: product.name
       links_to: "/products/[product.id]"
       actions: delete as "Remove"
     }
 
-    component ProductView(product: Product) {
+    component ProductView(product: Product): detail {
       shows: product.name, product.status
       actions: open "/products/[product.id]/edit", delete then "/products"
     }

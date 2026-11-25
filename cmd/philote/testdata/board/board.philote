@@ -53,17 +53,17 @@ app board {
       then: "/tasks/[id]"
     }
 
-    component ProjectCard(project: Project) {
+    component ProjectCard(project: Project): card {
       shows: project.name, project.summary
       links_to: "/projects/[project.id]"
     }
 
-    component ProjectView(project: Project) {
+    component ProjectView(project: Project): detail {
       shows: project.name, project.summary, project.tasks as chips
       actions: delete then "/projects"
     }
 
-    component TaskView(task: Task) {
+    component TaskView(task: Task): detail {
       shows: task.title, task.status, task.due, task.project, task.finished_at
       actions: delete then "/projects"
     }

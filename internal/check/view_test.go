@@ -34,25 +34,25 @@ const views = `app shop {
       not_found: "That product doesn't exist."
     }
 
-    component ProductCard(product: Product) {
+    component ProductCard(product: Product): card {
       shows: product.name, product.price
       links_to: "/products/[product.id]"
     }
 
-    component ProductView(product: Product) {
+    component ProductView(product: Product): detail {
       shows: product.name, product.status, product.reviews as chips
     }
 
-    component ReviewCard(review: Review) {
+    component ReviewCard(review: Review): card {
       shows: review.stars, review.product
     }
 
-    component Hero {
+    component Hero: hero {
       says: "Good things.", "Made slowly."
       links_to: "/products" as "Shop"
     }
 
-    component ProductGrid(products: list of Product) {
+    component ProductGrid(products: list of Product): table {
       shows: products.name, products.price
     }
   }
@@ -132,7 +132,7 @@ func TestViewErrors(t *testing.T) {
 		{"unknown argument", "shows: ProductView(product)", "shows: ProductView(item)", "ProductView(»item)", "loads nothing named item"},
 		{"argument for no record", "shows: Hero, ProductGrid", "shows: Hero(products), ProductGrid", "Hero(»products)", "takes no record"},
 		{"bad route", `page "/products" {`, `page "/Products" {`, `page »"/Products" {`, "lowercase segments"},
-		{"recordless shows", "component Hero {\n", "component Hero {\n      shows: hero.name\n", "shows: »hero.name", "nothing to show"},
+		{"recordless shows", "component Hero: hero {\n", "component Hero: hero {\n      shows: hero.name\n", "shows: »hero.name", "nothing to show"},
 		{"recordless says nothing", `      says: "Good things.", "Made slowly."` + "\n", "", "component »Hero", "says nothing"},
 		{"link without a label", `links_to: "/products" as "Shop"`, `links_to: "/products"`, `links_to: »"/products"` + "\n", "needs a button text"},
 		{"says too long", `"Made slowly."`, `"` + strings.Repeat("a", 201) + `"`, `"Good things.", »"aaa`, "capped at 200"},
@@ -151,8 +151,6 @@ func TestViewErrors(t *testing.T) {
 		{"no display field", "  display: name\n", "", "review.»product", "add `display: <field>` to Product"},
 		{"no resource to load with", "resource products: Product\n", "resource products: Product { only: list }\n", "product.»reviews as chips", "add `resource <name>: Product` to api"},
 		{"link to a missing page", "/products/[product.id]", "/product/[product.id]", `links_to: »"/product/[product.id]"`, "no page at /product/[id]"},
-		{"look too long", "      links_to: \"/products/[product.id]\"\n", "      links_to: \"/products/[product.id]\"\n      look: \"" + strings.Repeat("a", 201) + "\"\n",
-			"      look: »\"aaa", "the cap is 200"},
 		{"link by a missing field", "/products/[product.id]", "/products/[product.sku]", `links_to: »"/products/[product.sku]"`, "no field 'sku'"},
 		{"theme in a backend", "    resource products: Product\n", "    theme: warm\n    resource products: Product\n", `»theme: warm`, "can't go inside a backend"},
 		{"nav place", "    uses: api\n", "    uses: api\n    nav: middle, \"/products\"\n", "nav: »middle", "top, bottom or side, not middle"},

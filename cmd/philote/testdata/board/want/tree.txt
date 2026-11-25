@@ -23,14 +23,14 @@ board
     /tasks/new: form tasks.create, then /projects
     /tasks/[id]: load task from tasks by id, TaskView(task)
     /complete: form complete, then /tasks/[id]
-    ProjectCard(project: Project)
+    ProjectCard(project: Project): card
       shows: project.name, project.summary
       links to /projects/[id]
-    ProjectView(project: Project)
+    ProjectView(project: Project): detail
       shows: project.name, project.summary, project.tasks as chips
       project.tasks links to /tasks/[id]
       deletes via projects.delete, then /projects
-    TaskView(task: Task)
+    TaskView(task: Task): detail
       shows: task.title, task.status, task.due, task.project, task.finished_at
       task.project links to /projects/[id]
       deletes via tasks.delete, then /projects

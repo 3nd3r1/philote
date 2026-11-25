@@ -45,7 +45,7 @@ func TestNamedOutputErrors(t *testing.T) {
 		{"names nothing", "{ review: Review,", "{ verdict: Review,", "{ »verdict", "no input or step gives 'verdict'"},
 		{"wrong type", "featured: Product optional }", "featured: Product }", "featured: »Product }", "'featured' is a Product optional here, not a Product"},
 		{"listed twice", "featured: Product optional }", "review: Review }", "Review, »review: Review }", "'review' is listed twice"},
-		{"optional scalar", "stars: int(min 1, max 5) }", "stars: int(min 1, max 5) optional }", "max 5) »optional }", "only one record can be optional"},
+		{"optional scalar", "liked: bool }", "liked: bool optional }", "bool »optional }", "only one record can be optional"},
 		{"optional list", "-> featured: Product optional", "-> featured: list of Product optional", "Product »optional {", "only one record can be optional"},
 		{"optional input", "input: { product: Product,", "input: { product: Product optional,", "Product »optional,", "only a step's result or an endpoint's output can be optional"},
 		{"optional into a step", "step feature_if_loved(review: Review)", "step feature_if_loved(review: Review optional)", "Review »optional)", "only a step's result or an endpoint's output can be optional"},

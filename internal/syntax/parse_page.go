@@ -102,12 +102,10 @@ func (p *parser) component() Item {
 	if p.peek().kind == tLParen {
 		c.Params = p.componentParams()
 	}
-	if p.peek().kind == tColon {
-		p.next()
-		k := p.ident("a component kind: card, detail, table, list, hero, callout, picker or deck")
-		c.Kind = &k
-	}
-	p.keyed("component", []string{"shows", "says", "links_to", "look", "actions", "picks", "calls"}, func(key Ident) {
+	p.expect(tColon, "':' and a component kind, like `: card`")
+	k := p.ident("a component kind: card, detail, table, list, hero, callout, picker or deck")
+	c.Kind = &k
+	p.keyed("component", []string{"shows", "says", "links_to", "actions", "picks", "calls"}, func(key Ident) {
 		switch key.Name {
 		case "shows":
 			c.Shows = append(c.Shows, p.show())
@@ -128,8 +126,6 @@ func (p *parser) component() Item {
 				p.next()
 				c.LinkLabel = p.str("the button's text, in quotes")
 			}
-		case "look":
-			c.Look = p.str("how it should look, in one sentence")
 		case "picks":
 			picks := p.ident("what tapping a record picks: viewer")
 			c.Picks = &picks

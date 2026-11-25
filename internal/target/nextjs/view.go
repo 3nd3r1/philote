@@ -109,7 +109,7 @@ func newAPIView(app *ir.App, backend *ir.Part) (apiView, error) {
 			c.Params = strings.TrimPrefix(c.Params+", input: "+addInput(&v, pascal(ep.Name)+"Input", flowInput(ep.Flow.Input, used)), ", ")
 		}
 		v.Endpoints = append(v.Endpoints, c)
-		outputType(ep, used, func(entity string) string { return entity })
+		outputType(ep, used)
 	}
 	v.Imports = imports(app, used)
 	return v, checkNames(app, v)
@@ -125,7 +125,7 @@ func newCall(ep *ir.Endpoint, name string) callView {
 		ErrorList: "[" + strings.Join(quoted(ep.Errors), ", ") + "]",
 		Input:     ep.Input != nil || (ep.Flow != nil && len(ep.Flow.Input) > 0),
 	}
-	if value := outputType(ep, map[string]bool{}, func(entity string) string { return entity }); value != "" {
+	if value := outputType(ep, map[string]bool{}); value != "" {
 		c.Value = value
 	}
 	if len(ep.Errors) > 0 {

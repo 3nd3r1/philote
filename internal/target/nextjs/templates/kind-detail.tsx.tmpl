@@ -1,0 +1,55 @@
+{{- define "kind-detail"}}
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center gap-4">
+{{- if .AvatarExpr}}
+                <Mark name={ {{- .AvatarExpr -}} } className="size-14" />
+{{- end}}
+                <CardTitle className="font-heading text-2xl font-semibold tracking-tight">
+{{- if .Title.HrefExpr}}
+                    <Link href={ {{- .Title.HrefExpr -}} } className="underline underline-offset-4">
+                        { {{- .Title.Expr -}} }
+                    </Link>
+{{- else}}
+                    { {{- .Title.Expr -}} }
+{{- end}}
+                </CardTitle>
+            </CardHeader>
+{{- if or .LongFields .MetaFields .ChipFields}}
+            <CardContent className="space-y-6">
+{{- range .LongFields}}
+                <p className="text-sm leading-relaxed text-muted-foreground">{ {{- .Expr -}} }</p>
+{{- end}}
+{{- if .MetaFields}}
+                <dl className="grid gap-4 sm:grid-cols-2">
+{{- range .MetaFields}}
+                    <div className="space-y-1">
+                        <dt className="text-xs font-medium text-muted-foreground">{{.Label}}</dt>
+                        <dd className="text-sm text-foreground">{{template "kind-value" .}}</dd>
+                    </div>
+{{- end}}
+                </dl>
+{{- end}}
+{{- range .ChipFields}}
+                <div className="space-y-2">
+                    <h3 className="text-xs font-medium text-muted-foreground">{{.Label}}</h3>
+                    {{template "kind-value" .}}
+                </div>
+{{- end}}
+            </CardContent>
+{{- end}}
+{{- if or .Actions .LinkLabel}}
+            <CardFooter className="flex flex-wrap items-center gap-2 border-t pt-4">
+{{- if .LinkLabel}}
+                <Link href={ {{- .LinkExpr -}} } className={buttonVariants({ size: "sm" })}>
+                    {{.LinkLabel}}
+                </Link>
+{{- end}}
+{{- if .Actions}}
+                <{{.Name}}Actions id={ {{- .Param}}.id} />
+{{- end}}
+            </CardFooter>
+{{- end}}
+        </Card>
+    );
+{{- end -}}

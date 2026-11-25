@@ -201,10 +201,9 @@ type Section struct {
 	Arg       *Ident
 }
 
-// Component is `component <Name>[(<param>: [list of] <Entity>)] { shows:
-// <path> [as <format>], ...  says: "...", ...  links_to: "<route>" [as
-// "<label>"]  calls: <endpoint>(<arg>, ...)  look: "..." }`. Its body is
-// written by a model.
+// Component is `component <Name>[(<param>: [list of] <Entity>)]: <kind> {
+// shows: <path> [as <format>], ...  says: "...", ...  links_to: "<route>"
+// [as "<label>"]  calls: <endpoint>(<arg>, ...)  actions: ... }`.
 type Component struct {
 	Name      Ident
 	Params    []*Field
@@ -213,7 +212,6 @@ type Component struct {
 	Says      []*Str
 	LinksTo   *Str
 	LinkLabel *Str
-	Look      *Str
 	Actions   []Action
 	Picks     *Ident // `picks: viewer then "<route>"`: tapping a record makes it the viewer
 	PicksThen *Str

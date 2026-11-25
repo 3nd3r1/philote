@@ -8,23 +8,15 @@ import (
 )
 
 // A nav line renders a templated top, bottom or side nav with zero model
-// calls for the nav and no web/nav pin in philote.lock.
+// calls and no web/nav pin in philote.lock.
 func TestNavFromSpec(t *testing.T) {
 	spec := copyLibrary(t)
 	setNav(t, spec, `nav: side, "/authors", "/books" as "Shelf"`)
 	out := filepath.Join(filepath.Dir(spec), "build")
-	linkNodeModules(t, "testdata/library/want/build/web/package.json", filepath.Join(out, "web"))
-	r := useReplies(t, map[string][]string{
-		"AuthorCardBody": {goodAuthorCard},
-		"AuthorViewBody": {goodAuthorView},
-		"BookShelfBody":  {goodBookShelf},
-	})
-	runOK(t, "build", "--out", out, spec)
-	if n := len(r.prompts["NavBody"]); n != 0 {
-		t.Fatalf("the nav asked the model %d times, want 0", n)
-	}
-	if lock := readFile(t, filepath.Join(filepath.Dir(spec), "philote.lock")); strings.Contains(lock, "web/nav") {
-		t.Errorf("templated nav should not be pinned in philote.lock:\n%s", lock)
+	r := useReplies(t, nil)
+	runOK(t, "build", "--frozen", "--out", out, spec)
+	if len(r.prompts) != 0 {
+		t.Fatalf("templated nav should make 0 model calls; got %v", r.prompts)
 	}
 	navTS := readFile(t, filepath.Join(out, "web/src/lib/nav.ts"))
 	if !strings.Contains(navTS, `= "side";`) || !strings.Contains(navTS, `{ href: "/books", label: "Shelf" }`) {
@@ -36,11 +28,7 @@ func TestNavFromSpec(t *testing.T) {
 	}
 
 	setNav(t, spec, `nav: bottom, "/authors", "/books" as "Books"`)
-	r = useReplies(t, nil)
 	runOK(t, "build", "--frozen", "--out", out, spec)
-	if len(r.prompts) != 0 {
-		t.Errorf("changing nav should make 0 model calls; got %v", r.prompts)
-	}
 	bar = readFile(t, filepath.Join(out, "web/src/components/common/layouts/main-navbar.tsx"))
 	if !strings.Contains(bar, "border-t") {
 		t.Errorf("bottom nav should render a top-bordered bar:\n%s", bar)

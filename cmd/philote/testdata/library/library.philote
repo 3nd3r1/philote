@@ -29,17 +29,17 @@ app library {
       then: "/books"
     }
 
-    component AuthorCard(author: Author) {
+    component AuthorCard(author: Author): card {
       shows: author.name, author.born
       links_to: "/authors/[author.id]"
       actions: delete as "Remove"
     }
 
-    component AuthorView(author: Author) {
+    component AuthorView(author: Author): detail {
       shows: author.name, author.born, author.books as chips
     }
 
-    component BookShelf(books: list of Book) {
+    component BookShelf(books: list of Book): table {
       shows: books.title, books.author, books.genre, books.published, books.in_print
     }
   }

@@ -34,7 +34,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
-	views, slots, err := components(app, backend, part)
+	views, err := components(app, backend, part)
 	if err != nil {
 		return target.Output{}, err
 	}
@@ -63,7 +63,7 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 		render("package.json.tmpl", "package.json", struct{ Name string }{app.Name + "-" + part.Name}),
 		render("prettierignore.tmpl", ".prettierignore", paths(generated)))
 	slices.SortFunc(files, func(a, b target.File) int { return strings.Compare(a.Path, b.Path) })
-	return target.Output{Files: files, Slots: slots}, nil
+	return target.Output{Files: files}, nil
 }
 
 // paths lists generated files for .prettierignore: philote owns their

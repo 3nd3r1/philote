@@ -134,7 +134,6 @@ type Component struct {
 	Name      string
 	Kind      string // built-in component kind: card, detail, table, list, hero, callout, picker, deck
 	Pos       diag.Pos
-	Look      string   // how it should look, for the model that writes its body
 	Says      []string // its words, from the spec, in order
 	Param     string   // empty for a component that takes no record
 	Entity    string

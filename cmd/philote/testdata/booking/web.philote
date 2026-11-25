@@ -58,42 +58,42 @@ page "/bookings" {
   empty: "Nothing booked yet."
 }
 
-component Hero {
+component Hero: hero {
   says: "Your chair is waiting.", "Book a cut, a color or a shave in a few taps."
   links_to: "/book" as "Book a time"
 }
 
-component ClientPicker(clients: list of Client) {
+component ClientPicker(clients: list of Client): picker {
   shows: clients.name
   picks: viewer then "/book"
 }
 
-component JoinClients {
+component JoinClients: callout {
   says: "New here?"
   links_to: "/clients/new" as "Add yourself"
 }
 
-component ClientView(client: Client) {
+component ClientView(client: Client): detail {
   shows: client.name, client.email, client.phone
 }
 
-component ServiceCard(service: Service) {
+component ServiceCard(service: Service): card {
   shows: service.name, service.minutes, service.price
   links_to: "/services/[service.id]"
 }
 
-component ServiceView(service: Service) {
+component ServiceView(service: Service): detail {
   shows: service.name, service.minutes, service.price, service.about
   links_to: "/book" as "Book"
 }
 
-component SlotPicker(open: list of Slot) {
+component SlotPicker(open: list of Slot): picker {
   shows: open.starts_at, open.service
   says: "Pick a time"
   calls: book(client: viewer, slot: open)
 }
 
-component BookingCard(booking: Booking) {
+component BookingCard(booking: Booking): card {
   shows: booking.slot, booking.booked_at, booking.note
   actions: delete then "/bookings"
 }

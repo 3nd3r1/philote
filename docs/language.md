@@ -199,24 +199,23 @@ A component names its built-in kind with `: <kind>` (`card`, `detail`, `table`, 
 - `load: <name> from <endpoint>(<input>: viewer)` loads the list a GET endpoint returns, with the viewer as every input, like `load: mine from open_tasks(project: viewer)`. The page needs the viewer.
 - `shows` lists the page's sections. `C(name)` hands a component what the page loads, as it is; `list of C(name)` shows one `C` per record, in a grid or in rows as the component chooses. A component without a parameter, like `Welcome`, takes nothing.
 - A component takes no record, one record, or `list of` an entity. Its `shows` lists every field it reads. A belongs-to relation shows the other record's display field. A has-many relation needs `as chips`.
-- `says` gives a component its words, up to 200 characters each. The body shows each one exactly as written, and other than these, data and labels, the model writes no text.
+- `says` gives a component its words, up to 200 characters each.
 - `links_to` makes a card a link to a record's page. With `as "<label>"` it's a button to any page instead. A component that takes a list can't have `links_to` or `actions`.
-- The model writes the component's body from its `shows`, `says` and `look`, and places the link and actions the template hands it. A record shown by name gets the same picture, its first letter on its own tint, in every component.
-- A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to`. `philote tree` lists these links.
+- Every component kind is rendered from a built-in template from its `shows`, `says`, `links_to`, and `actions`, with zero frontend model calls. A record shown by name gets the same picture, its first letter on its own tint, in every component.
+- A shown relation links to its record's page when exactly one page loads that entity `by id`, unless the component has `links_to` or is a `picker`. `philote tree` lists these links.
 - Form fields are the endpoint's input, in order.
 
-A component can call one custom endpoint that changes something. It then runs in the browser: the model can give it state and gestures, and the template hands its body the endpoint as an action.
+A `picker` or `deck` component can call one custom endpoint that changes something. It then runs in the browser and calls the endpoint through a generated server action.
 
 ```
-component SwipeDeck(deck: list of Horse) {
+component SwipeDeck(deck: list of Horse): deck {
   shows: deck.name, deck.bio
+  says: "You've seen every horse.", "It's a match!", "Keep swiping"
   calls: swipe(horse: viewer, target: deck, liked)
-  look: "one card at a time, drag right to like, left to pass"
 }
 ```
 
-- Every input is listed once. `<input>: viewer` is filled on the server with the viewer, so the body never sends who the visitor is, and a page that shows the component needs the viewer. `<input>: <param>` is the id of the component's record, or of the one in its list the visitor acts on. A bare `<input>` is a value from what the visitor does, like a bool.
-- The body calls the action, like `await swipe({ target, liked })`, and gets `{ ok: false, error }` with the message to show, or `{ ok: true, value }` with what the endpoint returned, like the match a swipe made, so the body can show it. A body that never calls it, or that uses `fetch`, goes back to the model.
+- Every input is listed once. `<input>: viewer` is filled on the server with the viewer, so the browser never sends who the visitor is, and a page that shows the component needs the viewer. `<input>: <param>` is the id of the record in the list the visitor acts on. A bare `<input>` is a value from what the visitor does (for `deck`, a single `bool`).
 
 ## Build
 
@@ -224,9 +223,9 @@ component SwipeDeck(deck: list of Horse) {
 philote check app.philote
 philote tree app.philote             # what the spec becomes
 philote expand app.philote api/tasks  # one level down
-philote build app.philote            # build/api and build/web; new bodies call the claude CLI
+philote build app.philote            # build/api and build/web; new step bodies call the claude CLI
 philote build --frozen app.philote   # never calls a model
-philote build --redo web/TaskCard app.philote   # or web/theme, web/nav
+philote build --redo api/finish_task app.philote
 ```
 
-Model-written bodies are pinned in `philote.lock` next to the spec. Commit it. A body is written again only when its prompt changes, and then it starts from the old body.
+Model-written backend step bodies are pinned in `philote.lock` next to the spec. Commit it. A step body is written again only when its prompt changes, and then it starts from the old body.

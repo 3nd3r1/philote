@@ -1,0 +1,85 @@
+{{- define "kind-deck"}}
+    const [index, setIndex] = useState(0);
+    const [busy, setBusy] = useState(false);
+{{- if and .MatchField (gt (len .Says) 1)}}
+    const [matched, setMatched] = useState(false);
+{{- end}}
+    const item = {{.Param}}[index];
+
+    async function decide(choice: boolean) {
+        if (!item || busy) return;
+        setBusy(true);
+        const res = await {{.Call}}({ {{.CallRecordArg}}: item.id, {{.CallBoolArg}}: choice });
+        setBusy(false);
+        if (!res.ok) {
+            toast.error(res.error);
+            return;
+        }
+{{- if and .MatchField (gt (len .Says) 1)}}
+        if (res.value.{{.MatchField}}) {
+            setMatched(true);
+        }
+{{- end}}
+        setIndex((i) => i + 1);
+    }
+
+{{- if and .MatchField (gt (len .Says) 1)}}
+    if (matched) {
+        return (
+            <Card className="mx-auto max-w-md text-center">
+                <CardHeader>
+                    <CardTitle className="font-heading text-2xl">{ {{- index .Says 1 -}} }</CardTitle>
+                </CardHeader>
+                <CardContent className="pb-6">
+                    <Button onClick={() => setMatched(false)}>
+                        { {{- if gt (len .Says) 2}}{{index .Says 2}}{{else}}"Continue"{{end -}} }
+                    </Button>
+                </CardContent>
+            </Card>
+        );
+    }
+{{- end}}
+
+    if (!item) {
+        return (
+            <Card className="mx-auto max-w-md text-center">
+                <CardContent className="py-12 text-sm text-muted-foreground">
+                    { {{- index .Says 0 -}} }
+                </CardContent>
+            </Card>
+        );
+    }
+
+    return (
+        <div className="mx-auto max-w-md space-y-4">
+            <Card>
+                <CardHeader className="flex flex-col items-center gap-3 text-center">
+{{- if .AvatarExpr}}
+                    <Mark name={ {{- .AvatarExpr -}} } className="size-24" />
+{{- end}}
+                    <CardTitle className="font-heading text-2xl">{ {{- .Title.Expr -}} }</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+{{- if .MetaFields}}
+                    <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
+{{- range .MetaFields}}
+                        <span>{{template "kind-value" .}}</span>
+{{- end}}
+                    </div>
+{{- end}}
+{{- range .LongFields}}
+                    <p className="text-center text-sm leading-relaxed text-muted-foreground">{ {{- .Expr -}} }</p>
+{{- end}}
+                </CardContent>
+            </Card>
+            <div className="flex items-center justify-center gap-4">
+                <Button variant="outline" size="lg" disabled={busy} onClick={() => decide(false)} aria-label="Pass">
+                    ✕
+                </Button>
+                <Button size="lg" disabled={busy} onClick={() => decide(true)} aria-label="Like">
+                    ♥
+                </Button>
+            </div>
+        </div>
+    );
+{{- end -}}

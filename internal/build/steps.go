@@ -65,7 +65,7 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	nodes := bodyNodes(app)
 	for _, r := range opts.Redo {
 		if _, ok := nodes[r]; !ok {
-			return nil, fmt.Errorf("--redo %s: there is no step, component, theme or nav at that path; paths look like web/HorseCard, web/theme or web/nav", r)
+			return nil, fmt.Errorf("--redo %s: there is no step at that path; paths look like api/record_swipe", r)
 		}
 	}
 	pins, jobs := plan(outs, old, opts, nodes, d)
@@ -94,16 +94,13 @@ func Build(app *ir.App, targets []target.Target, dir string, opts Options, d *di
 	return outs, err
 }
 
-// bodyNodes maps each node path, like api/record_swipe, to the node whose
+// bodyNodes maps each node path, like api/record_swipe, to the step whose
 // body a model writes.
 func bodyNodes(app *ir.App) map[string]node {
 	nodes := map[string]node{}
 	for _, p := range app.Parts {
 		for _, s := range p.Steps {
 			nodes[p.Name+"/"+s.Name] = node{"step", s.Name, s.Pos}
-		}
-		for _, c := range p.Components {
-			nodes[p.Name+"/"+c.Name] = node{"component", c.Name, c.Pos}
 		}
 	}
 	return nodes
@@ -118,7 +115,7 @@ func plan(outs []Output, old map[string]pin, opts Options, nodes map[string]node
 		for _, s := range o.Slots {
 			n, ok := nodes[s.Node]
 			if !ok {
-				panic("build: slot " + s.Node + " is not a step, component, theme or nav in the IR")
+				panic("build: slot " + s.Node + " is not a step in the IR")
 			}
 			k := key(opts.Model.Name(), s.Prompt)
 			p, ok := old[s.Node]

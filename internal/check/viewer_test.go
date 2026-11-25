@@ -21,7 +21,7 @@ var viewerApp = strings.NewReplacer(
       shows: ProductView(viewer)
     }
 
-    component ProductPicker(products: list of Product) {
+    component ProductPicker(products: list of Product): picker {
       shows: products.name
       picks: viewer then "/me"
     }

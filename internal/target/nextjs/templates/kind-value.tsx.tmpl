@@ -1,0 +1,37 @@
+{{- define "kind-value" -}}
+{{- if eq .Kind "enum" -}}
+<Badge variant="secondary">{ {{- .Expr -}} }</Badge>
+{{- else if eq .Kind "bool" -}}
+<Badge variant="outline">{ {{- .Expr -}} }</Badge>
+{{- else if eq .Kind "slug" -}}
+<Badge variant="outline" className="font-mono text-xs">{ {{- .Expr -}} }</Badge>
+{{- else if eq .Kind "int" -}}
+<span className="tabular-nums">{ {{- .Expr -}} }</span>
+{{- else if eq .Kind "email" -}}
+{{- if .Optional -}}
+{ {{- .RawExpr}} ? <a href={`mailto:${ {{- .RawExpr -}} }`} className="underline underline-offset-4">{ {{- .RawExpr -}} }</a> : "—"}
+{{- else -}}
+<a href={`mailto:${ {{- .RawExpr -}} }`} className="underline underline-offset-4">{ {{- .RawExpr -}} }</a>
+{{- end -}}
+{{- else if eq .Kind "relation" -}}
+{{- if .HrefExpr -}}
+<Link href={ {{- .HrefExpr -}} } className="underline underline-offset-4 hover:text-foreground">{ {{- .Expr -}} }</Link>
+{{- else -}}
+{ {{- .Expr -}} }
+{{- end -}}
+{{- else if eq .Kind "chips" -}}
+<div className="flex flex-wrap gap-1.5">
+    { {{- .ChipsExpr}}.map((chip) => (
+{{- if .ChipHref}}
+        <Link key={chip.id} href={chip.href}>
+            <Badge variant="secondary">{ {{- .ChipLabel -}} }</Badge>
+        </Link>
+{{- else}}
+        <Badge key={chip.id} variant="secondary">{ {{- .ChipLabel -}} }</Badge>
+{{- end}}
+    ))}
+</div>
+{{- else -}}
+{ {{- .Expr -}} }
+{{- end -}}
+{{- end -}}

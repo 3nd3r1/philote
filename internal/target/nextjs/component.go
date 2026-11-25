@@ -9,32 +9,43 @@ import (
 	"github.com/3nd3r1/philote/internal/target"
 )
 
-// reserved are names the generated component and read code use itself,
-// and the hooks and toast a calling component imports.
-var reserved = []string{"props", "item", "record", "must", "cn", "Icons", "link", "actions", "says",
-	"useEffect", "useRef", "useState", "useTransition", "toast"}
+// reserved are names the generated component and read code use itself.
+var reserved = []string{"props", "item", "record", "must", "cn", "link", "actions", "says",
+	"useState", "toast", "chip", "current"}
 
-// imported are the names every component file imports, which a component
+// imported are the names every component file may import, which a component
 // can't take as its own name.
-var imported = []string{"Link", "Badge", "Card", "CardAction", "CardContent", "CardDescription",
-	"CardFooter", "CardHeader", "CardTitle", "Separator", "Mark", "FormField", "SubmitButton"}
-
-// marker is the line in a component file that the model's body replaces.
-const marker = "    // philote:body"
+var imported = []string{"Link", "Badge", "Button", "buttonVariants", "Card", "CardContent",
+	"CardFooter", "CardHeader", "CardTitle", "Mark", "FormField", "SubmitButton"}
 
 type componentView struct {
-	Name, Marker string
-	Client       bool   // the component calls an endpoint, so it runs in the browser
-	Call         string // the action the body calls, empty for none
-	Result       string // the type of what the action resolves to
-	CallFile     string // the file that action is in
-	Props        bool   // the component takes a record or a list, as XProps
-	Extras       string // props the wrapper adds for the body: link and actions
-	Says         string // the says array's items, as JavaScript strings
-	BodyArgs     string // the body's parameter list
-	Actions      string // the actions file the body places, empty for none
-	Pick         string // the pick button the body wraps each record in, empty for none
-	ImportLink   bool   // the body renders a Link
+	Name, Kind, Param    string
+	Client, Props        bool
+	LinkExpr             string
+	LinkLabel            string
+	Actions              string
+	Pick                 string
+	Call, CallFile       string
+	CallRecordArg        string
+	CallBoolArg          string
+	MatchField           string
+	Says                 []string
+	Title                *showView
+	AvatarExpr           string
+	AllFields            []showView
+	Fields               []showView
+	MetaFields           []showView
+	LongFields           []showView
+	ChipFields           []showView
+	FormatImports        string
+	ImportLink           bool
+	ImportMark           bool
+	ImportBadge          bool
+	ImportCard           bool
+	ImportCardContent    bool
+	ImportCardFooter     bool
+	ImportButton         bool
+	ImportButtonVariants bool
 }
 
 type relationView struct{ Name, Type string }
@@ -51,35 +62,28 @@ type readsView struct {
 	Components     []readView
 }
 
-// components renders each component around a slot for its body, and
-// reads.ts, which loads their props.
-func components(app *ir.App, backend, part *ir.Part) ([]target.File, []target.Slot, error) {
+// components renders each component from its built-in kind template, and
+// reads.ts, which loads their props. No frontend model calls are made.
+func components(app *ir.App, backend, part *ir.Part) ([]target.File, error) {
 	var files []target.File
-	var slots []target.Slot
 	reads := readsView{}
 	clients, types := map[string]bool{}, map[string]bool{}
 	for _, c := range part.Components {
 		if err := checkComponent(c); err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		path := "src/components/common/" + kebab(c.Name) + ".tsx"
-		files = append(files, render("component.tsx.tmpl", path, newComponentView(app, c)))
+		files = append(files, render("component.tsx.tmpl", path, newComponentView(app, backend, c)))
 		files = append(files, actionFiles(app, part, c)...)
 		files = append(files, pickFiles(c)...)
 		files = append(files, callFiles(app, backend, c)...)
-		slots = append(slots, target.Slot{
-			Node:   part.Name + "/" + c.Name,
-			File:   path,
-			Marker: marker,
-			Prompt: componentPrompt(app, backend, part, c),
-		})
 		if c.Param != "" {
 			reads.Components = append(reads.Components, newReadView(c, clients, types))
 		}
 	}
 	reads.Clients = strings.Join(sortedKeys(clients), ", ")
 	reads.Types = imports(app, types)
-	return append(files, render("reads.ts.tmpl", "src/lib/reads.ts", reads)), slots, nil
+	return append(files, render("reads.ts.tmpl", "src/lib/reads.ts", reads)), nil
 }
 
 func checkComponent(c *ir.Component) error {
@@ -102,87 +106,39 @@ func checkComponent(c *ir.Component) error {
 	return nil
 }
 
-// newComponentView builds the wrapper that hands the body its props, plus
-// the link and actions it places, which the model never sees the targets of.
-func newComponentView(app *ir.App, c *ir.Component) componentView {
-	v := componentView{Name: c.Name, Marker: marker, Props: c.Param != "", Client: c.Calls != nil}
-	var extras []string
+func newComponentView(app *ir.App, backend *ir.Part, c *ir.Component) componentView {
+	v := componentView{
+		Name:  c.Name,
+		Kind:  c.Kind,
+		Param: c.Param,
+		Props: c.Param != "",
+		Says:  jsStrings(c.Says),
+	}
 	if c.LinksTo != "" {
-		link := jsString(c.LinksTo)
-		if len(c.LinkBy) > 0 {
-			link = c.LinksTo
-			for _, f := range c.LinkBy {
-				link = strings.Replace(link, "["+f+"]", "${encodeURIComponent(props."+c.Param+"."+f+")}", 1)
-			}
-			link = "`" + link + "`"
-		}
-		if c.LinkLabel != "" {
-			link += ", label: " + jsString(c.LinkLabel)
-		}
-		extras = append(extras, fmt.Sprintf(" link={{ href: %s }}", link))
+		v.LinkExpr = linkExpr(c)
+		v.LinkLabel = c.LinkLabel
 	}
 	if len(c.Actions) > 0 {
 		v.Actions = kebab(c.Name) + "-actions"
-		extras = append(extras, fmt.Sprintf(" actions={<%sActions id={props.%s.id} />}", c.Name, c.Param))
 	}
-	if c.Calls != nil {
-		v.Call, v.CallFile, v.Result = camel(c.Calls.Endpoint), kebab(c.Name)+"-call", resultName(c.Calls)
-		extras = append(extras, fmt.Sprintf(" %[1]s={%[1]s}", v.Call))
-	}
-	v.Extras = strings.Join(extras, "")
 	if c.Picks != "" {
 		v.Pick = kebab(c.Name) + "-pick"
 	}
-	if len(c.Says) > 0 {
-		v.Says = strings.Join(jsStrings(c.Says), ", ")
-	}
-	names, types := bodyParams(app, c)
-	v.BodyArgs = bodyArgs(c, names, types)
-	v.ImportLink = c.LinksTo != "" || slices.ContainsFunc(c.Shows, func(s *ir.Show) bool { return s.Href != "" })
+	setComponentCalls(backend, c, &v)
+	buildComponentFields(app, c, &v)
+	setComponentImports(c, &v)
 	return v
 }
 
-// bodyParams names what the body receives, and the type of what the
-// wrapper adds beside the record: the link, the actions and the call.
-func bodyParams(app *ir.App, c *ir.Component) ([]string, string) {
-	var names, types []string
-	if c.Param != "" {
-		names = append(names, c.Param)
+func linkExpr(c *ir.Component) string {
+	if len(c.LinkBy) == 0 {
+		return jsString(c.LinksTo)
 	}
-	if c.LinksTo != "" {
-		names = append(names, "link")
-		if c.LinkLabel != "" {
-			types = append(types, "link: { href: string; label: string }")
-		} else {
-			types = append(types, "link: { href: string }")
-		}
+	link := c.LinksTo
+	for _, f := range c.LinkBy {
+		link = strings.Replace(link, "["+f+"]", "${encodeURIComponent("+c.Param+"."+f+")}", 1)
 	}
-	if len(c.Actions) > 0 {
-		names = append(names, "actions")
-		types = append(types, "actions: React.ReactNode")
-	}
-	if c.Calls != nil {
-		name := camel(c.Calls.Endpoint)
-		names = append(names, name)
-		types = append(types, name+": "+actionType(app, c.Calls))
-	}
-	return names, strings.Join(types, "; ")
-}
-
-// bodyArgs is the body's parameter list: its props, plus extras like
-// `link: { href: string }`.
-func bodyArgs(c *ir.Component, names []string, extras string) string {
-	if len(names) == 0 {
-		return ""
-	}
-	typ := c.Name + "Props"
-	switch {
-	case c.Param == "":
-		typ = "{ " + extras + " }"
-	case extras != "":
-		typ += " & { " + extras + " }"
-	}
-	return "{ " + strings.Join(names, ", ") + " }: " + typ
+	return "`" + link + "`"
 }
 
 func jsStrings(items []string) []string {

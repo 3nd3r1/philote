@@ -22,10 +22,6 @@ func (c *checker) componentKindHeader(comp *ir.Component, s *syntax.Component) b
 		return false
 	}
 	comp.Kind = k
-	if s.Look != nil {
-		c.d.Errorf(s.Look.Pos, "a %s component is built from a template and doesn't take look", k)
-		return false
-	}
 	return c.kindParam(comp, s)
 }
 

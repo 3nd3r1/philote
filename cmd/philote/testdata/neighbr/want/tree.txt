@@ -38,28 +38,28 @@ neighbr
     /horses/new: form horses.create, then /horses/[id]
     /horses/[id]/edit: form horses.update, then /horses/[id]
     /swipe: load deck from candidates as the viewer, SwipeDeck(deck)
-    Landing
+    Landing: hero
       says: Find your herd. / Swipe on horses near you. Match when it's mutual.
       links to /pick
-    HorsePicker(horses: list of Horse)
+    HorsePicker(horses: list of Horse): picker
       shows: horses.name, horses.breed
       says: Who are you?
       picks the viewer, then /swipe
-    JoinHerd
+    JoinHerd: callout
       says: Not in the herd yet?
       links to /horses/new
-    SwipeDeck(deck: list of Horse)
+    SwipeDeck(deck: list of Horse): deck
       shows: deck.name, deck.age, deck.breed, deck.bio
       says: You've seen every horse. Check back later. / It's a match! / Keep swiping
       calls swipe as the viewer (horse), passing target, liked
-    HorseCard(horse: Horse)
+    HorseCard(horse: Horse): card
       shows: horse.name, horse.breed, horse.age
       links to /horses/[id]
-    HorseView(horse: Horse)
+    HorseView(horse: Horse): detail
       shows: horse.name, horse.handle, horse.breed, horse.age, horse.bio
       opens /horses/[id]/edit
       deletes via horses.delete, then /horses
-    MatchCard(match: Match)
+    MatchCard(match: Match): card
       shows: match.first, match.second, match.matched_at
       match.first links to /horses/[id]
       match.second links to /horses/[id]

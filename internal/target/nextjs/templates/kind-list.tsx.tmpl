@@ -1,0 +1,18 @@
+{{- define "kind-list"}}
+    return (
+        <ul className="divide-y rounded-lg border bg-card">
+            { {{- .Param}}.map((item) => (
+                <li key={item.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
+                    <span className="font-medium text-foreground">{{template "kind-value" .Title}}</span>
+{{- if .Fields}}
+                    <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+{{- range .Fields}}
+                        <span>{{template "kind-value" .}}</span>
+{{- end}}
+                    </div>
+{{- end}}
+                </li>
+            ))}
+        </ul>
+    );
+{{- end -}}

@@ -1,0 +1,67 @@
+{{- define "kind-picker"}}
+{{- if .Call}}
+    const [busyId, setBusyId] = useState<string | null>(null);
+    const [doneIds, setDoneIds] = useState<string[]>([]);
+
+    async function handlePick(id: string) {
+        setBusyId(id);
+        const res = await {{.Call}}({ {{.CallRecordArg}}: id });
+        setBusyId(null);
+        if (!res.ok) {
+            toast.error(res.error);
+            return;
+        }
+        setDoneIds((prev) => [...prev, id]);
+    }
+{{- end}}
+    return (
+        <section className="space-y-4">
+{{- if .Says}}
+            <h2 className="font-heading text-xl font-semibold tracking-tight">{ {{- index .Says 0 -}} }</h2>
+{{- end}}
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+                { {{- .Param}}.map((item) => {
+{{- if .Call}}
+                    const isDone = doneIds.includes(item.id);
+                    return (
+                        <button
+                            key={item.id}
+                            type="button"
+                            disabled={busyId !== null || isDone}
+                            onClick={() => handlePick(item.id)}
+                            className="flex flex-col items-center gap-2 rounded-xl border bg-card p-5 text-center transition-colors hover:border-primary/50 hover:bg-accent/40 disabled:opacity-50"
+                        >
+{{- if .AvatarExpr}}
+                            <Mark name={ {{- .AvatarExpr -}} } className="size-14" />
+{{- end}}
+                            <span className="font-heading text-base font-medium text-foreground">
+                                { {{- .Title.Expr -}} }
+                            </span>
+{{- range .Fields}}
+                            <span className="text-xs text-muted-foreground">{{template "kind-value" .}}</span>
+{{- end}}
+                            {isDone && <span className="text-xs font-medium text-primary">Selected</span>}
+                        </button>
+                    );
+{{- else}}
+                    return (
+                        <Pick key={item.id} id={item.id} className="w-full">
+                            <div className="flex flex-col items-center gap-2 rounded-xl border bg-card p-5 text-center transition-colors hover:border-primary/50 hover:bg-accent/40">
+{{- if .AvatarExpr}}
+                                <Mark name={ {{- .AvatarExpr -}} } className="size-14" />
+{{- end}}
+                                <span className="font-heading text-base font-medium text-foreground">
+                                    { {{- .Title.Expr -}} }
+                                </span>
+{{- range .Fields}}
+                                <span className="text-xs text-muted-foreground">{{template "kind-value" .}}</span>
+{{- end}}
+                            </div>
+                        </Pick>
+                    );
+{{- end}}
+                })}
+            </div>
+        </section>
+    );
+{{- end -}}

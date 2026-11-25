@@ -47,29 +47,29 @@ chair
     /slots/new: form slots.create, then /book
     /book: load open from open_slots as the viewer, SlotPicker(open)
     /bookings: load mine from bookings_of as the viewer, list of BookingCard(mine)
-    Hero
+    Hero: hero
       says: Your chair is waiting. / Book a cut, a color or a shave in a few taps.
       links to /book
-    ClientPicker(clients: list of Client)
+    ClientPicker(clients: list of Client): picker
       shows: clients.name
       picks the viewer, then /book
-    JoinClients
+    JoinClients: callout
       says: New here?
       links to /clients/new
-    ClientView(client: Client)
+    ClientView(client: Client): detail
       shows: client.name, client.email, client.phone
-    ServiceCard(service: Service)
+    ServiceCard(service: Service): card
       shows: service.name, service.minutes, service.price
       links to /services/[id]
-    ServiceView(service: Service)
+    ServiceView(service: Service): detail
       shows: service.name, service.minutes, service.price, service.about
       links to /book
-    SlotPicker(open: list of Slot)
+    SlotPicker(open: list of Slot): picker
       shows: open.starts_at, open.service
       says: Pick a time
       open.service links to /services/[id]
       calls book as the viewer (client), passing slot
-    BookingCard(booking: Booking)
+    BookingCard(booking: Booking): card
       shows: booking.slot, booking.booked_at, booking.note
       deletes via bookings.delete, then /bookings
   data (4 entities)

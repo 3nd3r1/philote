@@ -121,16 +121,9 @@ func (c *checker) component(part, backend *ir.Part, s *syntax.Component) *ir.Com
 	return comp
 }
 
-// componentWords checks the text a spec gives a component: its look, its
-// says lines and its link's label.
+// componentWords checks the text a spec gives a component: its says lines
+// and its link's label.
 func (c *checker) componentWords(comp *ir.Component, s *syntax.Component) bool {
-	if s.Look != nil {
-		if len(s.Look.Value) > maxIntent {
-			c.d.Errorf(s.Look.Pos, "the look is %d characters; the cap is %d", len(s.Look.Value), maxIntent)
-			return false
-		}
-		comp.Look = s.Look.Value
-	}
 	for _, str := range append(slices.Clone(s.Says), s.LinkLabel) {
 		switch {
 		case str == nil:

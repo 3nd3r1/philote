@@ -1,0 +1,12 @@
+{{- define "kind-callout"}}
+    return (
+        <div className="flex flex-wrap items-center justify-center gap-3 py-4 text-sm text-muted-foreground">
+            <span>{ {{- index .Says 0 -}} }</span>
+{{- if .LinkExpr}}
+            <Link href={ {{- .LinkExpr -}} } className={buttonVariants({ variant: "outline", size: "sm" })}>
+                {{.LinkLabel}}
+            </Link>
+{{- end}}
+        </div>
+    );
+{{- end -}}

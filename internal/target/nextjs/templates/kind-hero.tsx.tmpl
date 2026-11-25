@@ -1,0 +1,21 @@
+{{- define "kind-hero"}}
+    return (
+        <section className="rounded-2xl border bg-card px-6 py-14 text-center sm:px-12">
+            <h1 className="mx-auto max-w-2xl font-heading text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+                { {{- index .Says 0 -}} }
+            </h1>
+{{- if gt (len .Says) 1}}
+            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
+                { {{- index .Says 1 -}} }
+            </p>
+{{- end}}
+{{- if .LinkExpr}}
+            <div className="mt-8">
+                <Link href={ {{- .LinkExpr -}} } className={buttonVariants({ size: "lg" })}>
+                    {{.LinkLabel}}
+                </Link>
+            </div>
+{{- end}}
+        </section>
+    );
+{{- end -}}

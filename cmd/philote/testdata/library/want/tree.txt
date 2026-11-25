@@ -18,13 +18,13 @@ library
     /authors/[id]: load author from authors by id, AuthorView(author)
     /books: load books from books, BookShelf(books)
     /books/new: form books.create, then /books
-    AuthorCard(author: Author)
+    AuthorCard(author: Author): card
       shows: author.name, author.born
       links to /authors/[id]
       deletes via authors.delete
-    AuthorView(author: Author)
+    AuthorView(author: Author): detail
       shows: author.name, author.born, author.books as chips
-    BookShelf(books: list of Book)
+    BookShelf(books: list of Book): table
       shows: books.title, books.author, books.genre, books.published, books.in_print
       books.author links to /authors/[id]
   data (2 entities)
