@@ -105,13 +105,6 @@ func bodyNodes(app *ir.App) map[string]node {
 		for _, c := range p.Components {
 			nodes[p.Name+"/"+c.Name] = node{"component", c.Name, c.Pos}
 		}
-		// Component names start with a capital letter, so this never clashes.
-		if p.Look != nil {
-			nodes[p.Name+"/theme"] = node{"theme", p.Name, p.Look.Pos}
-		}
-		if p.Nav != nil {
-			nodes[p.Name+"/nav"] = node{"nav", p.Name, p.Nav.Pos}
-		}
 	}
 	return nodes
 }

@@ -34,7 +34,7 @@ chair
       GET /clients/[client]/upcoming
       steps: find_bookings
   web (frontend, nextjs) uses api
-    theme: from its look
+    theme: editorial
     viewer: Client from clients, picked on /pick
     nav: top, /services, /book, /bookings, /me
     /: load services from services, Hero, list of ServiceCard(services)

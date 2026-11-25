@@ -7,54 +7,43 @@ import (
 	"testing"
 )
 
-// A nav body that renders everything its wrapper hands it, and one that
-// leaves out the toggle.
-const (
-	goodNav = "```tsx\nreturn (\n    <nav className=\"flex items-center gap-2 border-b bg-background px-4 py-2\">\n" +
-		"        <Link href={home.href}>{home.label}</Link>\n" +
-		"        {items.map((item) => (\n" +
-		"            <Link key={item.href} href={item.href} aria-current={item.href === active ? \"page\" : undefined}>\n" +
-		"                {item.label}\n            </Link>\n        ))}\n" +
-		"        {toggle}\n    </nav>\n);\n```"
-	navWithoutToggle = "```tsx\nreturn (\n    <nav>\n        <Link href={home.href}>{home.label}</Link>\n" +
-		"        {items.map((item) => (\n            <Link key={item.href} href={item.href} aria-current={item.href === active ? \"page\" : undefined}>\n" +
-		"                {item.label}\n            </Link>\n        ))}\n    </nav>\n);\n```"
-)
-
-// A nav line goes through the same loop as a body: problems go back to the
-// model, a passing nav is pinned, and changing an item rewrites the nav and
-// nothing else.
+// A nav line renders a templated top, bottom or side nav with zero model
+// calls for the nav and no web/nav pin in philote.lock.
 func TestNavFromSpec(t *testing.T) {
 	spec := copyLibrary(t)
 	setNav(t, spec, `nav: side, "/authors", "/books" as "Shelf"`)
 	out := filepath.Join(filepath.Dir(spec), "build")
 	linkNodeModules(t, "testdata/library/want/build/web/package.json", filepath.Join(out, "web"))
 	r := useReplies(t, map[string][]string{
-		"NavBody":        {navWithoutToggle, goodNav},
 		"AuthorCardBody": {goodAuthorCard},
 		"AuthorViewBody": {goodAuthorView},
 		"BookShelfBody":  {goodBookShelf},
 	})
 	runOK(t, "build", "--out", out, spec)
-	if n := len(r.prompts["NavBody"]); n != 2 || !strings.Contains(r.prompts["NavBody"][1], "{toggle} exactly once") {
-		t.Fatalf("the nav was asked %d times, want 2 with the toggle problem in the retry", n)
+	if n := len(r.prompts["NavBody"]); n != 0 {
+		t.Fatalf("the nav asked the model %d times, want 0", n)
 	}
-	if p := r.prompts["NavBody"][0]; !strings.Contains(p, "a column on the left") || !strings.Contains(p, "/books: Shelf") {
-		t.Errorf("the nav prompt doesn't hold the place and items:\n%s", p)
-	}
-	if lock := readFile(t, filepath.Join(filepath.Dir(spec), "philote.lock")); !strings.Contains(lock, "nav web/nav\n") {
-		t.Errorf("want the nav pinned as web/nav:\n%s", lock)
+	if lock := readFile(t, filepath.Join(filepath.Dir(spec), "philote.lock")); strings.Contains(lock, "web/nav") {
+		t.Errorf("templated nav should not be pinned in philote.lock:\n%s", lock)
 	}
 	navTS := readFile(t, filepath.Join(out, "web/src/lib/nav.ts"))
 	if !strings.Contains(navTS, `= "side";`) || !strings.Contains(navTS, `{ href: "/books", label: "Shelf" }`) {
 		t.Errorf("nav.ts doesn't hold the spec's nav:\n%s", navTS)
 	}
+	bar := readFile(t, filepath.Join(out, "web/src/components/common/layouts/main-navbar.tsx"))
+	if !strings.Contains(bar, "<aside") {
+		t.Errorf("side nav should render an <aside>:\n%s", bar)
+	}
 
-	setNav(t, spec, `nav: side, "/authors", "/books" as "Books"`)
-	r = useReplies(t, map[string][]string{"NavBody": {goodNav}})
-	runOK(t, "build", "--out", out, spec)
-	if len(r.prompts) != 1 || len(r.prompts["NavBody"]) != 1 || !strings.Contains(r.prompts["NavBody"][0], "An earlier version") {
-		t.Errorf("a changed item should ask for the nav only, starting from the old one; got %v", r.prompts)
+	setNav(t, spec, `nav: bottom, "/authors", "/books" as "Books"`)
+	r = useReplies(t, nil)
+	runOK(t, "build", "--frozen", "--out", out, spec)
+	if len(r.prompts) != 0 {
+		t.Errorf("changing nav should make 0 model calls; got %v", r.prompts)
+	}
+	bar = readFile(t, filepath.Join(out, "web/src/components/common/layouts/main-navbar.tsx"))
+	if !strings.Contains(bar, "border-t") {
+		t.Errorf("bottom nav should render a top-bordered bar:\n%s", bar)
 	}
 }
 

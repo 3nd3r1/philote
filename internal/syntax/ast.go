@@ -125,13 +125,6 @@ type Uses struct {
 	Part Ident
 }
 
-// Look is `look: "<text>"` in a frontend: how the whole app should look,
-// for the model that writes its theme.
-type Look struct {
-	Word  Ident
-	Value *Str
-}
-
 // Theme is `theme: <name>` in a frontend: one of the fixed built-in themes.
 type Theme struct {
 	Word Ident
@@ -252,7 +245,6 @@ func (e *Entity) Start() diag.Pos    { return e.Name.Pos }
 func (r *Relation) Start() diag.Pos  { return r.From.Pos }
 func (r *Resource) Start() diag.Pos  { return r.Name.Pos }
 func (u *Uses) Start() diag.Pos      { return u.Word.Pos }
-func (l *Look) Start() diag.Pos      { return l.Word.Pos }
 func (t *Theme) Start() diag.Pos     { return t.Word.Pos }
 func (n *Nav) Start() diag.Pos       { return n.Word.Pos }
 func (v *Viewer) Start() diag.Pos    { return v.Word.Pos }

@@ -26,7 +26,7 @@ neighbr
       GET /horses/[horse]/matches
       steps: find_matches
   web (frontend, nextjs) uses api
-    theme: from its look
+    theme: warm
     viewer: Horse from horses, picked on /pick
     nav: bottom, /swipe, /horses, /matches, /me
     /: load horses from horses, Landing, list of HorseCard(horses)

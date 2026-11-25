@@ -1,5 +1,5 @@
 uses: api
-look: "a warm, playful dating app: coral and cream, soft rounded cards, friendly rounded type"
+theme: warm
 viewer: Horse
 nav: bottom, "/swipe", "/horses", "/matches", "/me" as "Me"
 

@@ -1,5 +1,5 @@
 uses: api
-look: "a calm, upscale hair salon: warm stone and deep olive, editorial serif headings"
+theme: editorial
 viewer: Client
 nav: top, "/services", "/book", "/bookings" as "My bookings", "/me" as "Me"
 

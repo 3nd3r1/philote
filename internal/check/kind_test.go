@@ -181,7 +181,7 @@ func TestKindAndThemeErrors(t *testing.T) {
 	runErrorCases(t, kindsSpec, []errorCase{
 		{"unknown theme", "theme: editorial", "theme: neon", "theme: »neon", "unknown theme 'neon'"},
 		{"duplicate theme", "theme: editorial", "theme: editorial\n    theme: warm", "»theme: warm", "already has a theme"},
-		{"theme and look", "theme: editorial", "theme: editorial\n    look: \"warm\"", "»look: \"warm\"", "can't have both theme and look"},
+		{"removed frontend look", "theme: editorial", "look: \"warm\"", "»look: \"warm\"", "unknown statement 'look'"},
 		{"unknown kind", "): card {", "): widget {", ": »widget {", "unknown component kind 'widget'"},
 		{"look on typed component", "shows: planet.name, planet.moons\n      links_to: \"/planets/[planet.id]\"", "shows: planet.name, planet.moons\n      look: \"fancy\"\n      links_to: \"/planets/[planet.id]\"", "look: »\"fancy\"", "built from a template and doesn't take look"},
 		{"card with list", "component PlanetTable(planets: list of Planet): table", "component PlanetTable(planets: list of Planet): card", "PlanetTable(planets: list of Planet): »card", "a card component takes one record"},

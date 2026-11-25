@@ -109,16 +109,12 @@ func command(dir, name string, args ...string) (string, error) {
 	return string(out), err
 }
 
-// checkBodies reports each component body, and the nav's, that leaves out
-// what the template hands it: every line of says, the link and the actions,
-// or the nav's items, active item, home link and toggle.
+// checkBodies reports each component body that leaves out what the template
+// hands it: every line of says, the link and the actions.
 func checkBodies(dir string, problems map[string][]string) error {
 	paths, err := filepath.Glob(filepath.Join(dir, "src/components/common/*.tsx"))
 	if err != nil {
 		return err
-	}
-	if _, err := os.Stat(filepath.Join(dir, navFile)); err == nil {
-		paths = append(paths, filepath.Join(dir, navFile))
 	}
 	for _, path := range paths {
 		src, err := os.ReadFile(path)
@@ -169,22 +165,6 @@ func bodyProblems(head, body string) []string {
 	}
 	if strings.Contains(body, "fetch(") {
 		out = append(out, "the body must not fetch; it shows its props and acts only through what it's handed")
-	}
-	if strings.Contains(head, "<NavBody ") {
-		out = append(out, navProblems(body)...)
-	}
-	return out
-}
-
-func navProblems(body string) []string {
-	var out []string
-	for _, want := range []string{"items.map", "active", "home.href", "home.label"} {
-		if !strings.Contains(body, want) {
-			out = append(out, "the nav must use "+want)
-		}
-	}
-	if strings.Count(body, "{toggle}") != 1 {
-		out = append(out, "the nav must render {toggle} exactly once")
 	}
 	return out
 }

@@ -78,8 +78,7 @@ type Part struct {
 	Pages      []*Page      // frontend only
 	Components []*Component // frontend only
 	Theme      string       // frontend only: fixed theme name (plain, warm, editorial, slate); empty defaults to plain
-	Look       *Look        // frontend only: how the app looks, for the model that writes its theme
-	Nav        *Nav         // frontend only: the nav the model draws; nil for the template's top bar
+	Nav        *Nav         // frontend only: nil for the template's default top bar
 	Viewer     *Viewer      // frontend only: the record a visitor acts as; nil for none
 }
 
@@ -102,12 +101,6 @@ type Nav struct {
 type NavItem struct {
 	Route string
 	Label string // empty for the page's title
-}
-
-// Look is a frontend's look line.
-type Look struct {
-	Text string
-	Pos  diag.Pos
 }
 
 // Page is a frontend route that loads records and shows components in

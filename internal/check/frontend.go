@@ -33,8 +33,6 @@ func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
 			uses = x
 		case *syntax.Theme:
 			c.theme(part, x)
-		case *syntax.Look:
-			c.look(part, x)
 		case *syntax.Nav:
 			if src.nav != nil {
 				c.d.Errorf(x.Word.Pos, "%s already has a nav", part.Name)
@@ -52,7 +50,7 @@ func (c *checker) frontend(part *ir.Part, p *syntax.Part) {
 		case *syntax.Component:
 			src.components = append(src.components, x)
 		default:
-			c.d.Errorf(it.Start(), "a frontend takes uses, theme, look, nav, viewer, page and component")
+			c.d.Errorf(it.Start(), "a frontend takes uses, theme, nav, viewer, page and component")
 		}
 	}
 	if uses == nil {
@@ -96,28 +94,10 @@ func (c *checker) theme(part *ir.Part, t *syntax.Theme) {
 	switch {
 	case part.Theme != "":
 		c.d.Errorf(t.Word.Pos, "%s already has a theme", part.Name)
-	case part.Look != nil:
-		c.d.Errorf(t.Word.Pos, "%s can't have both theme and look", part.Name)
 	case !slices.Contains(themes, t.Name.Name):
 		c.d.Errorf(t.Name.Pos, "unknown theme '%s'", t.Name.Name)
 		c.d.HintNames(t.Name.Name, themes, "themes")
 	default:
 		part.Theme = t.Name.Name
-	}
-}
-
-func (c *checker) look(part *ir.Part, l *syntax.Look) {
-	switch {
-	case part.Theme != "":
-		c.d.Errorf(l.Word.Pos, "%s can't have both theme and look", part.Name)
-	case part.Look != nil:
-		c.d.Errorf(l.Word.Pos, "%s already has a look", part.Name)
-	case len(l.Value.Value) > maxIntent:
-		c.d.Errorf(l.Value.Pos, "the look is %d characters; the cap is %d", len(l.Value.Value), maxIntent)
-	case l.Value.Value == "":
-		c.d.Errorf(l.Value.Pos, "the look is empty")
-		c.d.Hint("say how the app should look, or leave the line out for the default theme")
-	default:
-		part.Look = &ir.Look{Text: l.Value.Value, Pos: l.Value.Pos}
 	}
 }

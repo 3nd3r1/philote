@@ -38,10 +38,9 @@ func (Nextjs) Generate(app *ir.App, part *ir.Part) (target.Output, error) {
 	if err != nil {
 		return target.Output{}, err
 	}
-	css, themeSlots := globals(part)
+	css := globals(part)
 	pageFiles, navItems := pages(app, backend, part)
-	navFiles, navSlots := nav(app, part, navItems)
-	slots = slices.Concat(slots, themeSlots, navSlots)
+	navFiles := nav(app, part, navItems)
 	generated := slices.Concat(views, navFiles, viewerFiles(part), []target.File{
 		css,
 		render("config.ts.tmpl", "src/lib/config.ts", struct{ Name, Description string }{

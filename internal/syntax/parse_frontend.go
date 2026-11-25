@@ -11,14 +11,6 @@ func (p *parser) uses() Item {
 	return u
 }
 
-func (p *parser) look() Item {
-	l := &Look{Word: p.ident("look")}
-	p.expect(tColon, "':' and how the app should look, in one sentence")
-	l.Value = p.str("how the app should look, in one sentence")
-	p.endStatement()
-	return l
-}
-
 func (p *parser) theme() Item {
 	t := &Theme{Word: p.ident("theme")}
 	p.expect(tColon, "':' and a theme name, like `theme: warm`")

@@ -83,7 +83,7 @@ func TestErrors(t *testing.T) {
 		{"uses a missing part", "  backend api: hono {", "  frontend web: nextjs {\n    uses: apx\n  }\n  backend api: hono {", "uses: »apx", "did you mean 'api'"},
 		{"uses a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    uses: web\n  }\n  backend api: hono {", "uses: »web", "no backend part named web"},
 		{"other line in a frontend", "  backend api: hono {", "  frontend web: nextjs {\n    resource things: Product\n    uses: api\n  }\n  backend api: hono {",
-			"resource »things", "a frontend takes uses, theme, look, nav, viewer, page and component"},
+			"resource »things", "a frontend takes uses, theme, nav, viewer, page and component"},
 		{"uses twice", "  backend api: hono {", "  frontend web: nextjs {\n    uses: api\n    uses: api\n  }\n  backend api: hono {",
 			"api\n    »uses: api", "web already uses api"},
 		{"uses in a backend", "resource products: Product", "uses: api\n    resource products: Product", "»uses: api", "can't go inside a backend"},

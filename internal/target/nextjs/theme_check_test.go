@@ -9,13 +9,18 @@ func fenced(theme string) string {
 	return "@import \"tailwindcss\";\n\n" + themeStart + "\n" + theme + "\n" + themeEnd + "\n"
 }
 
-func TestDefaultThemePasses(t *testing.T) {
-	if p := checkTheme(fenced(defaultTheme)); len(p) > 0 {
-		t.Fatalf("the default theme fails its own check:\n%s", strings.Join(p, "\n"))
+func TestBuiltInThemesPass(t *testing.T) {
+	for name, css := range builtInThemes {
+		t.Run(name, func(t *testing.T) {
+			if p := checkTheme(fenced(css)); len(p) > 0 {
+				t.Fatalf("built-in theme %s fails its own check:\n%s", name, strings.Join(p, "\n"))
+			}
+		})
 	}
 }
 
 func TestThemeProblems(t *testing.T) {
+	plain := builtInThemes["plain"]
 	cases := []struct{ name, old, new, want string }{
 		{"missing color", "    --ring: oklch(0.6 0.12 265);\n}\n\n.dark", "}\n\n.dark", ":root: --ring is missing"},
 		{"bad color", "--primary: oklch(0.45 0.16 265);", "--primary: #ff0000;", "--primary: use oklch(L C H)"},
@@ -33,10 +38,10 @@ func TestThemeProblems(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			if !strings.Contains(defaultTheme, tc.old) {
-				t.Fatalf("the default theme has no %q", tc.old)
+			if !strings.Contains(plain, tc.old) {
+				t.Fatalf("the plain theme has no %q", tc.old)
 			}
-			p := strings.Join(checkTheme(fenced(strings.Replace(defaultTheme, tc.old, tc.new, 1))), "\n")
+			p := strings.Join(checkTheme(fenced(strings.Replace(plain, tc.old, tc.new, 1))), "\n")
 			if !strings.Contains(p, tc.want) {
 				t.Errorf("no problem containing %q; got:\n%s", tc.want, p)
 			}
